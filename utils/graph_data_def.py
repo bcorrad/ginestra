@@ -64,24 +64,32 @@ def get_atom_features(atom,
         atom_feature_vector += n_hydrogens_enc
 
     return np.array(atom_feature_vector)
+    # return a random vector with the same shape as atom_feature_vector. 
+    # return np.array([np.random.rand() for _ in range(len(atom_feature_vector))])
 
 def get_bond_features(bond, 
-                      use_stereochemistry = True):
+                      use_stereochemistry=True):
     """
     Takes an RDKit bond object as input and gives a 1d-numpy array of bond features as output.
     """
 
     permitted_list_of_bond_types = [Chem.rdchem.BondType.SINGLE, Chem.rdchem.BondType.DOUBLE, Chem.rdchem.BondType.TRIPLE, Chem.rdchem.BondType.AROMATIC]
-    bond_type_enc = encode(bond.GetBondType(), permitted_list=permitted_list_of_bond_types, encoding="label")  # shape 4, encoding="label"
+    bond_type_enc = encode(bond.GetBondType(), permitted_list=permitted_list_of_bond_types, encoding="hot")  # shape 4, encoding="label"
     bond_is_conj_enc = [int(bond.GetIsConjugated())]                                    # shape 1
     bond_is_in_ring_enc = [int(bond.IsInRing())]                                        # shape 1
-    bond_feature_vector = bond_type_enc + bond_is_conj_enc + bond_is_in_ring_enc        # shape 4 + 1 + 1 = 6   
+    # TODO: ATTENZIONE QUI
+    bond_feature_vector = \
+        bond_type_enc +\
+        bond_is_conj_enc + \
+        bond_is_in_ring_enc        # shape 4 + 1 + 1 = 6   
     
     if use_stereochemistry == True:
         stereo_type_enc = encode(str(bond.GetStereo()), permitted_list=["STEREOZ", "STEREOE", "STEREOANY", "STEREONONE"], encoding="label")
         bond_feature_vector += stereo_type_enc  # if one hot encoding: shape 6 + 4 = 10
     
     return np.array(bond_feature_vector)
+    # Return a random vector with the same shape as bond_feature_vector.
+    # return np.array([np.random.rand() for _ in range(len(bond_feature_vector))])
 
 
 def convert_pathway_labels(_labels):

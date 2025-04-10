@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd 
 from utils.utils import select_class_idx_path, select_class_idx_super
 import torch
-from config import MODEL
+from config import MODELS
 from fingerprint_handler import calculate_fingerprint
 import os
 
@@ -88,9 +88,7 @@ elif TARGET_TYPE == "superclass":
     print("Training")
     train_super, train_smiles_super, train_finger = select_class_idx_super(train_super, train_smiles, train_fing, CLS_LIST, TARGET_MODE, n_samples=N_SAMPLES, shuffle=RANDOMIZE_SAMPLES)
     print("Validation")
-    val_super, val_smiles_super, val_fing = select_class_idx_super(val_super, val_smiles, val_fing, CLS_LIST, TARGET_MODE, n_samples=N_SAMPLES, shuffle=RANDOMIZE_SAMPLES)
-    print('CONTROLLAREEEE')
-    
+    val_super, val_smiles_super, val_fing = select_class_idx_super(val_super, val_smiles, val_fing, CLS_LIST, TARGET_MODE, n_samples=N_SAMPLES, shuffle=RANDOMIZE_SAMPLES)    
     print("Test")
     test_super, test_smiles_super, test_fing = select_class_idx_super(test_super, test_smiles, test_fing, CLS_LIST, TARGET_MODE, n_samples=N_SAMPLES, shuffle=RANDOMIZE_SAMPLES)
 elif TARGET_TYPE == "class":
@@ -125,7 +123,7 @@ elif TARGET_TYPE == "class":
         test_smiles_class = test_smiles_class.reshape(-1)
 
 # Creazione dei DataLoader
-if MODEL.lower() != "mlp":
+if "gine" in MODELS or "gin" in MODELS:
     train_df = pd.DataFrame({
         'SMILES': train_smiles_pathway if TARGET_TYPE == "pathway" else train_smiles_super.tolist()
         if TARGET_TYPE == "superclass" else train_smiles_class.tolist(),

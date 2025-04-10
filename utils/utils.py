@@ -1,5 +1,5 @@
 import numpy as np
-from config import MODEL, DATADIR
+from config import MODELS, DATADIR
 from typing import Union, Literal
 import pickle
 from fingerprint_handler import calculate_fingerprint

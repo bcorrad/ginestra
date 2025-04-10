@@ -12,7 +12,7 @@ from config import LABELS_CODES, PATHWAYS
 
 from config import N_EPOCHS as num_epochs
 from config import DEVICE as device
-from config import MODEL, TARGET_TYPE, LABELS_CODES, TARGET_MODE
+from config import MODELS, TARGET_TYPE, LABELS_CODES, TARGET_MODE
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
@@ -41,7 +41,7 @@ class GIN(torch.nn.Module):
                                         Linear(dim_h, dim_h), 
                                         ReLU()))
         # Self-Attention Layer (Multi-Head)
-        #self.attention = MultiheadAttention(embed_dim=dim_h, num_heads=num_heads, batch_first=True)
+        # self.attention = MultiheadAttention(embed_dim=dim_h, num_heads=num_heads, batch_first=True)
 
         #Classifier
         self.lin1 = Linear(dim_h*3, dim_h*3)
@@ -51,13 +51,13 @@ class GIN(torch.nn.Module):
         # self.lin2 = Linear(dim_h, num_classes)
 
 
-    def forward(self, x, edge_index, batch):
+    def forward(self, x, edge_index, batch, p=0.2):
         # Node embeddings 
         h1 = self.conv1(x, edge_index)
         # Dropout 
-        h1 = F.dropout(h1, p=0.5, training=self.training)
+        h1 = F.dropout(h1, p=p, training=self.training)
         h2 = self.conv2(h1, edge_index)
-        h2 = F.dropout(h2, p=0.5, training=self.training)
+        h2 = F.dropout(h2, p=p, training=self.training)
         h3 = self.conv3(h2, edge_index)
 
         # Graph-level readout
@@ -120,6 +120,7 @@ class GINWithEdgeFeatures(torch.nn.Module):
                                 torch.nn.ReLU(),
                                 torch.nn.Linear(hidden_channels, hidden_channels))
         
+        
         if "fingerprint_length" in kwargs and kwargs["fingerprint_length"] is not None:
             self.fingerprint_processor = torch.nn.Sequential(
                                     torch.nn.Linear(kwargs["fingerprint_length"], hidden_channels),
@@ -141,6 +142,9 @@ class GINWithEdgeFeatures(torch.nn.Module):
         else:
             self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
             self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
+            
+        from config import DEVICE
+        self.to(DEVICE)
 
         # Self Attention Layer
         # self.attention = MultiheadAttention(embed_dim=hidden_channels, num_heads=4, batch_first=True)

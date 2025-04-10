@@ -43,7 +43,7 @@ class GIN(torch.nn.Module):
         # Self-Attention Layer (Multi-Head)
         #self.attention = MultiheadAttention(embed_dim=dim_h, num_heads=num_heads, batch_first=True)
 
-        #Classifier
+        # Classifier
         self.lin1 = Linear(dim_h*3, dim_h*3)
         self.lin2 = Linear(dim_h*3, num_classes)
 
@@ -90,35 +90,6 @@ class GIN(torch.nn.Module):
 class GINWithEdgeFeatures(torch.nn.Module):
     def __init__(self, in_channels, hidden_channels, edge_dim, out_channels, **kwargs):
         super().__init__()
-
-        # Reti per il messaggio (per i nodi) e per le edge features
-        self.mlp_node = torch.nn.Sequential(
-                                torch.nn.Linear(in_channels, hidden_channels),
-                                torch.nn.ReLU(),
-                                torch.nn.Linear(hidden_channels, hidden_channels))
-        
-        self.input_mlp_node_norm = Sequential(Linear(in_channels, hidden_channels),
-                                            BatchNorm1d(hidden_channels), 
-                                            ReLU(),
-                                            Linear(hidden_channels, hidden_channels), 
-                                            ReLU())
-
-        self.hidden_mlp_node_norm = Sequential(Linear(hidden_channels, hidden_channels),
-                                BatchNorm1d(hidden_channels), 
-                                ReLU(),
-                                Linear(hidden_channels, hidden_channels), 
-                                ReLU())
-
-        # Reti per il messaggio (per i nodi) nello strato nascosto
-        self.mlp_node_h = torch.nn.Sequential(
-                                torch.nn.Linear(hidden_channels, hidden_channels),
-                                torch.nn.ReLU(),
-                                torch.nn.Linear(hidden_channels, hidden_channels))
-
-        self.edge_processor = torch.nn.Sequential(
-                                torch.nn.Linear(edge_dim, hidden_channels),
-                                torch.nn.ReLU(),
-                                torch.nn.Linear(hidden_channels, hidden_channels))
         
         if "fingerprint_length" in kwargs and kwargs["fingerprint_length"] is not None:
             self.fingerprint_processor = torch.nn.Sequential(
@@ -127,12 +98,34 @@ class GINWithEdgeFeatures(torch.nn.Module):
                                     torch.nn.Linear(hidden_channels, hidden_channels))
         else:
             self.fingerprint_processor = None
+            
         # GIN layer
-        self.conv1 = GINEConv(self.input_mlp_node_norm, edge_dim=hidden_channels)
+        self.conv1 = GINEConv(
+            Sequential(Linear(in_channels, hidden_channels), 
+                            BatchNorm1d(hidden_channels), 
+                            ReLU(),
+                            Linear(hidden_channels, hidden_channels), 
+                            ReLU()),
+            edge_dim=edge_dim
+        )
 
-        self.conv2 = GINEConv(self.hidden_mlp_node_norm, edge_dim=hidden_channels)
+        self.conv2 = GINEConv(
+            Sequential(Linear(hidden_channels, hidden_channels), 
+                            BatchNorm1d(hidden_channels), 
+                            ReLU(),
+                            Linear(hidden_channels, hidden_channels), 
+                            ReLU()),
+            edge_dim=edge_dim
+        )
 
-        self.conv3 = GINEConv(self.hidden_mlp_node_norm, edge_dim=hidden_channels)
+        self.conv3 = GINEConv(
+             Sequential(Linear(hidden_channels, hidden_channels), 
+                            BatchNorm1d(hidden_channels), 
+                            ReLU(),
+                            Linear(hidden_channels, hidden_channels), 
+                            ReLU()),
+            edge_dim=edge_dim
+        )
 
         # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
@@ -145,7 +138,7 @@ class GINWithEdgeFeatures(torch.nn.Module):
         # Self Attention Layer
         # self.attention = MultiheadAttention(embed_dim=hidden_channels, num_heads=4, batch_first=True)
 
-    def forward(self, x, edge_index, edge_attr, batch, nonlinear=False, **kwargs):
+    def forward(self, x, edge_index, edge_attr, batch, p=0.2, nonlinear=False, **kwargs):
 
         if "fingerprint" in kwargs:
             fingerprint = kwargs["fingerprint"]
@@ -153,25 +146,22 @@ class GINWithEdgeFeatures(torch.nn.Module):
         else:
             fingerprint = None
 
-        # Pre-process edge features
-        edge_emb = self.edge_processor(edge_attr)  # Evita ripetuti calcoli della stessa trasformazione
-
         # Forward of a GINE layer, with dropout, batchnorm, and ReLU. 
         # Apply global pooling after each layer.
-        h1 = self.conv1(x, edge_index, edge_emb)  # Usa x, non h1
-        h1 = F.dropout(h1, p=0.5, training=self.training)
+        h1 = self.conv1(x, edge_index, edge_attr)  # Usa x, non h1
+        h1 = F.dropout(h1, p=p, training=self.training)
         if nonlinear:
             h1 = F.relu(h1)
 
-        h2 = self.conv2(h1, edge_index, edge_emb)
-        h2 = F.dropout(h2, p=0.5, training=self.training)
+        h2 = self.conv2(h1, edge_index, edge_attr)
+        h2 = F.dropout(h2, p=p, training=self.training)
         if nonlinear:
             h2 = F.relu(h2)
 
-        h3 = self.conv3(h2, edge_index, edge_emb)
-        h3 = F.dropout(h3, p=0.5, training=self.training)
-        if nonlinear:
-            h3 = F.relu(h3)
+        h3 = self.conv3(h2, edge_index, edge_attr)
+        # h3 = F.dropout(h3, p=0.5, training=self.training)
+        # if nonlinear:
+        #     h3 = F.relu(h3)
 
         # Global pooling on node features
         h1_pool = global_add_pool(h1, batch)
@@ -193,7 +183,7 @@ class GINWithEdgeFeatures(torch.nn.Module):
 
         # Classifier
         h = self.fc1(h)
-        h = F.relu(h)
+        h = h.relu()
         h = self.fc2(h)
                 
         return h
