@@ -1,6 +1,7 @@
 from config import DATADIR, TARGET_TYPE
 from typing import Union, Literal
 import pickle
+import os
 from fingerprint_handler import calculate_fingerprint
 import numpy as np
 import pandas as pd
@@ -283,69 +284,76 @@ def save_pickle(data, filepath):
         pickle.dump(data, f)
 
 
-# Load data from pkl files
-with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
-    class_  = pickle.load(f)
-with open(f'{DATADIR}/char2idx_super_V1.pkl','rb') as f:
-    superclass_  = pickle.load(f)
-with open(f'{DATADIR}/char2idx_path_V1.pkl','rb') as f:
-    pathway_  = pickle.load(f)
-with open(f'{DATADIR}/datset_class_all_V1.pkl','rb') as r:
-    dataset = pickle.load(r)
+if os.path.exists(f'{DATADIR}/train_geodataloader.pkl') and os.path.exists(f'{DATADIR}/val_geodataloader.pkl') and os.path.exists(f'{DATADIR}/test_geodataloader.pkl'):
+    print("Dataset already exists. Loading from pickle files.")
+    train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader.pkl')
+    val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader.pkl')
+    test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader.pkl')
+else:
+    print("Dataset does not exist. Generating new dataset.")
+    # Load data from pkl files
+    with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
+        class_  = pickle.load(f)
+    with open(f'{DATADIR}/char2idx_super_V1.pkl','rb') as f:
+        superclass_  = pickle.load(f)
+    with open(f'{DATADIR}/char2idx_path_V1.pkl','rb') as f:
+        pathway_  = pickle.load(f)
+    with open(f'{DATADIR}/datset_class_all_V1.pkl','rb') as r:
+        dataset = pickle.load(r)
 
-# Train, Validation, and test set 
-molecule_inchikey = list(dataset.keys())
-np.random.shuffle(molecule_inchikey)
-molecule_dict = np.array(molecule_inchikey)
+    # Train, Validation, and test set 
+    molecule_inchikey = list(dataset.keys())
+    np.random.shuffle(molecule_inchikey)
+    molecule_dict = np.array(molecule_inchikey)
 
-# MULTICLASS MODE: Drop the dataset[i] elements that sum to > 1 for the key TARGET_TYPE
-dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE]) == 1}
+    # MULTICLASS MODE: Drop the dataset[i] elements that sum to > 1 for the key TARGET_TYPE
+    dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE]) == 1}
 
-# Build the list of SMILES
-smiles_df = []
-for i in dataset.keys():
-    smiles_df.append(dataset[i]['SMILES'])
-smiles_df = np.array(smiles_df)
+    # Build the list of SMILES
+    smiles_df = []
+    for i in dataset.keys():
+        smiles_df.append(dataset[i]['SMILES'])
+    smiles_df = np.array(smiles_df)
 
-# Build the list of fingerprints
-fingerprint_list = [] 
-for i in smiles_df:
-    fingerprint_list.append(np.concatenate(calculate_fingerprint(i, 2), axis=1))
+    # Build the list of fingerprints
+    fingerprint_list = [] 
+    for i in smiles_df:
+        fingerprint_list.append(np.concatenate(calculate_fingerprint(i, 2), axis=1))
 
-# Build the list of targets (Class, Super_class, Pathway)
-labels_list = []
-for i in dataset.keys():
-    labels_list.append(dataset[i][TARGET_TYPE])
+    # Build the list of targets (Class, Super_class, Pathway)
+    labels_list = []
+    for i in dataset.keys():
+        labels_list.append(dataset[i][TARGET_TYPE])
 
-# Create a dataframe with the SMILES, fingerprints, and labels
-df = pd.DataFrame({'SMILES': smiles_df, 'fingerprint': fingerprint_list, TARGET_TYPE: labels_list})
+    # Create a dataframe with the SMILES, fingerprints, and labels
+    df = pd.DataFrame({'SMILES': smiles_df, 'fingerprint': fingerprint_list, TARGET_TYPE: labels_list})
 
-# Shuffle the dataframe
-df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+    # Shuffle the dataframe
+    df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
-# Split the dataframe into training, validation, and test sets using the dataset_split function
-train_indices, val_indices, test_indices, train_samples, val_samples, test_samples = dataset_split(np.array(labels_list))
-train_df = df.iloc[train_indices]
-val_df = df.iloc[val_indices]
-test_df = df.iloc[test_indices]
+    # Split the dataframe into training, validation, and test sets using the dataset_split function
+    train_indices, val_indices, test_indices, train_samples, val_samples, test_samples = dataset_split(np.array(labels_list))
+    train_df = df.iloc[train_indices]
+    val_df = df.iloc[val_indices]
+    test_df = df.iloc[test_indices]
 
-train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE)
-val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df,  target=TARGET_TYPE)
-test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df,  target=TARGET_TYPE)
+    train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE)
+    val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df,  target=TARGET_TYPE)
+    test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df,  target=TARGET_TYPE)
 
-# Save the datasets to pickle files
-save_pickle(train_datalist, f'{DATADIR}/train_dataset.pkl')
-save_pickle(val_datalist, f'{DATADIR}/val_dataset.pkl')
-save_pickle(test_datalist, f'{DATADIR}/test_dataset.pkl')
+    # Save the datasets to pickle files
+    save_pickle(train_datalist, f'{DATADIR}/train_dataset.pkl')
+    save_pickle(val_datalist, f'{DATADIR}/val_dataset.pkl')
+    save_pickle(test_datalist, f'{DATADIR}/test_dataset.pkl')
 
-from torch_geometric.loader import DataLoader as GeoDataLoader
-from config import BATCH_SIZE
+    from torch_geometric.loader import DataLoader as GeoDataLoader
+    from config import BATCH_SIZE
 
-train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
-val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
-test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
+    train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
+    val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
+    test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
 
-# Save the GeoDataLoader objects to pickle files
-save_pickle(train_dataloader, f'{DATADIR}/train_geodataloader.pkl')
-save_pickle(val_dataloader, f'{DATADIR}/val_geodataloader.pkl')
-save_pickle(test_dataloader, f'{DATADIR}/test_geodataloader.pkl')
+    # Save the GeoDataLoader objects to pickle files
+    save_pickle(train_dataloader, f'{DATADIR}/train_geodataloader.pkl')
+    save_pickle(val_dataloader, f'{DATADIR}/val_geodataloader.pkl')
+    save_pickle(test_dataloader, f'{DATADIR}/test_geodataloader.pkl')
