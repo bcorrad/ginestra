@@ -37,7 +37,9 @@ USE_FINGERPRINT = False
 
 ## NETWORK CONFIG
 H_DIM = 128
-MODELS = ["mlp"]  # Options: "GIN" or "GCN" or "GAE"
+MODELS = ["gin", "gine"] #, "mlp"] # Options: "gin", "gine", "mlp"
+# OR
+# MODELS = ["mlp"] 
 
 import pickle
 # Build dictionaries of classes, superclasses and pathways based on the target type
