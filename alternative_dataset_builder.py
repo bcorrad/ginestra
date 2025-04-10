@@ -15,6 +15,21 @@ from torch_geometric.loader import DataLoader as GeoDataLoader
 from config import BATCH_SIZE
 
 
+class CustomDataset(Dataset):
+    def __init__(self, df):
+        self.df = df
+        self.feature_dim = len(df.iloc[0]['fingerprint'])
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        smiles = self.df.iloc[idx]['SMILES']
+        fingerprint = self.df.iloc[idx]['fingerprint']
+        label = self.df.iloc[idx][TARGET_TYPE.capitalize()]
+        return smiles, fingerprint, label
+    
+
 def data_generation(idx, data, 
                     spec_mol_smile=None, 
                     save_dataset:Union[Literal["train"], Literal["val"], Literal["test"]]=None):
@@ -362,15 +377,19 @@ else:
     test_df = df.iloc[test_indices]
     
     if "mlp" in MODELS:
-        # Convert train_df, val_df, and test_df to PyTorch DataLoader objects
-        train_dataloader = DataLoader(train_df, batch_size=BATCH_SIZE, shuffle=True)
-        val_dataloader = DataLoader(val_df, batch_size=BATCH_SIZE, shuffle=False)
-        test_dataloader = DataLoader(test_df, batch_size=BATCH_SIZE, shuffle=False)
+        # Convert train_df, val_df, and test_df to PyTorch Dataset objects
+        train_dataset = CustomDataset(train_df)
+        val_dataset = CustomDataset(val_df)
+        test_dataset = CustomDataset(test_df)
+        # Create DataLoader objects
+        train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+        val_dataloader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
+        test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
         
         # Save the DataLoader objects to pickle files
-        save_pickle(train_dataloader, f'{DATADIR}/train_dataloader.pkl')
-        save_pickle(val_dataloader, f'{DATADIR}/val_dataloader.pkl')
-        save_pickle(test_dataloader, f'{DATADIR}/test_dataloader.pkl')
+        save_pickle(train_dataloader, f'{DATADIR}/train_dataloader_{len(train_df)}.pkl')
+        save_pickle(val_dataloader, f'{DATADIR}/val_dataloader_{len(val_df)}.pkl')
+        save_pickle(test_dataloader, f'{DATADIR}/test_dataloader_{len(test_df)}.pkl')
     
     elif "gin" in MODELS or "gine" in MODELS:
         # Convert train_df, val_df, and test_df to PyTorch Geometric DataLoader objects

@@ -70,10 +70,29 @@ def evaluate(model, dataloader, device, criterion, target_type="pathway"):
     
     with torch.no_grad():
         for batch in dataloader:
-            batch_samples = batch[0].to(device)
-            # batch_labels = batch[1].to(device)
-            # Targets
-            targets = batch[1].to(device)
+            # Fingerprint at index 1
+            fingerprint_features = batch[1].to(device)
+            if type(fingerprint_features) == list or type(fingerprint_features) == tuple:
+                fingerprint_features = fingerprint_features[0]
+            if len(fingerprint_features.shape) == 3:
+                # Remove the batch dimension (index 1)
+                fingerprint_features = fingerprint_features.squeeze(1)
+            # Convert to float
+            fingerprint_features = fingerprint_features.float()
+            batch_samples = fingerprint_features.to(device)
+            # Targets at index 2
+            targets = batch[2].to(device)
+            if type(targets) == list or type(targets) == tuple:
+                targets = targets[0]
+            if len(targets.shape) == 3:
+                # Remove the batch dimension (index 1)
+                targets = targets.squeeze(1)
+            # Convert to float
+            targets = targets.float()
+            # batch_samples = batch[0].to(device)
+            # # batch_labels = batch[1].to(device)
+            # # Targets
+            # targets = batch[1].to(device)
             # Forward pass
             out = model(batch_samples)
 
@@ -130,10 +149,25 @@ def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=Fa
     all_targets = []
 
     for batch in dataloader:
-        batch_samples = batch[0].to(device)
-        # batch_labels = batch[1].to(device)
-        # Targets
-        targets = batch[1].to(device)
+        # Fingerprint at index 1
+        fingerprint_features = batch[1].to(device)
+        if type(fingerprint_features) == list or type(fingerprint_features) == tuple:
+            fingerprint_features = fingerprint_features[0]
+        if len(fingerprint_features.shape) == 3:
+            # Remove the batch dimension (index 1)
+            fingerprint_features = fingerprint_features.squeeze(1)
+        # Convert to float
+        fingerprint_features = fingerprint_features.float()
+        batch_samples = fingerprint_features.to(device)
+        # Targets at index 2
+        targets = batch[2].to(device)
+        if type(targets) == list or type(targets) == tuple:
+            targets = targets[0]
+        if len(targets.shape) == 3:
+            # Remove the batch dimension (index 1)
+            targets = targets.squeeze(1)
+        # Convert to float
+        targets = targets.float()
         optimizer.zero_grad()
         # Forward pass
         out = model(batch_samples)

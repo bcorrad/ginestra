@@ -52,13 +52,10 @@ for MODEL in MODELS:
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
         loss_criterion = torch.nn.CrossEntropyLoss() 
         
-    elif MODEL == "mpl":
+    elif MODEL == "mlp":
         from models.MLP import MLP
         # N_FEATURES = the length of the extended fingerprint in the dataloader
-        N_FEATURES = len(train_dataloader.dataset.fingerprint.iloc[0][0])
-        # Reset indices in the dataset
-        train_dataloader.dataset.reset_index(drop=True, inplace=True)
-        val_dataloader.dataset.reset_index(drop=True, inplace=True)
+        N_FEATURES = len(train_dataloader.dataset[0][1][0])
         # Create the model
         model = MLP(input_channels=N_FEATURES, 
                     num_categories=len(LABELS_CODES.keys())).to(DEVICE)
@@ -76,7 +73,7 @@ for MODEL in MODELS:
                 from models.GIN import train_epoch
                 from models.GIN import evaluate
                 
-            elif MODEL == "mpl":
+            elif MODEL == "mlp":
                 from models.MLP import train_epoch
                 from models.MLP import evaluate
 
@@ -99,7 +96,7 @@ for MODEL in MODELS:
                 GINE_VAL_REC_LIST.append(val_recall)
                 GINE_VAL_F1_LIST.append(val_f1)
                 
-            elif MODEL == "mpl":
+            elif MODEL == "mlp":
                 MPL_TRAIN_PREC_LIST.append(train_precision)
                 MPL_TRAIN_REC_LIST.append(train_recall)
                 MPL_TRAIN_F1_LIST.append(train_f1)
@@ -117,6 +114,7 @@ for MODEL in MODELS:
             print("-"*50)
 
 try:
+    exception_trigger = sum(GIN_TRAIN_PREC_LIST)/len(GIN_TRAIN_PREC_LIST) # to trigger the exception if the list is empty
     print(f"REPORT USING GIN OVER {N_RUNS} RUNS")
     print("Avg and std of training precision, recall and f1-score:")
     print(f"Precision: {sum(GIN_TRAIN_PREC_LIST)/len(GIN_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GIN_TRAIN_PREC_LIST)):.4f}")
@@ -128,9 +126,10 @@ try:
     print(f"F1-score: {sum(GIN_VAL_F1_LIST)/len(GIN_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GIN_VAL_F1_LIST)):.4f}")
     print("-"*50)
 except:
-    print("GIN model not trained")
+    # print("GIN model not trained")
     pass
 try:
+    exception_trigger = sum(GINE_TRAIN_PREC_LIST)/len(GINE_TRAIN_PREC_LIST) # to trigger the exception if the list is empty
     print(f"REPORT USING GINE OVER {N_RUNS} RUNS")
     print("Avg and std of training precision, recall and f1-score:")
     print(f"Precision: {sum(GINE_TRAIN_PREC_LIST)/len(GINE_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GINE_TRAIN_PREC_LIST)):.4f}")
@@ -142,5 +141,20 @@ try:
     print(f"F1-score: {sum(GINE_VAL_F1_LIST)/len(GINE_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GINE_VAL_F1_LIST)):.4f}")
     print("-"*50)
 except:
-    print("GINE model not trained")
+    # print("GINE model not trained")
+    pass
+try:
+    exception_trigger = sum(MPL_TRAIN_PREC_LIST)/len(MPL_TRAIN_PREC_LIST) # to trigger the exception if the list is empty
+    print(f"REPORT USING MLP OVER {N_RUNS} RUNS")
+    print("Avg and std of training precision, recall and f1-score:")
+    print(f"Precision: {sum(MPL_TRAIN_PREC_LIST)/len(MPL_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(MPL_TRAIN_PREC_LIST)):.4f}")
+    print(f"Recall: {sum(MPL_TRAIN_REC_LIST)/len(MPL_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(MPL_TRAIN_REC_LIST)):.4f}")
+    print(f"F1-score: {sum(MPL_TRAIN_F1_LIST)/len(MPL_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(MPL_TRAIN_F1_LIST)):.4f}")
+    print("Avg and std of validation precision, recall and f1-score:")
+    print(f"Precision: {sum(MPL_VAL_PREC_LIST)/len(MPL_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_PREC_LIST)):.4f}")
+    print(f"Recall: {sum(MPL_VAL_REC_LIST)/len(MPL_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_REC_LIST)):.4f}")
+    print(f"F1-score: {sum(MPL_VAL_F1_LIST)/len(MPL_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_F1_LIST)):.4f}")
+    print("-"*50)
+except:
+    # print("MLP model not trained")
     pass

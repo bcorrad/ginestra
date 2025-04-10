@@ -21,8 +21,8 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 N_EPOCHS = 10
 N_RUNS = 3  # Number of runs for the model
 ## DATASET PARAMETERS
-USE_AVAILABLE_DATASET = True # If True, use the dataset already downloaded and preprocessed
-N_SAMPLES = 20  # Number of samples to pick from the training set. If set to None, all samples are used
+USE_AVAILABLE_DATASET = False # If True, use the dataset already downloaded and preprocessed
+N_SAMPLES = None  # Number of samples to pick from the training set. If set to None, all samples are used
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
 MULTILABEL2MULTICLASS = False
