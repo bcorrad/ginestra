@@ -3,12 +3,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, classification_report
 import numpy as np
-from config import MODEL, TARGET_TYPE, LABELS_CODES, TARGET_MODE, PATHWAYS
+from config import TARGET_MODE, PATHWAYS
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
-class Model(nn.Module):
+class MLP(nn.Module):
     def __init__(self, input_channels=6144, num_categories=10):
-        super(Model, self).__init__()
+        super(MLP, self).__init__()
 
         self.fc1 = nn.Linear(input_channels, input_channels)
         self.bn1 = nn.BatchNorm1d(input_channels)

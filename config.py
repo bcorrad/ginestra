@@ -17,14 +17,16 @@ if REPRODUCIBLE:
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(BASEDIR, "data")
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-MULTILABEL2MULTICLASS = False
-## DATASET PARAMETERS
+
 N_EPOCHS = 10
+N_RUNS = 3  # Number of runs for the model
 ## DATASET PARAMETERS
-N_RUNS = 3  # Number of runs for the model    
+USE_AVAILABLE_DATASET = True # If True, use the dataset already downloaded and preprocessed
 N_SAMPLES = 20  # Number of samples to pick from the training set. If set to None, all samples are used
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
+MULTILABEL2MULTICLASS = False
+
 # CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE),
 TARGET_TYPE = "pathway"  # Options: "pathway", "superclass", "class"
@@ -35,7 +37,7 @@ USE_FINGERPRINT = False
 
 ## NETWORK CONFIG
 H_DIM = 128
-MODELS = ["mlp", "gin", "gine"]  # Options: "GIN" or "GCN" or "GAE"
+MODELS = ["mlp"]  # Options: "GIN" or "GCN" or "GAE"
 
 import pickle
 # Build dictionaries of classes, superclasses and pathways based on the target type

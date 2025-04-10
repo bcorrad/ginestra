@@ -29,7 +29,9 @@ for MODEL in MODELS:
     if MODEL == "gin":
         N_FEATURES = train_dataloader.dataset[0].x.shape[-1]
         from models.GIN import GIN, GINWithEdgeFeatures
-        model = GIN(num_node_features=N_FEATURES, dim_h=H_DIM, num_classes=len(LABELS_CODES.keys())).to(DEVICE) #, num_heads=4
+        model = GIN(num_node_features=N_FEATURES, 
+                    dim_h=H_DIM, 
+                    num_classes=len(LABELS_CODES.keys())).to(DEVICE) #, num_heads=4
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
         loss_criterion = torch.nn.CrossEntropyLoss() if "hot" in TARGET_MODE or TARGET_MODE == "binary" else torch.nn.BCEWithLogitsLoss()    
 
@@ -49,6 +51,19 @@ for MODEL in MODELS:
                                     fingerprint_length=FINGERPRINT_LENGTH)
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
         loss_criterion = torch.nn.CrossEntropyLoss() 
+        
+    elif MODEL == "mpl":
+        from models.MLP import MLP
+        # N_FEATURES = the length of the extended fingerprint in the dataloader
+        N_FEATURES = len(train_dataloader.dataset.fingerprint.iloc[0][0])
+        # Reset indices in the dataset
+        train_dataloader.dataset.reset_index(drop=True, inplace=True)
+        val_dataloader.dataset.reset_index(drop=True, inplace=True)
+        # Create the model
+        model = MLP(input_channels=N_FEATURES, 
+                    num_categories=len(LABELS_CODES.keys())).to(DEVICE)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
+        loss_criterion = torch.nn.BCELoss() if "hot" in TARGET_MODE or TARGET_MODE == "binary" else torch.nn.BCEWithLogitsLoss()
 
     for n_run in range(N_RUNS):
         for epoch in range(1, N_EPOCHS+1):

@@ -1,4 +1,4 @@
-from config import DATADIR, TARGET_TYPE
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS
 from typing import Union, Literal
 import pickle
 import os
@@ -10,6 +10,9 @@ from rdkit.Chem.rdmolops import GetAdjacencyMatrix
 import torch
 from torch_geometric.data import Data
 from utils.graph_data_def import get_atom_features, get_bond_features
+from torch.utils.data import Dataset, DataLoader
+from torch_geometric.loader import DataLoader as GeoDataLoader
+from config import BATCH_SIZE
 
 
 def data_generation(idx, data, 
@@ -123,11 +126,20 @@ def dataset_split(matrix):
     # Split the indices into training, validation, and test sets
     training_split = 0.6
     validation_split = 0.2
-    test_split = 1 - training_split - validation_split
+    # test_split = 1 - training_split - validation_split
     
     for indices in classwise_indices:
         np.random.shuffle(indices)
         n = len(indices)
+        # Update the number of samples if N_SAMPLES is not None
+        if N_SAMPLES is not None:
+            if len(indices) > N_SAMPLES:
+                print(f"Class {np.argmax(matrix_single_label[indices[0]])} has more than {N_SAMPLES} samples. Randomly selecting {N_SAMPLES} samples.")
+                indices = indices[:N_SAMPLES]
+                n = N_SAMPLES
+            else:
+                n = len(indices)
+                
         train_end = int(training_split * n)
         val_end = int((training_split + validation_split) * n)
         training_indices.extend(indices[:train_end])
@@ -284,11 +296,23 @@ def save_pickle(data, filepath):
         pickle.dump(data, f)
 
 
-if os.path.exists(f'{DATADIR}/train_geodataloader.pkl') and os.path.exists(f'{DATADIR}/val_geodataloader.pkl') and os.path.exists(f'{DATADIR}/test_geodataloader.pkl'):
-    print("Dataset already exists. Loading from pickle files.")
-    train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader.pkl')
-    val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader.pkl')
-    test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader.pkl')
+if USE_AVAILABLE_DATASET:
+    if ("gin" in MODELS or "gine" in MODELS) and (os.path.exists(f'{DATADIR}/train_geodataloader.pkl') and \
+        os.path.exists(f'{DATADIR}/val_geodataloader.pkl') and \
+            os.path.exists(f'{DATADIR}/test_geodataloader.pkl')):
+                
+        print("Dataset already exists for GNNs. Loading from pickle files.")
+        train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader.pkl')
+        val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader.pkl')
+        test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader.pkl')
+    elif "mlp" in MODELS and (os.path.exists(f'{DATADIR}/train_dataloader.pkl') and \
+        os.path.exists(f'{DATADIR}/val_dataloader.pkl') and \
+            os.path.exists(f'{DATADIR}/test_dataloader.pkl')):
+                
+        print("Dataset already exists for MLP. Loading from pickle files.")
+        train_dataloader = load_pickle(f'{DATADIR}/train_dataloader.pkl')
+        val_dataloader = load_pickle(f'{DATADIR}/val_dataloader.pkl')
+        test_dataloader = load_pickle(f'{DATADIR}/test_dataloader.pkl')
 else:
     print("Dataset does not exist. Generating new dataset.")
     # Load data from pkl files
@@ -307,7 +331,7 @@ else:
     molecule_dict = np.array(molecule_inchikey)
 
     # MULTICLASS MODE: Drop the dataset[i] elements that sum to > 1 for the key TARGET_TYPE
-    dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE]) == 1}
+    dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE.capitalize()]) == 1}
 
     # Build the list of SMILES
     smiles_df = []
@@ -323,10 +347,10 @@ else:
     # Build the list of targets (Class, Super_class, Pathway)
     labels_list = []
     for i in dataset.keys():
-        labels_list.append(dataset[i][TARGET_TYPE])
+        labels_list.append(dataset[i][TARGET_TYPE.capitalize()])
 
     # Create a dataframe with the SMILES, fingerprints, and labels
-    df = pd.DataFrame({'SMILES': smiles_df, 'fingerprint': fingerprint_list, TARGET_TYPE: labels_list})
+    df = pd.DataFrame({'SMILES': smiles_df, 'fingerprint': fingerprint_list, TARGET_TYPE.capitalize(): labels_list})
 
     # Shuffle the dataframe
     df = df.sample(frac=1, random_state=42).reset_index(drop=True)
@@ -336,24 +360,29 @@ else:
     train_df = df.iloc[train_indices]
     val_df = df.iloc[val_indices]
     test_df = df.iloc[test_indices]
+    
+    if "mlp" in MODELS:
+        # Convert train_df, val_df, and test_df to PyTorch DataLoader objects
+        train_dataloader = DataLoader(train_df, batch_size=BATCH_SIZE, shuffle=True)
+        val_dataloader = DataLoader(val_df, batch_size=BATCH_SIZE, shuffle=False)
+        test_dataloader = DataLoader(test_df, batch_size=BATCH_SIZE, shuffle=False)
+        
+        # Save the DataLoader objects to pickle files
+        save_pickle(train_dataloader, f'{DATADIR}/train_dataloader.pkl')
+        save_pickle(val_dataloader, f'{DATADIR}/val_dataloader.pkl')
+        save_pickle(test_dataloader, f'{DATADIR}/test_dataloader.pkl')
+    
+    elif "gin" in MODELS or "gine" in MODELS:
+        # Convert train_df, val_df, and test_df to PyTorch Geometric DataLoader objects
+        train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
+        val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df,  target=TARGET_TYPE.capitalize())
+        test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df,  target=TARGET_TYPE.capitalize())
 
-    train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE)
-    val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df,  target=TARGET_TYPE)
-    test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df,  target=TARGET_TYPE)
+        train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
+        val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
+        test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
 
-    # Save the datasets to pickle files
-    save_pickle(train_datalist, f'{DATADIR}/train_dataset.pkl')
-    save_pickle(val_datalist, f'{DATADIR}/val_dataset.pkl')
-    save_pickle(test_datalist, f'{DATADIR}/test_dataset.pkl')
-
-    from torch_geometric.loader import DataLoader as GeoDataLoader
-    from config import BATCH_SIZE
-
-    train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
-    val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
-    test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
-
-    # Save the GeoDataLoader objects to pickle files
-    save_pickle(train_dataloader, f'{DATADIR}/train_geodataloader.pkl')
-    save_pickle(val_dataloader, f'{DATADIR}/val_geodataloader.pkl')
-    save_pickle(test_dataloader, f'{DATADIR}/test_geodataloader.pkl')
+        # Save the GeoDataLoader objects to pickle files
+        save_pickle(train_dataloader, f'{DATADIR}/train_geodataloader.pkl')
+        save_pickle(val_dataloader, f'{DATADIR}/val_geodataloader.pkl')
+        save_pickle(test_dataloader, f'{DATADIR}/test_geodataloader.pkl')
