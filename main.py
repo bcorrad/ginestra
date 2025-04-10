@@ -104,11 +104,11 @@ for MODEL in MODELS:
                 MPL_VAL_REC_LIST.append(val_recall)
                 MPL_VAL_F1_LIST.append(val_f1)
                 
-            print(f'[TRAINING {n_run}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {train_avg_loss:.4f}, Training Precision: {train_precision:.4f}, Training Recall: {train_recall:.4f}, Training F1-score: {train_f1:.4f}')
+            print(f'[TRAINING {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {train_avg_loss:.4f}, Training Precision: {train_precision:.4f}, Training Recall: {train_recall:.4f}, Training F1-score: {train_f1:.4f}')
             print("Training confusion matrix:")
             print(train_conf_matrix)
             
-            print(f'[VALIDATION {n_run}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {val_avg_loss:.4f}, Val Precision: {val_precision:.4f}, Val Recall: {val_recall:.4f}, Val F1-score: {val_f1:.4f}')
+            print(f'[VALIDATION {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {val_avg_loss:.4f}, Val Precision: {val_precision:.4f}, Val Recall: {val_recall:.4f}, Val F1-score: {val_f1:.4f}')
             print("Validation confusion matrix:")
             print(val_conf_matrix)
             print("-"*50)
