@@ -423,15 +423,3 @@ with open(f'{EXPERIMENT_FOLDER}/dataset_report_{TARGET_TYPE}{suffix}.txt', 'w') 
     f.write(f"Number of samples in train set: {len(train_df)}\n")
     f.write(f"Number of samples in validation set: {len(val_df)}\n")
     f.write(f"Number of samples in test set: {len(test_df)}\n")
-    f.write(f"Number of samples in each class:\n")
-    for i in dataset.keys():
-        f.write(f"{dataset[i][TARGET_TYPE.capitalize()]}: {len(dataset[i])}\n")
-    f.write(f"Number of samples in each class (train set):\n")
-    for i in train_df[TARGET_TYPE.capitalize()].unique():
-        f.write(f"{i}: {len(train_df[train_df[TARGET_TYPE.capitalize()] == i])}\n")
-    f.write(f"Number of samples in each class (validation set):\n")
-    for i in val_df[TARGET_TYPE.capitalize()].unique():
-        f.write(f"{i}: {len(val_df[val_df[TARGET_TYPE.capitalize()] == i])}\n")
-    f.write(f"Number of samples in each class (test set):\n")
-    for i in test_df[TARGET_TYPE.capitalize()].unique():
-        f.write(f"{i}: {len(test_df[test_df[TARGET_TYPE.capitalize()] == i])}\n")
