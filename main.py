@@ -146,9 +146,7 @@ for MODEL in MODELS:
             optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
             loss_criterion = torch.nn.BCELoss() if "hot" in TARGET_MODE or TARGET_MODE == "binary" else torch.nn.BCEWithLogitsLoss()
             from models.MLP import train_epoch
-            from models.MLP import evaluate
-
-        
+            from models.MLP import evaluate        
         
         for epoch in range(1, N_EPOCHS+1):
 
