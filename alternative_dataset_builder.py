@@ -90,12 +90,13 @@ def data_generation(idx, data,
     return smiles_list, m_fingerprint_list, Y_train_path, Y_train_super, Y_train_class 
 
 
-def dataset_split(matrix):
+def dataset_split(matrix, n_samples=N_SAMPLES):
     """
     Returns the unique vectors (rows) of a given matrix.
 
     Parameters:
         matrix (np.ndarray): A 2D numpy array.
+        n_samples (int, optional): The number of samples to select from each class. Defaults to config.N_SAMPLES (all the samples if None).
 
     Returns:
         np.ndarray: A 2D numpy array containing the unique rows of the input matrix.
@@ -147,11 +148,11 @@ def dataset_split(matrix):
         np.random.shuffle(indices)
         n = len(indices)
         # Update the number of samples if N_SAMPLES is not None
-        if N_SAMPLES is not None:
-            if len(indices) > N_SAMPLES:
-                print(f"Class {np.argmax(matrix_single_label[indices[0]])} has more than {N_SAMPLES} samples. Randomly selecting {N_SAMPLES} samples.")
-                indices = indices[:N_SAMPLES]
-                n = N_SAMPLES
+        if n_samples is not None:
+            if len(indices) > n_samples:
+                print(f"Class {np.argmax(matrix_single_label[indices[0]])} has more than {n_samples} samples. Randomly selecting {n_samples} samples.")
+                indices = indices[:n_samples]
+                n = n_samples
             else:
                 n = len(indices)
                 
