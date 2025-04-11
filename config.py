@@ -29,7 +29,7 @@ MULTILABEL2MULTICLASS = False
 
 # CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE),
-TARGET_TYPE = "pathway"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
@@ -37,16 +37,16 @@ USE_FINGERPRINT = False
 
 ## NETWORK CONFIG
 H_DIM = 128
-MODELS = ["gin", "gine"] #, "mlp"] # Options: "gin", "gine", "mlp"
+# MODELS = ["gine", "gin"] #, "mlp"] # Options: "gin", "gine", "mlp"
 # OR
-# MODELS = ["mlp"] 
+MODELS = ["mlp"] 
 
 import pickle
 # Build dictionaries of classes, superclasses and pathways based on the target type
 if TARGET_TYPE == "pathway":
     with open(f'{DATADIR}/char2idx_path_V1.pkl','rb') as f:
         class_  = pickle.load(f)
-elif TARGET_TYPE == "superclass":
+elif TARGET_TYPE == "superclass" or TARGET_TYPE == "super_class":
     with open(f'{DATADIR}/char2idx_super_V1.pkl','rb') as f:
         class_  = pickle.load(f)
 elif TARGET_TYPE == "class":
@@ -66,3 +66,13 @@ if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
     LABELS_CODES[7] = np.array([0,1,0,0,1,0,0])
     LABELS_CODES[8] = np.array([1,0,0,0,0,0,1])
     LABELS_CODES[9] = np.array([0,0,0,0,1,0,1])
+    
+# Initialize experiment folder 
+import datetime
+EXPERIMENT_FOLDER = os.path.join(BASEDIR, "experiments", datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + "_".join(MODELS) + "_" + TARGET_TYPE.lower())
+os.makedirs(EXPERIMENT_FOLDER, exist_ok=True)
+# Save the configuration file
+import shutil
+shutil.copy(__file__, os.path.join(EXPERIMENT_FOLDER, "config.py"))
+# Save the models file
+shutil.copy(os.path.join(BASEDIR, "models"), os.path.join(EXPERIMENT_FOLDER, "models"))

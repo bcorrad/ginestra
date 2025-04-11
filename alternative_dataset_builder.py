@@ -1,4 +1,4 @@
-from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS, EXPERIMENT_DIR
 from typing import Union, Literal
 import pickle
 import os
@@ -311,23 +311,30 @@ def save_pickle(data, filepath):
         pickle.dump(data, f)
 
 
-if USE_AVAILABLE_DATASET:
-    if ("gin" in MODELS or "gine" in MODELS) and (os.path.exists(f'{DATADIR}/train_geodataloader.pkl') and \
-        os.path.exists(f'{DATADIR}/val_geodataloader.pkl') and \
-            os.path.exists(f'{DATADIR}/test_geodataloader.pkl')):
-                
-        print("Dataset already exists for GNNs. Loading from pickle files.")
-        train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader.pkl')
-        val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader.pkl')
-        test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader.pkl')
-    elif "mlp" in MODELS and (os.path.exists(f'{DATADIR}/train_dataloader.pkl') and \
-        os.path.exists(f'{DATADIR}/val_dataloader.pkl') and \
-            os.path.exists(f'{DATADIR}/test_dataloader.pkl')):
-                
-        print("Dataset already exists for MLP. Loading from pickle files.")
-        train_dataloader = load_pickle(f'{DATADIR}/train_dataloader.pkl')
-        val_dataloader = load_pickle(f'{DATADIR}/val_dataloader.pkl')
-        test_dataloader = load_pickle(f'{DATADIR}/test_dataloader.pkl')
+if N_SAMPLES is not None:
+    suffix = f'_{N_SAMPLES}'
+else:
+    suffix = ''
+
+if USE_AVAILABLE_DATASET:   
+    if "gin" in MODELS or "gine" in MODELS:
+        if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
+            os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
+                os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')):
+                    
+            print("Dataset already exists for GIN/GINE. Loading from pickle files.")
+            train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+    elif "mlp" in MODELS:
+        if (os.path.exists(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
+            os.path.exists(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
+                os.path.exists(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')):
+                    
+            print("Dataset already exists for MLP. Loading from pickle files.")
+            train_dataloader = load_pickle(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
+            val_dataloader = load_pickle(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
+            test_dataloader = load_pickle(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
 else:
     print("Dataset does not exist. Generating new dataset.")
     # Load data from pkl files
@@ -339,6 +346,8 @@ else:
         pathway_  = pickle.load(f)
     with open(f'{DATADIR}/datset_class_all_V1.pkl','rb') as r:
         dataset = pickle.load(r)
+        # Remove _ from the keys of the dictionary at the second level (Super_class -> Superclass)
+        dataset = {k: {k2.replace("_", ""): v2 for k2, v2 in v.items()} for k, v in dataset.items()}
 
     # Train, Validation, and test set 
     molecule_inchikey = list(dataset.keys())
@@ -387,9 +396,9 @@ else:
         test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
         
         # Save the DataLoader objects to pickle files
-        save_pickle(train_dataloader, f'{DATADIR}/train_dataloader_{len(train_df)}.pkl')
-        save_pickle(val_dataloader, f'{DATADIR}/val_dataloader_{len(val_df)}.pkl')
-        save_pickle(test_dataloader, f'{DATADIR}/test_dataloader_{len(test_df)}.pkl')
+        save_pickle(train_dataloader, f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
+        save_pickle(val_dataloader, f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
+        save_pickle(test_dataloader, f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
     
     elif "gin" in MODELS or "gine" in MODELS:
         # Convert train_df, val_df, and test_df to PyTorch Geometric DataLoader objects
@@ -402,6 +411,26 @@ else:
         test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
 
         # Save the GeoDataLoader objects to pickle files
-        save_pickle(train_dataloader, f'{DATADIR}/train_geodataloader.pkl')
-        save_pickle(val_dataloader, f'{DATADIR}/val_geodataloader.pkl')
-        save_pickle(test_dataloader, f'{DATADIR}/test_geodataloader.pkl')
+        save_pickle(train_dataloader, f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+        save_pickle(val_dataloader, f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+        save_pickle(test_dataloader, f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+
+# Save a report with: 
+# - number of samples in train, val, and test sets
+# - number of samples in each class
+with open(f'{EXPERIMENT_DIR}/dataset_report_{TARGET_TYPE}{suffix}.txt', 'w') as f:
+    f.write(f"Number of samples in train set: {len(train_df)}\n")
+    f.write(f"Number of samples in validation set: {len(val_df)}\n")
+    f.write(f"Number of samples in test set: {len(test_df)}\n")
+    f.write(f"Number of samples in each class:\n")
+    for i in dataset.keys():
+        f.write(f"{dataset[i][TARGET_TYPE.capitalize()]}: {len(dataset[i])}\n")
+    f.write(f"Number of samples in each class (train set):\n")
+    for i in train_df[TARGET_TYPE.capitalize()].unique():
+        f.write(f"{i}: {len(train_df[train_df[TARGET_TYPE.capitalize()] == i])}\n")
+    f.write(f"Number of samples in each class (validation set):\n")
+    for i in val_df[TARGET_TYPE.capitalize()].unique():
+        f.write(f"{i}: {len(val_df[val_df[TARGET_TYPE.capitalize()] == i])}\n")
+    f.write(f"Number of samples in each class (test set):\n")
+    for i in test_df[TARGET_TYPE.capitalize()].unique():
+        f.write(f"{i}: {len(test_df[test_df[TARGET_TYPE.capitalize()] == i])}\n")

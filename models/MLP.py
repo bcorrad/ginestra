@@ -50,7 +50,7 @@ class MLP(nn.Module):
         return x
 
     
-def evaluate(model, dataloader, device, criterion, target_type="pathway"):
+def evaluate(model, dataloader, device, criterion):
     """
     Evaluates the model on the given dataloader.
     
@@ -127,7 +127,7 @@ def evaluate(model, dataloader, device, criterion, target_type="pathway"):
     return avg_loss, precision, recall, f1, conf_matrix
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, verbose: bool=False):
     """
     Training loop for the model.
     Args:

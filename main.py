@@ -1,5 +1,5 @@
 import torch
-from config import N_EPOCHS, DEVICE, MODELS, LABELS_CODES, TARGET_MODE, H_DIM, USE_FINGERPRINT, N_RUNS
+from config import N_EPOCHS, DEVICE, MODELS, LABELS_CODES, TARGET_MODE, H_DIM, USE_FINGERPRINT, N_RUNS, TARGET_TYPE
 from alternative_dataset_builder import train_dataloader, val_dataloader
 
 GIN_TRAIN_PREC_LIST = []
@@ -33,7 +33,9 @@ for MODEL in MODELS:
                     dim_h=H_DIM, 
                     num_classes=len(LABELS_CODES.keys())).to(DEVICE) #, num_heads=4
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
-        loss_criterion = torch.nn.CrossEntropyLoss() if "hot" in TARGET_MODE or TARGET_MODE == "binary" else torch.nn.BCEWithLogitsLoss()    
+        loss_criterion = torch.nn.CrossEntropyLoss() if "hot" in TARGET_MODE or TARGET_MODE == "binary" else torch.nn.BCEWithLogitsLoss()  
+        from models.GIN import train_epoch
+        from models.GIN import evaluate   
 
     elif MODEL == "gine":
         N_FEATURES = train_dataloader.dataset[0].x.shape[-1]
@@ -43,7 +45,7 @@ for MODEL in MODELS:
         else:
             FINGERPRINT_LENGTH = None
 
-        from models.GIN import GIN, GINWithEdgeFeatures
+        from models.GINE import GINWithEdgeFeatures
         model = GINWithEdgeFeatures(in_channels=N_FEATURES, 
                                     hidden_channels=H_DIM, 
                                     edge_dim=EDGE_FEATURES, 
@@ -51,6 +53,8 @@ for MODEL in MODELS:
                                     fingerprint_length=FINGERPRINT_LENGTH)
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
         loss_criterion = torch.nn.CrossEntropyLoss() 
+        from models.GINE import train_epoch
+        from models.GINE import evaluate
         
     elif MODEL == "mlp":
         from models.MLP import MLP
@@ -61,21 +65,11 @@ for MODEL in MODELS:
                     num_categories=len(LABELS_CODES.keys())).to(DEVICE)
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
         loss_criterion = torch.nn.BCELoss() if "hot" in TARGET_MODE or TARGET_MODE == "binary" else torch.nn.BCEWithLogitsLoss()
+        from models.MLP import train_epoch
+        from models.MLP import evaluate
 
     for n_run in range(N_RUNS):
         for epoch in range(1, N_EPOCHS+1):
-
-            if MODEL == "gin":
-                from models.GIN import train_epoch
-                from models.GIN import evaluate 
-
-            elif MODEL == "gine":
-                from models.GIN import train_epoch
-                from models.GIN import evaluate
-                
-            elif MODEL == "mlp":
-                from models.MLP import train_epoch
-                from models.MLP import evaluate
 
             train_avg_loss, train_precision, train_recall, train_f1, train_conf_matrix = train_epoch(model, train_dataloader, optimizer, loss_criterion, DEVICE)
             val_avg_loss, val_precision, val_recall, val_f1, val_conf_matrix = evaluate(model, val_dataloader, DEVICE, criterion=loss_criterion)
@@ -105,12 +99,14 @@ for MODEL in MODELS:
                 MPL_VAL_F1_LIST.append(val_f1)
                 
             print(f'[TRAINING {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {train_avg_loss:.4f}, Training Precision: {train_precision:.4f}, Training Recall: {train_recall:.4f}, Training F1-score: {train_f1:.4f}')
-            print("Training confusion matrix:")
-            print(train_conf_matrix)
+            if TARGET_TYPE == "pathway":
+                print("Training confusion matrix:") 
+                print(train_conf_matrix)
             
             print(f'[VALIDATION {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {val_avg_loss:.4f}, Val Precision: {val_precision:.4f}, Val Recall: {val_recall:.4f}, Val F1-score: {val_f1:.4f}')
-            print("Validation confusion matrix:")
-            print(val_conf_matrix)
+            if TARGET_TYPE == "pathway":
+                print("Validation confusion matrix:") 
+                print(val_conf_matrix)
             print("-"*50)
 
 try:
