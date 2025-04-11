@@ -72,12 +72,25 @@ if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
 import datetime
 EXPERIMENT_FOLDER = os.path.join(BASEDIR, "experiments", datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + "-".join(MODELS) + "_" + TARGET_TYPE.lower())
 os.makedirs(EXPERIMENT_FOLDER, exist_ok=True)
+
 # Create a models folder
 os.makedirs(os.path.join(EXPERIMENT_FOLDER, "models"), exist_ok=True)
+
 # Save the configuration file
 import shutil
 shutil.copy(__file__, os.path.join(EXPERIMENT_FOLDER, "config.py"))
+
 # Save the models file from the directory
 for model_file in os.listdir(os.path.join(BASEDIR, "models")):
     if model_file.endswith(".py"):
         shutil.copy(os.path.join(BASEDIR, "models", model_file), os.path.join(EXPERIMENT_FOLDER, "models", model_file))
+        
+# Copy all the py files in the utils folder
+for file in os.listdir(os.path.join(BASEDIR, "utils")):
+    if file.endswith(".py"):
+        shutil.copy(os.path.join(BASEDIR, "utils", file), os.path.join(EXPERIMENT_FOLDER, "utils", file))
+        
+# Copy all the py files in the folder 
+for file in os.listdir(BASEDIR):
+    if file.endswith(".py") and file != "config.py":
+        shutil.copy(os.path.join(BASEDIR, file), os.path.join(EXPERIMENT_FOLDER, file))

@@ -58,7 +58,7 @@ for MODEL in MODELS:
         val_dataloader = gnn_val_dataloader
         test_dataloader = gnn_test_dataloader
         N_FEATURES = train_dataloader.dataset[0].x.shape[-1]
-        from models.GIN import GIN, GINWithEdgeFeatures
+        from models.GIN import GIN
         model = GIN(num_node_features=N_FEATURES, 
                     dim_h=H_DIM, 
                     num_classes=len(LABELS_CODES.keys())).to(DEVICE) #, num_heads=4
