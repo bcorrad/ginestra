@@ -1,0 +1,98 @@
+/repo/corradini/anaconda3/envs/comvis/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1471: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, msg_start, len(result))
+Dataset already exists for GIN/GINE. Loading from pickle files.
+Training GIN model
+                                     precision    recall  f1-score   support
+
+                   Alkylresorsinols       0.00      0.00      0.00        38
+              Amino acid glycosides       0.18      0.03      0.05        64
+    Aminosugars and aminoglycosides       0.29      0.07      0.11        71
+         Anthranilic acid alkaloids       0.30      0.16      0.20       341
+                     Apocarotenoids       0.32      0.03      0.05       214
+               Aromatic polyketides       0.26      0.15      0.19       361
+                  Carotenoids (C40)       0.40      0.52      0.46       378
+                  Carotenoids (C45)       0.00      0.00      0.00         6
+                  Carotenoids (C50)       0.00      0.00      0.00        21
+                          Chromanes       0.10      0.00      0.01       300
+                          Coumarins       0.27      0.22      0.25       936
+                 Cyclic polyketides       0.15      0.01      0.02       454
+                   Diarylheptanoids       0.33      0.02      0.03       131
+Diazotetronic acids and derivatives       0.00      0.00      0.00        34
+                       Diterpenoids       0.27      0.35      0.31      3425
+                        Docosanoids       0.00      0.00      0.00        68
+                        Eicosanoids       0.34      0.21      0.26       265
+         Fatty Acids and Conjugates       0.42      0.48      0.45      1359
+              Fatty acyl glycosides       0.18      0.04      0.06       130
+                        Fatty acyls       0.42      0.28      0.33      1002
+                       Fatty amides       0.59      0.39      0.47       220
+                       Fatty esters       0.57      0.18      0.28       874
+                         Flavonoids       0.47      0.84      0.60      3002
+                          Fluorenes       0.00      0.00      0.00        27
+                      Glycerolipids       0.79      0.96      0.86      4485
+               Glycerophospholipids       0.89      0.97      0.93      5342
+                Guanidine alkaloids       0.18      0.03      0.05        75
+                Histidine alkaloids       0.19      0.04      0.07       115
+                      Isoflavonoids       0.26      0.12      0.17       440
+                            Lignans       0.36      0.12      0.17       416
+                 Linear polyketides       0.26      0.20      0.23       543
+                   Lysine alkaloids       0.33      0.03      0.05       275
+                         Macrolides       0.46      0.62      0.53      1259
+                     Meroterpenoids       0.32      0.18      0.23       721
+                     Monoterpenoids       0.41      0.13      0.19      1007
+            Mycosporine derivatives       0.00      0.00      0.00        13
+                       Naphthalenes       0.20      0.04      0.06       335
+           Nicotinic acid alkaloids       0.11      0.01      0.01       259
+                        Nucleosides       0.51      0.48      0.49       263
+                      Octadecanoids       0.00      0.00      0.00       153
+                      Oligopeptides       0.45      0.84      0.59      1198
+                Ornithine alkaloids       0.37      0.32      0.35       639
+                  Peptide alkaloids       0.00      0.00      0.00       210
+             Phenolic acids (C6-C1)       0.55      0.24      0.34       222
+            Phenylethanoids (C6-C2)       0.00      0.00      0.00        21
+           Phenylpropanoids (C6-C3)       0.00      0.00      0.00        86
+                    Phloroglucinols       0.16      0.09      0.12       241
+    Polycyclic aromatic polyketides       0.35      0.35      0.35       660
+                         Polyethers       0.19      0.04      0.07       115
+                            Polyols       0.27      0.17      0.21        64
+                        Polyprenols       0.00      0.00      0.00        19
+                  Proline alkaloids       0.00      0.00      0.00        24
+   Pseudoalkaloids (transamidation)       0.34      0.17      0.23       668
+                        Saccharides       0.29      0.26      0.28       118
+                   Sesquiterpenoids       0.37      0.35      0.36      3608
+                   Sesterterpenoids       0.00      0.00      0.00       204
+                     Small peptides       0.53      0.35      0.42       614
+                       Spingolipids       0.69      0.63      0.66       452
+                           Steroids       0.44      0.39      0.41      1641
+                        Stilbenoids       0.50      0.14      0.22       185
+                      Styrylpyrones       0.00      0.00      0.00        77
+                         Terphenyls       0.00      0.00      0.00        69
+                Tetramate alkaloids       0.00      0.00      0.00        25
+                      Triterpenoids       0.40      0.64      0.49      2402
+                         Tropolones       0.00      0.00      0.00        29
+               Tryptophan alkaloids       0.53      0.63      0.57      1455
+                 Tyrosine alkaloids       0.49      0.45      0.47      1080
+                          Xanthones       0.06      0.01      0.02       158
+                          β-lactams       0.20      0.03      0.05       115
+                γ-lactam-β-lactones       0.00      0.00      0.00         3
+
+                          micro avg       0.51      0.51      0.51     45824
+                          macro avg       0.26      0.20      0.21     45824
+                       weighted avg       0.47      0.51      0.47     45824
+                        samples avg       0.51      0.51      0.51     45824
+
+Traceback (most recent call last):
+  File "/repo/corradini/ginestra/main.py", line 109, in <module>
+    train_avg_loss, train_precision, train_recall, train_f1, train_conf_matrix = train_epoch(model, train_dataloader, optimizer, loss_criterion, DEVICE, str(epoch))
+                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/repo/corradini/ginestra/models/GIN.py", line 248, in train_epoch
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"train_{epoch_n}_{model.__class__.__name__}.pt"))
+  File "/repo/corradini/anaconda3/envs/comvis/lib/python3.11/site-packages/torch/serialization.py", line 628, in save
+    with _open_zipfile_writer(f) as opened_zipfile:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/repo/corradini/anaconda3/envs/comvis/lib/python3.11/site-packages/torch/serialization.py", line 502, in _open_zipfile_writer
+    return container(name_or_buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/repo/corradini/anaconda3/envs/comvis/lib/python3.11/site-packages/torch/serialization.py", line 473, in __init__
+    super().__init__(torch._C.PyTorchFileWriter(self.name))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Parent directory /repo/corradini/ginestra/experiments/20250411_143823_gin-gine-mlp_superclass/pt does not exist.

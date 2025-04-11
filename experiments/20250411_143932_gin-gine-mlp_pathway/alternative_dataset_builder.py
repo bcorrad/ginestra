@@ -412,8 +412,8 @@ else:
     elif "gin" in MODELS or "gine" in MODELS:
         # Convert train_df, val_df, and test_df to PyTorch Geometric DataLoader objects
         train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
-        val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df,  target=TARGET_TYPE.capitalize())
-        test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df,  target=TARGET_TYPE.capitalize())
+        val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
+        test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df, target=TARGET_TYPE.capitalize())
 
         gnn_train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
         gnn_val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)

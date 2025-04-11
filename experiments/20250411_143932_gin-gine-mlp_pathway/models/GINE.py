@@ -1,90 +1,129 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+import os
+from config import TARGET_MODE, PATHWAYS, EXPERIMENT_FOLDER 
+from ripser import Rips
 
-from torch_geometric.nn import GINConv, global_add_pool
+from torch_geometric.nn import global_add_pool, GINEConv
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from sklearn.metrics import classification_report
 
 from config import PATHWAYS
 
+from config import DEVICE as device
 from config import TARGET_MODE
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
 BCE_THRESHOLD = 0.5
-class GIN(torch.nn.Module):
-    """GIN"""
 
-    def __init__(self, num_node_features, dim_h, num_classes):   #, num_heads=4
-        super(GIN, self).__init__()
-        self.conv1 = GINConv(
-            Sequential(Linear(num_node_features, dim_h),
-                       BatchNorm1d(dim_h), 
-                       ReLU(),
-                       Linear(dim_h, dim_h), 
-                       ReLU()))
-  
-        self.conv2 = GINConv(Sequential(Linear(dim_h, dim_h), 
-                       BatchNorm1d(dim_h), 
-                       ReLU(),
-                       Linear(dim_h, dim_h), 
-                       ReLU()))
+class GINWithEdgeFeatures(torch.nn.Module):
+    def __init__(self, in_channels, hidden_channels, edge_dim, out_channels, **kwargs):
+        super().__init__()
         
-        self.conv3 = GINConv(Sequential(Linear(dim_h, dim_h), 
-                                        BatchNorm1d(dim_h), 
-                                        ReLU(),
-                                        Linear(dim_h, dim_h), 
-                                        ReLU()))
-        # Self-Attention Layer (Multi-Head)
-        # self.attention = MultiheadAttention(embed_dim=dim_h, num_heads=num_heads, batch_first=True)
+        if "fingerprint_length" in kwargs and kwargs["fingerprint_length"] is not None:
+            self.fingerprint_processor = torch.nn.Sequential(
+                                    torch.nn.Linear(kwargs["fingerprint_length"], hidden_channels),
+                                    torch.nn.ReLU(),
+                                    torch.nn.Linear(hidden_channels, hidden_channels))
+        else:
+            self.fingerprint_processor = None
+            
+        # TODO: ridurre il numero di layer dei GINEConv
+        # GIN layer
+        self.conv1 = GINEConv(
+            Sequential(Linear(in_channels, hidden_channels), 
+                            BatchNorm1d(hidden_channels), 
+                            ReLU(),
+                            Linear(hidden_channels, hidden_channels), 
+                            ReLU()),
+            edge_dim=edge_dim
+        )
 
-        #Classifier
-        self.lin1 = Linear(dim_h*3, dim_h*3)
-        self.lin2 = Linear(dim_h*3, num_classes)
+        self.conv2 = GINEConv(
+            Sequential(Linear(hidden_channels, hidden_channels), 
+                            BatchNorm1d(hidden_channels), 
+                            ReLU(),
+                            Linear(hidden_channels, hidden_channels), 
+                            ReLU()),
+            edge_dim=edge_dim
+        )
 
-        # self.lin1 = Linear(dim_h, dim_h)
-        # self.lin2 = Linear(dim_h, num_classes)
+        self.conv3 = GINEConv(
+             Sequential(Linear(hidden_channels, hidden_channels), 
+                            BatchNorm1d(hidden_channels), 
+                            ReLU(),
+                            Linear(hidden_channels, hidden_channels), 
+                            ReLU()),
+            edge_dim=edge_dim
+        )
 
+        # Classificatore finale
+        if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
+            self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
+            self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
+        else:
+            self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
+            self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
 
-    def forward(self, x, edge_index, batch, p=0.2):
-        # Node embeddings 
-        h1 = self.conv1(x, edge_index)
-        # Dropout 
+        # Self Attention Layer
+        # self.attention = MultiheadAttention(embed_dim=hidden_channels, num_heads=4, batch_first=True)
+        # Put to cuda
+        self.to(device)
+
+    def forward(self, x, edge_index, edge_attr, batch, p=0.2, nonlinear=False, **kwargs):
+
+        if "fingerprint" in kwargs:
+            fingerprint = kwargs["fingerprint"]
+            fingerprint_emb = self.fingerprint_processor(torch.Tensor(fingerprint))
+        else:
+            fingerprint = None
+
+        # Forward of a GINE layer, with dropout, batchnorm, and ReLU. 
+        # Apply global pooling after each layer.
+        h1 = self.conv1(x, edge_index, edge_attr)  # Usa x, non h1
         h1 = F.dropout(h1, p=p, training=self.training)
-        h2 = self.conv2(h1, edge_index)
+        if nonlinear:
+            h1 = F.relu(h1)
+
+        h2 = self.conv2(h1, edge_index, edge_attr)
         h2 = F.dropout(h2, p=p, training=self.training)
-        h3 = self.conv3(h2, edge_index)
+        if nonlinear:
+            h2 = F.relu(h2)
 
-        # Graph-level readout
-        #The authors make two important points about graph-level readout:
+        h3 = self.conv3(h2, edge_index, edge_attr)
+        # h3 = F.dropout(h3, p=0.5, training=self.training)
+        # if nonlinear:
+        #     h3 = F.relu(h3)
 
-        # To consider all structural information, it is necessary to keep embeddings from previous layers;
-        # The sum operator is surprisingly more expressive than the mean and the max.
+        # Global pooling on node features
+        h1_pool = global_add_pool(h1, batch)
+        h2_pool = global_add_pool(h2, batch)
+        h3_pool = global_add_pool(h3, batch)
 
-        h1 = global_add_pool(h1, batch)
-        h2 = global_add_pool(h2, batch)
-        h3 = global_add_pool(h3, batch)
+        # Concatenate the embeddings and the fingerprint if not None
+        if fingerprint is not None:
+            h = torch.cat([h1_pool, h2_pool, h3_pool, fingerprint_emb], dim=1)
+        else:
+            h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
 
-        # Concatenate graph embeddings
-        h = torch.cat((h1, h2, h3), dim=1)
-
-        # Stack embeddings per livello, codifica posizionale, A+H=D, e MLP sui token (output=3 token, dim_h)
-        #H = torch.stack([h1, h2, h3], dim=1)  # (batch_size, 3, dim_h)
-        # Apply Self-Attention tra i livelli
-        #A, _ = self.attention(H, H, H)  # (batch_size, 3, dim_h)
-
+        # # Stack embeddings per livello
+        # H = torch.stack([h1_pool, h2_pool, h3_pool], dim=1)  # (batch_size, 3, dim_h)
+        # # Apply Self-Attention tra i livelli
+        # H, _ = self.attention(H, H, H)  # (batch_size, 3, dim_h)
+        # # Pooling sulle rappresentazioni trasformate (media tra i 3 livelli)
+        # h = H.mean(dim=1)  # (batch_size, dim_h)    
 
         # Classifier
-        h = self.lin1(h)
+        h = self.fc1(h)
         h = h.relu()
-        # h = F.dropout(h, p=0.5, training=self.training)
-        h = self.lin2(h)
-        
+        h = self.fc2(h)
+
         return h
 
 
-def evaluate(model, dataloader, device, criterion):
+def evaluate(model, dataloader, device, criterion, epoch_n):
     """
     Evaluates the model on the given dataloader.
     
@@ -147,11 +186,13 @@ def evaluate(model, dataloader, device, criterion):
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+    # Save model if needed
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"eval_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False):
     """
     Training loop for the model.
     Args:
@@ -160,7 +201,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=Fa
     optimizer: the optimizer to use
     criterion: the loss function
     device: the device to use (cpu or cuda)
-    cumulative_loss: if True, the loss will be the sum of the CrossEntropyLoss and the cosine similarity loss
+    epoch_n: the current epoch number
 
     Returns:
     avg_loss: the average loss over the training set
@@ -240,5 +281,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=Fa
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+    # Save model if needed
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"train_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix

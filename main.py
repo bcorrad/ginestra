@@ -52,7 +52,7 @@ for MODEL in MODELS:
     print(f"Training {MODEL.upper()} model")
     f.write(f"Training {MODEL.upper()} model\n")
     
-    if MODEL == "gin":
+    if MODEL == "gin" and gnn_train_dataloader is not None:
         train_dataloader = gnn_train_dataloader
         val_dataloader = gnn_val_dataloader
         test_dataloader = gnn_test_dataloader
@@ -66,7 +66,7 @@ for MODEL in MODELS:
         from models.GIN import train_epoch
         from models.GIN import evaluate   
 
-    elif MODEL == "gine":
+    elif MODEL == "gine" and gnn_train_dataloader is not None:
         train_dataloader = gnn_train_dataloader
         val_dataloader = gnn_val_dataloader
         test_dataloader = gnn_test_dataloader
@@ -88,7 +88,7 @@ for MODEL in MODELS:
         from models.GINE import train_epoch
         from models.GINE import evaluate
         
-    elif MODEL == "mlp":
+    elif MODEL == "mlp" and mlp_train_dataloader is not None:
         train_dataloader = mlp_train_dataloader
         val_dataloader = mlp_val_dataloader
         test_dataloader = mlp_test_dataloader
@@ -106,8 +106,8 @@ for MODEL in MODELS:
     for n_run in range(N_RUNS):
         for epoch in range(1, N_EPOCHS+1):
 
-            train_avg_loss, train_precision, train_recall, train_f1, train_conf_matrix = train_epoch(model, train_dataloader, optimizer, loss_criterion, DEVICE)
-            val_avg_loss, val_precision, val_recall, val_f1, val_conf_matrix = evaluate(model, val_dataloader, DEVICE, criterion=loss_criterion)
+            train_avg_loss, train_precision, train_recall, train_f1, train_conf_matrix = train_epoch(model, train_dataloader, optimizer, loss_criterion, DEVICE, str(epoch))
+            val_avg_loss, val_precision, val_recall, val_f1, val_conf_matrix = evaluate(model, val_dataloader, DEVICE, criterion=loss_criterion, epoch_n=str(epoch))
             
             if MODEL == "gin":
                 GIN_TRAIN_PREC_LIST.append(train_precision)
