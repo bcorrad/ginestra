@@ -3,7 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, classification_report
 import numpy as np
-from config import TARGET_MODE, PATHWAYS
+import os
+from config import TARGET_MODE, PATHWAYS, EXPERIMENT_FOLDER
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
 class MLP(nn.Module):
@@ -50,7 +51,7 @@ class MLP(nn.Module):
         return x
 
     
-def evaluate(model, dataloader, device, criterion):
+def evaluate(model, dataloader, device, criterion, epoch_n):
     """
     Evaluates the model on the given dataloader.
     
@@ -123,11 +124,13 @@ def evaluate(model, dataloader, device, criterion):
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+    # Save the model 
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"eval_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, verbose: bool=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose: bool=False):
     """
     Training loop for the model.
     Args:
@@ -201,6 +204,8 @@ def train_epoch(model, dataloader, optimizer, criterion, device, verbose: bool=F
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+    # Save the model 
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"train_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix
 

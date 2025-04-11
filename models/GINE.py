@@ -1,6 +1,8 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+import os
+from config import TARGET_MODE, PATHWAYS, EXPERIMENT_FOLDER 
 from ripser import Rips
 
 from torch_geometric.nn import global_add_pool, GINEConv
@@ -121,7 +123,7 @@ class GINWithEdgeFeatures(torch.nn.Module):
         return h
 
 
-def evaluate(model, dataloader, device, criterion):
+def evaluate(model, dataloader, device, criterion, epoch_n):
     """
     Evaluates the model on the given dataloader.
     
@@ -184,11 +186,13 @@ def evaluate(model, dataloader, device, criterion):
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+    # Save model if needed
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"eval_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False):
     """
     Training loop for the model.
     Args:
@@ -197,7 +201,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=Fa
     optimizer: the optimizer to use
     criterion: the loss function
     device: the device to use (cpu or cuda)
-    cumulative_loss: if True, the loss will be the sum of the CrossEntropyLoss and the cosine similarity loss
+    epoch_n: the current epoch number
 
     Returns:
     avg_loss: the average loss over the training set
@@ -277,5 +281,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=Fa
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+    # Save model if needed
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"train_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix

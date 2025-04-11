@@ -1,7 +1,8 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
-
+from config import EXPERIMENT_FOLDER
+import os
 from torch_geometric.nn import GINConv, global_add_pool
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from sklearn.metrics import classification_report
@@ -84,7 +85,7 @@ class GIN(torch.nn.Module):
         return h
 
 
-def evaluate(model, dataloader, device, criterion):
+def evaluate(model, dataloader, device, criterion, epoch_n):
     """
     Evaluates the model on the given dataloader.
     
@@ -147,11 +148,13 @@ def evaluate(model, dataloader, device, criterion):
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+    # Save model if needed
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"eval_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False):
     """
     Training loop for the model.
     Args:
@@ -240,5 +243,8 @@ def train_epoch(model, dataloader, optimizer, criterion, device, verbose:bool=Fa
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
+
+    # Save the model
+    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"train_{epoch_n}_{model.__class__.__name__}.pt"))
     
     return avg_loss, precision, recall, f1, conf_matrix
