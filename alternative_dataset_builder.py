@@ -325,7 +325,7 @@ mlp_val_dataloader = None
 mlp_test_dataloader = None
 
 if USE_AVAILABLE_DATASET:   
-    if "gin" in MODELS or "gine" in MODELS:
+    if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
         if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
             os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
                 os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')):

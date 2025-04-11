@@ -282,4 +282,53 @@ try:
 except:
     # print("MLP model not trained")
     pass
-
+try:
+    exception_trigger = sum(GAT_TRAIN_PREC_LIST)/len(GAT_TRAIN_PREC_LIST) # to trigger the exception if the list is empty
+    print(f"REPORT USING GAT OVER {N_RUNS} RUNS")
+    print("Avg and std of training precision, recall and f1-score:")
+    print(f"Precision: {sum(GAT_TRAIN_PREC_LIST)/len(GAT_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_PREC_LIST)):.4f}")
+    print(f"Recall: {sum(GAT_TRAIN_REC_LIST)/len(GAT_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_REC_LIST)):.4f}")
+    print(f"F1-score: {sum(GAT_TRAIN_F1_LIST)/len(GAT_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_F1_LIST)):.4f}")
+    print("Avg and std of validation precision, recall and f1-score:")
+    print(f"Precision: {sum(GAT_VAL_PREC_LIST)/len(GAT_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_PREC_LIST)):.4f}")
+    print(f"Recall: {sum(GAT_VAL_REC_LIST)/len(GAT_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_REC_LIST)):.4f}")
+    print(f"F1-score: {sum(GAT_VAL_F1_LIST)/len(GAT_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_F1_LIST)):.4f}")
+    print("-"*50)
+    f.write(f"REPORT USING GAT OVER {N_RUNS} RUNS\n")
+    f.write("Avg and std of training precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GAT_TRAIN_PREC_LIST)/len(GAT_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GAT_TRAIN_REC_LIST)/len(GAT_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GAT_TRAIN_F1_LIST)/len(GAT_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_F1_LIST)):.4f}\n")
+    f.write("Avg and std of validation precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GAT_VAL_PREC_LIST)/len(GAT_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GAT_VAL_REC_LIST)/len(GAT_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GAT_VAL_F1_LIST)/len(GAT_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_F1_LIST)):.4f}\n")
+    f.write("-"*50 + "\n")
+except:
+    # print("GAT model not trained")
+    pass
+try:
+    exception_trigger = sum(GATE_TRAIN_PREC_LIST)/len(GATE_TRAIN_PREC_LIST) # to trigger the exception if the list is empty
+    print(f"REPORT USING GATE OVER {N_RUNS} RUNS")
+    print("Avg and std of training precision, recall and f1-score:")
+    print(f"Precision: {sum(GATE_TRAIN_PREC_LIST)/len(GATE_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GATE_TRAIN_PREC_LIST)):.4f}")
+    print(f"Recall: {sum(GATE_TRAIN_REC_LIST)/len(GATE_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(GATE_TRAIN_REC_LIST)):.4f}")
+    print(f"F1-score: {sum(GATE_TRAIN_F1_LIST)/len(GATE_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(GATE_TRAIN_F1_LIST)):.4f}")
+    print("Avg and std of validation precision, recall and f1-score:")
+    print(f"Precision: {sum(GATE_VAL_PREC_LIST)/len(GATE_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(GATE_VAL_PREC_LIST)):.4f}")
+    print(f"Recall: {sum(GATE_VAL_REC_LIST)/len(GATE_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GATE_VAL_REC_LIST)):.4f}")
+    print(f"F1-score: {sum(GATE_VAL_F1_LIST)/len(GATE_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GATE_VAL_F1_LIST)):.4f}")
+    print("-"*50)
+    f.write(f"REPORT USING GAT OVER {N_RUNS} RUNS\n")
+    f.write("Avg and std of training precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GAT_TRAIN_PREC_LIST)/len(GAT_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GAT_TRAIN_REC_LIST)/len(GAT_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GAT_TRAIN_F1_LIST)/len(GAT_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(GAT_TRAIN_F1_LIST)):.4f}\n")
+    f.write("Avg and std of validation precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GAT_VAL_PREC_LIST)/len(GAT_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GAT_VAL_REC_LIST)/len(GAT_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GAT_VAL_F1_LIST)/len(GAT_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GAT_VAL_F1_LIST)):.4f}\n")
+    f.write("-"*50 + "\n")
+except:
+    # print("GATE model not trained")
+    pass

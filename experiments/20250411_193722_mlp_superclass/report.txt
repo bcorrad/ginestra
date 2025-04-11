@@ -1,0 +1,89 @@
+Training report
+Models: ['mlp']
+Target type: superclass
+Target mode: hot
+Number of epochs: 10
+Number of runs: 3
+Batch size: 32
+Number of samples: None
+Randomize samples: True
+Use available dataset: True
+Use fingerprint: False
+Use multi-label to multi-class: False
+Target classes: None
+Target pathways: {'Alkylresorsinols': 0, 'Amino acid glycosides': 1, 'Aminosugars and aminoglycosides': 2, 'Anthranilic acid alkaloids': 3, 'Apocarotenoids': 4, 'Aromatic polyketides': 5, 'Carotenoids (C40)': 6, 'Carotenoids (C45)': 7, 'Carotenoids (C50)': 8, 'Chromanes': 9, 'Coumarins': 10, 'Cyclic polyketides': 11, 'Diarylheptanoids': 12, 'Diazotetronic acids and derivatives': 13, 'Diterpenoids': 14, 'Docosanoids': 15, 'Eicosanoids': 16, 'Fatty Acids and Conjugates': 17, 'Fatty acyl glycosides': 18, 'Fatty acyls': 19, 'Fatty amides': 20, 'Fatty esters': 21, 'Flavonoids': 22, 'Fluorenes': 23, 'Glycerolipids': 24, 'Glycerophospholipids': 25, 'Guanidine alkaloids': 26, 'Histidine alkaloids': 27, 'Isoflavonoids': 28, 'Lignans': 29, 'Linear polyketides': 30, 'Lysine alkaloids': 31, 'Macrolides': 32, 'Meroterpenoids': 33, 'Monoterpenoids': 34, 'Mycosporine derivatives': 35, 'Naphthalenes': 36, 'Nicotinic acid alkaloids': 37, 'Nucleosides': 38, 'Octadecanoids': 39, 'Oligopeptides': 40, 'Ornithine alkaloids': 41, 'Peptide alkaloids': 42, 'Phenolic acids (C6-C1)': 43, 'Phenylethanoids (C6-C2)': 44, 'Phenylpropanoids (C6-C3)': 45, 'Phloroglucinols': 46, 'Polycyclic aromatic polyketides': 47, 'Polyethers': 48, 'Polyols': 49, 'Polyprenols': 50, 'Proline alkaloids': 51, 'Pseudoalkaloids (transamidation)': 52, 'Saccharides': 53, 'Sesquiterpenoids': 54, 'Sesterterpenoids': 55, 'Small peptides': 56, 'Spingolipids': 57, 'Steroids': 58, 'Stilbenoids': 59, 'Styrylpyrones': 60, 'Terphenyls': 61, 'Tetramate alkaloids': 62, 'Triterpenoids': 63, 'Tropolones': 64, 'Tryptophan alkaloids': 65, 'Tyrosine alkaloids': 66, 'Xanthones': 67, 'β-lactams': 68, 'γ-lactam-β-lactones': 69}
+Experiment folder: /repo/corradini/ginestra/experiments/20250411_193722_mlp_superclass
+Device: cuda
+Training started at: 2025-04-11 19:37:25.925825
+--------------------------------------------------
+Training MLP model
+[MLP TRAINING 1/3] Epoch: 001, Loss: 0.0367, Training Precision: 0.5479, Training Recall: 0.5479, Training F1-score: 0.5479
+[MLP VALIDATION 1/3] Epoch: 001, Loss: 0.0408, Val Precision: 0.4590, Val Recall: 0.4590, Val F1-score: 0.4590
+[MLP TRAINING 1/3] Epoch: 002, Loss: 0.0318, Training Precision: 0.6250, Training Recall: 0.6250, Training F1-score: 0.6250
+[MLP VALIDATION 1/3] Epoch: 002, Loss: 0.0396, Val Precision: 0.5201, Val Recall: 0.5201, Val F1-score: 0.5201
+[MLP TRAINING 1/3] Epoch: 003, Loss: 0.0289, Training Precision: 0.6656, Training Recall: 0.6656, Training F1-score: 0.6656
+[MLP VALIDATION 1/3] Epoch: 003, Loss: 0.0282, Val Precision: 0.6934, Val Recall: 0.6934, Val F1-score: 0.6934
+[MLP TRAINING 1/3] Epoch: 004, Loss: 0.0271, Training Precision: 0.7005, Training Recall: 0.7005, Training F1-score: 0.7005
+[MLP VALIDATION 1/3] Epoch: 004, Loss: 0.0258, Val Precision: 0.7328, Val Recall: 0.7328, Val F1-score: 0.7328
+[MLP TRAINING 1/3] Epoch: 005, Loss: 0.0260, Training Precision: 0.7203, Training Recall: 0.7203, Training F1-score: 0.7203
+[MLP VALIDATION 1/3] Epoch: 005, Loss: 0.0247, Val Precision: 0.7408, Val Recall: 0.7408, Val F1-score: 0.7408
+[MLP TRAINING 1/3] Epoch: 006, Loss: 0.0254, Training Precision: 0.7316, Training Recall: 0.7316, Training F1-score: 0.7316
+[MLP VALIDATION 1/3] Epoch: 006, Loss: 0.0247, Val Precision: 0.7244, Val Recall: 0.7244, Val F1-score: 0.7244
+[MLP TRAINING 1/3] Epoch: 007, Loss: 0.0251, Training Precision: 0.7366, Training Recall: 0.7366, Training F1-score: 0.7366
+[MLP VALIDATION 1/3] Epoch: 007, Loss: 0.0241, Val Precision: 0.7740, Val Recall: 0.7740, Val F1-score: 0.7740
+[MLP TRAINING 1/3] Epoch: 008, Loss: 0.0247, Training Precision: 0.7419, Training Recall: 0.7419, Training F1-score: 0.7419
+[MLP VALIDATION 1/3] Epoch: 008, Loss: 0.0263, Val Precision: 0.7088, Val Recall: 0.7088, Val F1-score: 0.7088
+[MLP TRAINING 1/3] Epoch: 009, Loss: 0.0247, Training Precision: 0.7440, Training Recall: 0.7440, Training F1-score: 0.7440
+[MLP VALIDATION 1/3] Epoch: 009, Loss: 0.0242, Val Precision: 0.7548, Val Recall: 0.7548, Val F1-score: 0.7548
+[MLP TRAINING 1/3] Epoch: 010, Loss: 0.0247, Training Precision: 0.7438, Training Recall: 0.7438, Training F1-score: 0.7438
+[MLP VALIDATION 1/3] Epoch: 010, Loss: 0.0244, Val Precision: 0.7593, Val Recall: 0.7593, Val F1-score: 0.7593
+[MLP TRAINING 2/3] Epoch: 001, Loss: 0.0377, Training Precision: 0.5327, Training Recall: 0.5327, Training F1-score: 0.5327
+[MLP VALIDATION 2/3] Epoch: 001, Loss: 0.0356, Val Precision: 0.5822, Val Recall: 0.5822, Val F1-score: 0.5822
+[MLP TRAINING 2/3] Epoch: 002, Loss: 0.0331, Training Precision: 0.6054, Training Recall: 0.6054, Training F1-score: 0.6054
+[MLP VALIDATION 2/3] Epoch: 002, Loss: 0.0319, Val Precision: 0.6323, Val Recall: 0.6323, Val F1-score: 0.6323
+[MLP TRAINING 2/3] Epoch: 003, Loss: 0.0314, Training Precision: 0.6275, Training Recall: 0.6275, Training F1-score: 0.6275
+[MLP VALIDATION 2/3] Epoch: 003, Loss: 0.0295, Val Precision: 0.6466, Val Recall: 0.6466, Val F1-score: 0.6466
+[MLP TRAINING 2/3] Epoch: 004, Loss: 0.0300, Training Precision: 0.6430, Training Recall: 0.6430, Training F1-score: 0.6430
+[MLP VALIDATION 2/3] Epoch: 004, Loss: 0.0290, Val Precision: 0.6659, Val Recall: 0.6659, Val F1-score: 0.6659
+[MLP TRAINING 2/3] Epoch: 005, Loss: 0.0297, Training Precision: 0.6494, Training Recall: 0.6494, Training F1-score: 0.6494
+[MLP VALIDATION 2/3] Epoch: 005, Loss: 0.0295, Val Precision: 0.6539, Val Recall: 0.6539, Val F1-score: 0.6539
+[MLP TRAINING 2/3] Epoch: 006, Loss: 0.0293, Training Precision: 0.6566, Training Recall: 0.6566, Training F1-score: 0.6566
+[MLP VALIDATION 2/3] Epoch: 006, Loss: 0.0310, Val Precision: 0.6422, Val Recall: 0.6422, Val F1-score: 0.6422
+[MLP TRAINING 2/3] Epoch: 007, Loss: 0.0289, Training Precision: 0.6683, Training Recall: 0.6683, Training F1-score: 0.6683
+[MLP VALIDATION 2/3] Epoch: 007, Loss: 0.0272, Val Precision: 0.6868, Val Recall: 0.6868, Val F1-score: 0.6868
+[MLP TRAINING 2/3] Epoch: 008, Loss: 0.0287, Training Precision: 0.6733, Training Recall: 0.6733, Training F1-score: 0.6733
+[MLP VALIDATION 2/3] Epoch: 008, Loss: 0.0289, Val Precision: 0.6629, Val Recall: 0.6629, Val F1-score: 0.6629
+[MLP TRAINING 2/3] Epoch: 009, Loss: 0.0285, Training Precision: 0.6763, Training Recall: 0.6763, Training F1-score: 0.6763
+[MLP VALIDATION 2/3] Epoch: 009, Loss: 0.0285, Val Precision: 0.7012, Val Recall: 0.7012, Val F1-score: 0.7012
+[MLP TRAINING 2/3] Epoch: 010, Loss: 0.0284, Training Precision: 0.6797, Training Recall: 0.6797, Training F1-score: 0.6797
+[MLP VALIDATION 2/3] Epoch: 010, Loss: 0.0278, Val Precision: 0.6939, Val Recall: 0.6939, Val F1-score: 0.6939
+[MLP TRAINING 3/3] Epoch: 001, Loss: 0.0368, Training Precision: 0.5516, Training Recall: 0.5516, Training F1-score: 0.5516
+[MLP VALIDATION 3/3] Epoch: 001, Loss: 0.0342, Val Precision: 0.6166, Val Recall: 0.6166, Val F1-score: 0.6166
+[MLP TRAINING 3/3] Epoch: 002, Loss: 0.0311, Training Precision: 0.6374, Training Recall: 0.6374, Training F1-score: 0.6374
+[MLP VALIDATION 3/3] Epoch: 002, Loss: 0.0318, Val Precision: 0.5905, Val Recall: 0.5905, Val F1-score: 0.5905
+[MLP TRAINING 3/3] Epoch: 003, Loss: 0.0282, Training Precision: 0.6841, Training Recall: 0.6841, Training F1-score: 0.6841
+[MLP VALIDATION 3/3] Epoch: 003, Loss: 0.0268, Val Precision: 0.7201, Val Recall: 0.7201, Val F1-score: 0.7201
+[MLP TRAINING 3/3] Epoch: 004, Loss: 0.0269, Training Precision: 0.7008, Training Recall: 0.7008, Training F1-score: 0.7008
+[MLP VALIDATION 3/3] Epoch: 004, Loss: 0.0269, Val Precision: 0.7259, Val Recall: 0.7259, Val F1-score: 0.7259
+[MLP TRAINING 3/3] Epoch: 005, Loss: 0.0261, Training Precision: 0.7187, Training Recall: 0.7187, Training F1-score: 0.7187
+[MLP VALIDATION 3/3] Epoch: 005, Loss: 0.0273, Val Precision: 0.7001, Val Recall: 0.7001, Val F1-score: 0.7001
+[MLP TRAINING 3/3] Epoch: 006, Loss: 0.0256, Training Precision: 0.7261, Training Recall: 0.7261, Training F1-score: 0.7261
+[MLP VALIDATION 3/3] Epoch: 006, Loss: 0.0247, Val Precision: 0.7385, Val Recall: 0.7385, Val F1-score: 0.7385
+[MLP TRAINING 3/3] Epoch: 007, Loss: 0.0252, Training Precision: 0.7345, Training Recall: 0.7345, Training F1-score: 0.7345
+[MLP VALIDATION 3/3] Epoch: 007, Loss: 0.0255, Val Precision: 0.7381, Val Recall: 0.7381, Val F1-score: 0.7381
+[MLP TRAINING 3/3] Epoch: 008, Loss: 0.0250, Training Precision: 0.7363, Training Recall: 0.7363, Training F1-score: 0.7363
+[MLP VALIDATION 3/3] Epoch: 008, Loss: 0.0237, Val Precision: 0.7640, Val Recall: 0.7640, Val F1-score: 0.7640
+[MLP TRAINING 3/3] Epoch: 009, Loss: 0.0249, Training Precision: 0.7369, Training Recall: 0.7369, Training F1-score: 0.7369
+[MLP VALIDATION 3/3] Epoch: 009, Loss: 0.0245, Val Precision: 0.7451, Val Recall: 0.7451, Val F1-score: 0.7451
+[MLP TRAINING 3/3] Epoch: 010, Loss: 0.0247, Training Precision: 0.7393, Training Recall: 0.7393, Training F1-score: 0.7393
+[MLP VALIDATION 3/3] Epoch: 010, Loss: 0.0256, Val Precision: 0.7505, Val Recall: 0.7505, Val F1-score: 0.7505
+REPORT USING MLP OVER 3 RUNS
+Avg and std of training precision, recall and f1-score:
+Precision: 0.6778 ± 0.0613
+Recall: 0.6778 ± 0.0613
+F1-score: 0.6778 ± 0.0613
+Avg and std of validation precision, recall and f1-score:
+Precision: 0.6842 ± 0.0742
+Recall: 0.6842 ± 0.0742
+F1-score: 0.6842 ± 0.0742
+--------------------------------------------------
