@@ -1,4 +1,4 @@
-import torch
+import torch, os
 from config import N_EPOCHS, DEVICE, MODELS, LABELS_CODES, TARGET_MODE, H_DIM, USE_FINGERPRINT, N_RUNS, TARGET_TYPE
 from alternative_dataset_builder import train_dataloader, val_dataloader
 
