@@ -1,4 +1,4 @@
-from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS, EXPERIMENT_DIR
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS, EXPERIMENT_FOLDER
 from typing import Union, Literal
 import pickle
 import os
@@ -419,7 +419,7 @@ else:
 # Save a report with: 
 # - number of samples in train, val, and test sets
 # - number of samples in each class
-with open(f'{EXPERIMENT_DIR}/dataset_report_{TARGET_TYPE}{suffix}.txt', 'w') as f:
+with open(f'{EXPERIMENT_FOLDER}/dataset_report_{TARGET_TYPE}{suffix}.txt', 'w') as f:
     f.write(f"Number of samples in train set: {len(train_df)}\n")
     f.write(f"Number of samples in validation set: {len(val_df)}\n")
     f.write(f"Number of samples in test set: {len(test_df)}\n")
