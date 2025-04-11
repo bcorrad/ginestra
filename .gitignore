@@ -1,4 +1,4 @@
-*.pkl
 __pycache__
+*.pkl
 *.log
-experiments
+*.pt

@@ -1,0 +1,88 @@
+Training report
+Models: ['gine']
+Target type: pathway
+Target mode: hot
+Number of epochs: 10
+Number of runs: 3
+Batch size: 32
+Number of samples: None
+Randomize samples: True
+Use available dataset: True
+Use fingerprint: False
+Use multi-label to multi-class: False
+Target classes: None
+Target pathways: {'Alkaloids': 0, 'Amino acids and Peptides': 1, 'Carbohydrates': 2, 'Fatty acids': 3, 'Polyketides': 4, 'Shikimates and Phenylpropanoids': 5, 'Terpenoids': 6}
+Experiment folder: /repo/corradini/ginestra/experiments/20250411_190759_gine_pathway
+Device: cuda
+Training started at: 2025-04-11 19:08:18.160839
+--------------------------------------------------
+Training GINE model
+[GINE TRAINING 1/3] Epoch: 001, Loss: 0.4360, Training Precision: 0.8544, Training Recall: 0.8544, Training F1-score: 0.8544
+[GINE VALIDATION 1/3] Epoch: 001, Loss: 0.3001, Val Precision: 0.9011, Val Recall: 0.9011, Val F1-score: 0.9011
+[GINE TRAINING 1/3] Epoch: 002, Loss: 0.2790, Training Precision: 0.9062, Training Recall: 0.9062, Training F1-score: 0.9062
+[GINE VALIDATION 1/3] Epoch: 002, Loss: 0.2112, Val Precision: 0.9323, Val Recall: 0.9323, Val F1-score: 0.9323
+[GINE TRAINING 1/3] Epoch: 003, Loss: 0.2405, Training Precision: 0.9197, Training Recall: 0.9197, Training F1-score: 0.9197
+[GINE VALIDATION 1/3] Epoch: 003, Loss: 0.2063, Val Precision: 0.9322, Val Recall: 0.9322, Val F1-score: 0.9322
+[GINE TRAINING 1/3] Epoch: 004, Loss: 0.2169, Training Precision: 0.9256, Training Recall: 0.9256, Training F1-score: 0.9256
+[GINE VALIDATION 1/3] Epoch: 004, Loss: 0.1892, Val Precision: 0.9370, Val Recall: 0.9370, Val F1-score: 0.9370
+[GINE TRAINING 1/3] Epoch: 005, Loss: 0.2015, Training Precision: 0.9312, Training Recall: 0.9312, Training F1-score: 0.9312
+[GINE VALIDATION 1/3] Epoch: 005, Loss: 0.1909, Val Precision: 0.9355, Val Recall: 0.9355, Val F1-score: 0.9355
+[GINE TRAINING 1/3] Epoch: 006, Loss: 0.1909, Training Precision: 0.9342, Training Recall: 0.9342, Training F1-score: 0.9342
+[GINE VALIDATION 1/3] Epoch: 006, Loss: 0.1695, Val Precision: 0.9420, Val Recall: 0.9420, Val F1-score: 0.9420
+[GINE TRAINING 1/3] Epoch: 007, Loss: 0.1808, Training Precision: 0.9373, Training Recall: 0.9373, Training F1-score: 0.9373
+[GINE VALIDATION 1/3] Epoch: 007, Loss: 0.1798, Val Precision: 0.9428, Val Recall: 0.9428, Val F1-score: 0.9428
+[GINE TRAINING 1/3] Epoch: 008, Loss: 0.1736, Training Precision: 0.9413, Training Recall: 0.9413, Training F1-score: 0.9413
+[GINE VALIDATION 1/3] Epoch: 008, Loss: 0.1467, Val Precision: 0.9528, Val Recall: 0.9528, Val F1-score: 0.9528
+[GINE TRAINING 1/3] Epoch: 009, Loss: 0.1662, Training Precision: 0.9435, Training Recall: 0.9435, Training F1-score: 0.9435
+[GINE VALIDATION 1/3] Epoch: 009, Loss: 0.1453, Val Precision: 0.9521, Val Recall: 0.9521, Val F1-score: 0.9521
+[GINE TRAINING 1/3] Epoch: 010, Loss: 0.1623, Training Precision: 0.9456, Training Recall: 0.9456, Training F1-score: 0.9456
+[GINE VALIDATION 1/3] Epoch: 010, Loss: 0.1419, Val Precision: 0.9569, Val Recall: 0.9569, Val F1-score: 0.9569
+[GINE TRAINING 2/3] Epoch: 001, Loss: 0.5046, Training Precision: 0.8316, Training Recall: 0.8316, Training F1-score: 0.8316
+[GINE VALIDATION 2/3] Epoch: 001, Loss: 0.3135, Val Precision: 0.8985, Val Recall: 0.8985, Val F1-score: 0.8985
+[GINE TRAINING 2/3] Epoch: 002, Loss: 0.3021, Training Precision: 0.9007, Training Recall: 0.9007, Training F1-score: 0.9007
+[GINE VALIDATION 2/3] Epoch: 002, Loss: 0.2379, Val Precision: 0.9231, Val Recall: 0.9231, Val F1-score: 0.9231
+[GINE TRAINING 2/3] Epoch: 003, Loss: 0.2590, Training Precision: 0.9140, Training Recall: 0.9140, Training F1-score: 0.9140
+[GINE VALIDATION 2/3] Epoch: 003, Loss: 0.8028, Val Precision: 0.7366, Val Recall: 0.7366, Val F1-score: 0.7366
+[GINE TRAINING 2/3] Epoch: 004, Loss: 0.2305, Training Precision: 0.9218, Training Recall: 0.9218, Training F1-score: 0.9218
+[GINE VALIDATION 2/3] Epoch: 004, Loss: 0.2131, Val Precision: 0.9337, Val Recall: 0.9337, Val F1-score: 0.9337
+[GINE TRAINING 2/3] Epoch: 005, Loss: 0.2105, Training Precision: 0.9286, Training Recall: 0.9286, Training F1-score: 0.9286
+[GINE VALIDATION 2/3] Epoch: 005, Loss: 0.1824, Val Precision: 0.9403, Val Recall: 0.9403, Val F1-score: 0.9403
+[GINE TRAINING 2/3] Epoch: 006, Loss: 0.1968, Training Precision: 0.9335, Training Recall: 0.9335, Training F1-score: 0.9335
+[GINE VALIDATION 2/3] Epoch: 006, Loss: 0.2036, Val Precision: 0.9330, Val Recall: 0.9330, Val F1-score: 0.9330
+[GINE TRAINING 2/3] Epoch: 007, Loss: 0.1904, Training Precision: 0.9355, Training Recall: 0.9355, Training F1-score: 0.9355
+[GINE VALIDATION 2/3] Epoch: 007, Loss: 0.1675, Val Precision: 0.9474, Val Recall: 0.9474, Val F1-score: 0.9474
+[GINE TRAINING 2/3] Epoch: 008, Loss: 0.1829, Training Precision: 0.9386, Training Recall: 0.9386, Training F1-score: 0.9386
+[GINE VALIDATION 2/3] Epoch: 008, Loss: 0.1761, Val Precision: 0.9460, Val Recall: 0.9460, Val F1-score: 0.9460
+[GINE TRAINING 2/3] Epoch: 009, Loss: 0.1741, Training Precision: 0.9415, Training Recall: 0.9415, Training F1-score: 0.9415
+[GINE VALIDATION 2/3] Epoch: 009, Loss: 0.1460, Val Precision: 0.9527, Val Recall: 0.9527, Val F1-score: 0.9527
+[GINE TRAINING 2/3] Epoch: 010, Loss: 0.1693, Training Precision: 0.9425, Training Recall: 0.9425, Training F1-score: 0.9425
+[GINE VALIDATION 2/3] Epoch: 010, Loss: 0.1461, Val Precision: 0.9522, Val Recall: 0.9522, Val F1-score: 0.9522
+[GINE TRAINING 3/3] Epoch: 001, Loss: 0.4645, Training Precision: 0.8473, Training Recall: 0.8473, Training F1-score: 0.8473
+[GINE VALIDATION 3/3] Epoch: 001, Loss: 0.2825, Val Precision: 0.9112, Val Recall: 0.9112, Val F1-score: 0.9112
+[GINE TRAINING 3/3] Epoch: 002, Loss: 0.2918, Training Precision: 0.9041, Training Recall: 0.9041, Training F1-score: 0.9041
+[GINE VALIDATION 3/3] Epoch: 002, Loss: 0.2209, Val Precision: 0.9279, Val Recall: 0.9279, Val F1-score: 0.9279
+[GINE TRAINING 3/3] Epoch: 003, Loss: 0.2548, Training Precision: 0.9142, Training Recall: 0.9142, Training F1-score: 0.9142
+[GINE VALIDATION 3/3] Epoch: 003, Loss: 0.2374, Val Precision: 0.9187, Val Recall: 0.9187, Val F1-score: 0.9187
+[GINE TRAINING 3/3] Epoch: 004, Loss: 0.2273, Training Precision: 0.9233, Training Recall: 0.9233, Training F1-score: 0.9233
+[GINE VALIDATION 3/3] Epoch: 004, Loss: 0.1843, Val Precision: 0.9399, Val Recall: 0.9399, Val F1-score: 0.9399
+[GINE TRAINING 3/3] Epoch: 005, Loss: 0.2119, Training Precision: 0.9280, Training Recall: 0.9280, Training F1-score: 0.9280
+[GINE VALIDATION 3/3] Epoch: 005, Loss: 0.2040, Val Precision: 0.9316, Val Recall: 0.9316, Val F1-score: 0.9316
+[GINE TRAINING 3/3] Epoch: 006, Loss: 0.1984, Training Precision: 0.9330, Training Recall: 0.9330, Training F1-score: 0.9330
+[GINE VALIDATION 3/3] Epoch: 006, Loss: 0.1800, Val Precision: 0.9436, Val Recall: 0.9436, Val F1-score: 0.9436
+[GINE TRAINING 3/3] Epoch: 007, Loss: 0.1804, Training Precision: 0.9389, Training Recall: 0.9389, Training F1-score: 0.9389
+[GINE VALIDATION 3/3] Epoch: 007, Loss: 0.1393, Val Precision: 0.9548, Val Recall: 0.9548, Val F1-score: 0.9548
+[GINE TRAINING 3/3] Epoch: 008, Loss: 0.1739, Training Precision: 0.9412, Training Recall: 0.9412, Training F1-score: 0.9412
+[GINE VALIDATION 3/3] Epoch: 008, Loss: 0.1630, Val Precision: 0.9490, Val Recall: 0.9490, Val F1-score: 0.9490
+[GINE TRAINING 3/3] Epoch: 009, Loss: 0.1676, Training Precision: 0.9427, Training Recall: 0.9427, Training F1-score: 0.9427
+[GINE VALIDATION 3/3] Epoch: 009, Loss: 0.1413, Val Precision: 0.9561, Val Recall: 0.9561, Val F1-score: 0.9561
+[GINE TRAINING 3/3] Epoch: 010, Loss: 0.1640, Training Precision: 0.9450, Training Recall: 0.9450, Training F1-score: 0.9450
+[GINE VALIDATION 3/3] Epoch: 010, Loss: 0.1643, Val Precision: 0.9469, Val Recall: 0.9469, Val F1-score: 0.9469
+REPORT USING GINE OVER 3 RUNS
+Avg and std of training precision, recall and f1-score:
+Precision: 0.9215 ± 0.0291
+Recall: 0.9215 ± 0.0291
+F1-score: 0.9215 ± 0.0291
+Avg and std of validation precision, recall and f1-score:
+Precision: 0.9309 ± 0.0397
+Recall: 0.9309 ± 0.0397
+F1-score: 0.9309 ± 0.0397

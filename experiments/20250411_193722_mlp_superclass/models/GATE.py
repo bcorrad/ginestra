@@ -3,112 +3,80 @@ import torch.nn.functional as F
 import numpy as np
 from config import EXPERIMENT_FOLDER
 import os
-from torch_geometric.nn import GINConv, global_add_pool
+from torch_geometric.nn import GATConv, global_add_pool
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from sklearn.metrics import classification_report
-
 from config import PATHWAYS
-
 from config import TARGET_MODE
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
+BCE_THRESHOLD = "tanto te ne andrai"
 
-BCE_THRESHOLD = 0.5
-class GIN(torch.nn.Module):
-    """GIN"""
+class GATE(torch.nn.Module):
+    """
+    Graph Attention Network with edge features.
 
-    def __init__(self, num_node_features, dim_h, num_classes, **kwargs):   #, num_heads=4
-        super(GIN, self).__init__()
-        
+    """
+    
+    def __init__(self, in_channels, hidden_channels, out_channels, edge_dim, n_heads=4, **kwargs):
+        super().__init__()
         if "fingerprint_length" in kwargs and kwargs["fingerprint_length"] is not None:
             self.fingerprint_processor = torch.nn.Sequential(
-                                    torch.nn.Linear(kwargs["fingerprint_length"], dim_h),
+                                    torch.nn.Linear(kwargs["fingerprint_length"], hidden_channels),
                                     torch.nn.ReLU(),
-                                    torch.nn.Linear(dim_h, dim_h))
+                                    torch.nn.Linear(hidden_channels, hidden_channels))
         else:
             self.fingerprint_processor = None
-            
-        self.conv1 = GINConv(
-            Sequential(Linear(num_node_features, dim_h),
-                       BatchNorm1d(dim_h), 
-                       ReLU(),
-                       Linear(dim_h, dim_h), 
-                       ReLU()))
-  
-        self.conv2 = GINConv(Sequential(Linear(dim_h, dim_h), 
-                       BatchNorm1d(dim_h), 
-                       ReLU(),
-                       Linear(dim_h, dim_h), 
-                       ReLU()))
         
-        self.conv3 = GINConv(Sequential(Linear(dim_h, dim_h), 
-                                        BatchNorm1d(dim_h), 
-                                        ReLU(),
-                                        Linear(dim_h, dim_h), 
-                                        ReLU()))
-        # Self-Attention Layer (Multi-Head)
-        # self.attention = MultiheadAttention(embed_dim=dim_h, num_heads=num_heads, batch_first=True)
-
-
-        # Classificatore finale
+        self.conv1 = GATConv(in_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
+        self.conv2 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
+        self.conv3 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
+        
+         # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.lin1 = torch.nn.Linear(3*dim_h, 3*dim_h)  
-            self.lin2 = torch.nn.Linear(3*dim_h, num_classes)
+            self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
+            self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
         else:
-            self.lin1 = torch.nn.Linear(4*dim_h, 4*dim_h)
-            self.lin2 = torch.nn.Linear(4*dim_h, num_classes)
-
-        # self.lin1 = Linear(dim_h, dim_h)
-        # self.lin2 = Linear(dim_h, num_classes)
+            self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
+            self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
 
 
-    def forward(self, x, edge_index, batch, p=0.2, **kwargs):
+    def forward(self, x, edge_index, edge_attr, batch, p=0.2, **kwargs):
         
         if "fingerprint" in kwargs:
             fingerprint = kwargs["fingerprint"]
             fingerprint_emb = self.fingerprint_processor(torch.Tensor(fingerprint))
         else:
             fingerprint = None
+            
+        # # Primo livello: GAT
+        # x = self.gat_conv1(x, edge_index)  # Output (batch_size, hidden_channels * heads)
+        # x = F.dropout(x, p=0.5, training=self.training)
 
-        # Node embeddings 
-        h1 = self.conv1(x, edge_index)
-        # Dropout 
+        # Strati GINEConv
+        h1 = self.conv1(x, edge_index, edge_attr)
         h1 = F.dropout(h1, p=p, training=self.training)
-        h2 = self.conv2(h1, edge_index)
+        h2 = self.conv2(h1, edge_index, edge_attr)
         h2 = F.dropout(h2, p=p, training=self.training)
-        h3 = self.conv3(h2, edge_index)
+        h3 = self.conv3(h2, edge_index, edge_attr)
 
-        # Graph-level readout
-        #The authors make two important points about graph-level readout:
-
-        # To consider all structural information, it is necessary to keep embeddings from previous layers;
-        # The sum operator is surprisingly more expressive than the mean and the max.
-
+        # Global pooling on node features
         h1_pool = global_add_pool(h1, batch)
         h2_pool = global_add_pool(h2, batch)
         h3_pool = global_add_pool(h3, batch)
-
+        
         # Concatenate the embeddings and the fingerprint if not None
         if fingerprint is not None:
             h = torch.cat([h1_pool, h2_pool, h3_pool, fingerprint_emb], dim=1)
         else:
             h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
 
+        # Classificatore
+        h = self.fc1(h).relu()
+        h = self.fc2(h)
 
-        # Stack embeddings per livello, codifica posizionale, A+H=D, e MLP sui token (output=3 token, dim_h)
-        #H = torch.stack([h1, h2, h3], dim=1)  # (batch_size, 3, dim_h)
-        # Apply Self-Attention tra i livelli
-        #A, _ = self.attention(H, H, H)  # (batch_size, 3, dim_h)
-
-
-        # Classifier
-        h = self.lin1(h)
-        h = h.relu()
-        # h = F.dropout(h, p=0.5, training=self.training)
-        h = self.lin2(h)
-        
-        return h
-
+        return h    
+    
 
 def evaluate(model, dataloader, device, criterion, epoch_n):
     """
@@ -204,24 +172,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
         batch = batch.to(device)
         optimizer.zero_grad()
         # Forward pass
-        if model.__class__.__name__ == "GIN":
-            out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch)
-        elif model.__class__.__name__ == "GINWithEdgeFeatures":
-            from config import USE_FINGERPRINT
-            if USE_FINGERPRINT:
-                out = model(x=batch.x, 
-                edge_index=batch.edge_index, 
-                edge_attr=batch.edge_attr, 
-                batch=batch.batch, 
-                fingerprint=batch.fingerprint)
-            else:
-                out = model(x=batch.x, 
-                edge_index=batch.edge_index, 
-                edge_attr=batch.edge_attr, 
-                batch=batch.batch)
-            #out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
-        elif model.__class__.__name__ == "GATWithEdgeFeatures":
-            out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
+        out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
 
         # out = model(x=batch.x, edge_index=batch.edge_index, batch=batch.batch)     # (batch_dim, features_dim) = (128, 653)
         # Targets

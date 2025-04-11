@@ -52,11 +52,11 @@ class GIN(torch.nn.Module):
 
         # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.lin1 = torch.nn.Linear(3*dim_h, 3*dim_h)  
-            self.lin2 = torch.nn.Linear(3*dim_h, num_classes)
+            self.fc1 = torch.nn.Linear(3*dim_h, 3*dim_h)  
+            self.fc2 = torch.nn.Linear(3*dim_h, num_classes)
         else:
-            self.lin1 = torch.nn.Linear(4*dim_h, 4*dim_h)
-            self.lin2 = torch.nn.Linear(4*dim_h, num_classes)
+            self.fc1 = torch.nn.Linear(4*dim_h, 4*dim_h)
+            self.fc2 = torch.nn.Linear(4*dim_h, num_classes)
 
         # self.lin1 = Linear(dim_h, dim_h)
         # self.lin2 = Linear(dim_h, num_classes)

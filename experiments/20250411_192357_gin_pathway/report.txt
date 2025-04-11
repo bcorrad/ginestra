@@ -1,0 +1,89 @@
+Training report
+Models: ['gin']
+Target type: pathway
+Target mode: hot
+Number of epochs: 10
+Number of runs: 3
+Batch size: 32
+Number of samples: None
+Randomize samples: True
+Use available dataset: True
+Use fingerprint: False
+Use multi-label to multi-class: False
+Target classes: None
+Target pathways: {'Alkaloids': 0, 'Amino acids and Peptides': 1, 'Carbohydrates': 2, 'Fatty acids': 3, 'Polyketides': 4, 'Shikimates and Phenylpropanoids': 5, 'Terpenoids': 6}
+Experiment folder: /repo/corradini/ginestra/experiments/20250411_192357_gin_pathway
+Device: cuda
+Training started at: 2025-04-11 19:24:15.774506
+--------------------------------------------------
+Training GIN model
+[GIN TRAINING 1/3] Epoch: 001, Loss: 0.4888, Training Precision: 0.8393, Training Recall: 0.8393, Training F1-score: 0.8393
+[GIN VALIDATION 1/3] Epoch: 001, Loss: 0.2899, Val Precision: 0.9041, Val Recall: 0.9041, Val F1-score: 0.9041
+[GIN TRAINING 1/3] Epoch: 002, Loss: 0.3303, Training Precision: 0.8900, Training Recall: 0.8900, Training F1-score: 0.8900
+[GIN VALIDATION 1/3] Epoch: 002, Loss: 0.2645, Val Precision: 0.9123, Val Recall: 0.9123, Val F1-score: 0.9123
+[GIN TRAINING 1/3] Epoch: 003, Loss: 0.2893, Training Precision: 0.9017, Training Recall: 0.9017, Training F1-score: 0.9017
+[GIN VALIDATION 1/3] Epoch: 003, Loss: 0.2322, Val Precision: 0.9237, Val Recall: 0.9237, Val F1-score: 0.9237
+[GIN TRAINING 1/3] Epoch: 004, Loss: 0.2643, Training Precision: 0.9108, Training Recall: 0.9108, Training F1-score: 0.9108
+[GIN VALIDATION 1/3] Epoch: 004, Loss: 0.2188, Val Precision: 0.9297, Val Recall: 0.9297, Val F1-score: 0.9297
+[GIN TRAINING 1/3] Epoch: 005, Loss: 0.2500, Training Precision: 0.9142, Training Recall: 0.9142, Training F1-score: 0.9142
+[GIN VALIDATION 1/3] Epoch: 005, Loss: 0.1880, Val Precision: 0.9371, Val Recall: 0.9371, Val F1-score: 0.9371
+[GIN TRAINING 1/3] Epoch: 006, Loss: 0.2360, Training Precision: 0.9201, Training Recall: 0.9201, Training F1-score: 0.9201
+[GIN VALIDATION 1/3] Epoch: 006, Loss: 0.1861, Val Precision: 0.9392, Val Recall: 0.9392, Val F1-score: 0.9392
+[GIN TRAINING 1/3] Epoch: 007, Loss: 0.2250, Training Precision: 0.9215, Training Recall: 0.9215, Training F1-score: 0.9215
+[GIN VALIDATION 1/3] Epoch: 007, Loss: 0.1846, Val Precision: 0.9417, Val Recall: 0.9417, Val F1-score: 0.9417
+[GIN TRAINING 1/3] Epoch: 008, Loss: 0.2177, Training Precision: 0.9247, Training Recall: 0.9247, Training F1-score: 0.9247
+[GIN VALIDATION 1/3] Epoch: 008, Loss: 0.1865, Val Precision: 0.9405, Val Recall: 0.9405, Val F1-score: 0.9405
+[GIN TRAINING 1/3] Epoch: 009, Loss: 0.2080, Training Precision: 0.9289, Training Recall: 0.9289, Training F1-score: 0.9289
+[GIN VALIDATION 1/3] Epoch: 009, Loss: 0.1670, Val Precision: 0.9451, Val Recall: 0.9451, Val F1-score: 0.9451
+[GIN TRAINING 1/3] Epoch: 010, Loss: 0.2048, Training Precision: 0.9293, Training Recall: 0.9293, Training F1-score: 0.9293
+[GIN VALIDATION 1/3] Epoch: 010, Loss: 0.1620, Val Precision: 0.9478, Val Recall: 0.9478, Val F1-score: 0.9478
+[GIN TRAINING 2/3] Epoch: 001, Loss: 0.4807, Training Precision: 0.8433, Training Recall: 0.8433, Training F1-score: 0.8433
+[GIN VALIDATION 2/3] Epoch: 001, Loss: 0.2870, Val Precision: 0.9092, Val Recall: 0.9092, Val F1-score: 0.9092
+[GIN TRAINING 2/3] Epoch: 002, Loss: 0.3221, Training Precision: 0.8907, Training Recall: 0.8907, Training F1-score: 0.8907
+[GIN VALIDATION 2/3] Epoch: 002, Loss: 0.2349, Val Precision: 0.9236, Val Recall: 0.9236, Val F1-score: 0.9236
+[GIN TRAINING 2/3] Epoch: 003, Loss: 0.2802, Training Precision: 0.9020, Training Recall: 0.9020, Training F1-score: 0.9020
+[GIN VALIDATION 2/3] Epoch: 003, Loss: 0.2237, Val Precision: 0.9265, Val Recall: 0.9265, Val F1-score: 0.9265
+[GIN TRAINING 2/3] Epoch: 004, Loss: 0.2586, Training Precision: 0.9118, Training Recall: 0.9118, Training F1-score: 0.9118
+[GIN VALIDATION 2/3] Epoch: 004, Loss: 0.1930, Val Precision: 0.9372, Val Recall: 0.9372, Val F1-score: 0.9372
+[GIN TRAINING 2/3] Epoch: 005, Loss: 0.2422, Training Precision: 0.9166, Training Recall: 0.9166, Training F1-score: 0.9166
+[GIN VALIDATION 2/3] Epoch: 005, Loss: 0.2021, Val Precision: 0.9330, Val Recall: 0.9330, Val F1-score: 0.9330
+[GIN TRAINING 2/3] Epoch: 006, Loss: 0.2299, Training Precision: 0.9202, Training Recall: 0.9202, Training F1-score: 0.9202
+[GIN VALIDATION 2/3] Epoch: 006, Loss: 0.1748, Val Precision: 0.9433, Val Recall: 0.9433, Val F1-score: 0.9433
+[GIN TRAINING 2/3] Epoch: 007, Loss: 0.2202, Training Precision: 0.9244, Training Recall: 0.9244, Training F1-score: 0.9244
+[GIN VALIDATION 2/3] Epoch: 007, Loss: 0.1813, Val Precision: 0.9399, Val Recall: 0.9399, Val F1-score: 0.9399
+[GIN TRAINING 2/3] Epoch: 008, Loss: 0.2112, Training Precision: 0.9262, Training Recall: 0.9262, Training F1-score: 0.9262
+[GIN VALIDATION 2/3] Epoch: 008, Loss: 0.1633, Val Precision: 0.9442, Val Recall: 0.9442, Val F1-score: 0.9442
+[GIN TRAINING 2/3] Epoch: 009, Loss: 0.2061, Training Precision: 0.9275, Training Recall: 0.9275, Training F1-score: 0.9275
+[GIN VALIDATION 2/3] Epoch: 009, Loss: 0.1831, Val Precision: 0.9386, Val Recall: 0.9386, Val F1-score: 0.9386
+[GIN TRAINING 2/3] Epoch: 010, Loss: 0.2003, Training Precision: 0.9316, Training Recall: 0.9316, Training F1-score: 0.9316
+[GIN VALIDATION 2/3] Epoch: 010, Loss: 0.1571, Val Precision: 0.9474, Val Recall: 0.9474, Val F1-score: 0.9474
+[GIN TRAINING 3/3] Epoch: 001, Loss: 0.4863, Training Precision: 0.8413, Training Recall: 0.8413, Training F1-score: 0.8413
+[GIN VALIDATION 3/3] Epoch: 001, Loss: 0.2940, Val Precision: 0.9054, Val Recall: 0.9054, Val F1-score: 0.9054
+[GIN TRAINING 3/3] Epoch: 002, Loss: 0.3223, Training Precision: 0.8939, Training Recall: 0.8939, Training F1-score: 0.8939
+[GIN VALIDATION 3/3] Epoch: 002, Loss: 0.2537, Val Precision: 0.9187, Val Recall: 0.9187, Val F1-score: 0.9187
+[GIN TRAINING 3/3] Epoch: 003, Loss: 0.2846, Training Precision: 0.9039, Training Recall: 0.9039, Training F1-score: 0.9039
+[GIN VALIDATION 3/3] Epoch: 003, Loss: 0.2115, Val Precision: 0.9323, Val Recall: 0.9323, Val F1-score: 0.9323
+[GIN TRAINING 3/3] Epoch: 004, Loss: 0.2589, Training Precision: 0.9130, Training Recall: 0.9130, Training F1-score: 0.9130
+[GIN VALIDATION 3/3] Epoch: 004, Loss: 0.1935, Val Precision: 0.9329, Val Recall: 0.9329, Val F1-score: 0.9329
+[GIN TRAINING 3/3] Epoch: 005, Loss: 0.2437, Training Precision: 0.9172, Training Recall: 0.9172, Training F1-score: 0.9172
+[GIN VALIDATION 3/3] Epoch: 005, Loss: 0.1770, Val Precision: 0.9400, Val Recall: 0.9400, Val F1-score: 0.9400
+[GIN TRAINING 3/3] Epoch: 006, Loss: 0.2330, Training Precision: 0.9223, Training Recall: 0.9223, Training F1-score: 0.9223
+[GIN VALIDATION 3/3] Epoch: 006, Loss: 0.1794, Val Precision: 0.9399, Val Recall: 0.9399, Val F1-score: 0.9399
+[GIN TRAINING 3/3] Epoch: 007, Loss: 0.2171, Training Precision: 0.9253, Training Recall: 0.9253, Training F1-score: 0.9253
+[GIN VALIDATION 3/3] Epoch: 007, Loss: 0.1659, Val Precision: 0.9444, Val Recall: 0.9444, Val F1-score: 0.9444
+[GIN TRAINING 3/3] Epoch: 008, Loss: 0.2113, Training Precision: 0.9285, Training Recall: 0.9285, Training F1-score: 0.9285
+[GIN VALIDATION 3/3] Epoch: 008, Loss: 0.1598, Val Precision: 0.9457, Val Recall: 0.9457, Val F1-score: 0.9457
+[GIN TRAINING 3/3] Epoch: 009, Loss: 0.2051, Training Precision: 0.9287, Training Recall: 0.9287, Training F1-score: 0.9287
+[GIN VALIDATION 3/3] Epoch: 009, Loss: 0.1730, Val Precision: 0.9434, Val Recall: 0.9434, Val F1-score: 0.9434
+[GIN TRAINING 3/3] Epoch: 010, Loss: 0.1989, Training Precision: 0.9312, Training Recall: 0.9312, Training F1-score: 0.9312
+[GIN VALIDATION 3/3] Epoch: 010, Loss: 0.1621, Val Precision: 0.9461, Val Recall: 0.9461, Val F1-score: 0.9461
+REPORT USING GIN OVER 3 RUNS
+Avg and std of training precision, recall and f1-score:
+Precision: 0.9093 ± 0.0259
+Recall: 0.9093 ± 0.0259
+F1-score: 0.9093 ± 0.0259
+Avg and std of validation precision, recall and f1-score:
+Precision: 0.9338 ± 0.0128
+Recall: 0.9338 ± 0.0128
+F1-score: 0.9338 ± 0.0128
+--------------------------------------------------
