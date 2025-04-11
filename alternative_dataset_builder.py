@@ -409,7 +409,7 @@ else:
         save_pickle(mlp_val_dataloader, f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
         save_pickle(mlp_test_dataloader, f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
     
-    elif "gin" in MODELS or "gine" in MODELS:
+    if "gin" in MODELS or "gine" in MODELS:
         # Convert train_df, val_df, and test_df to PyTorch Geometric DataLoader objects
         train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
         val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
