@@ -23,8 +23,35 @@ MPL_VAL_PREC_LIST = []
 MPL_VAL_REC_LIST = []
 MPL_VAL_F1_LIST = []
 
+# Initialize a report to save the log of the training
+from config import EXPERIMENT_FOLDER, N_SAMPLES, RANDOMIZE_SAMPLES, USE_AVAILABLE_DATASET, BATCH_SIZE, CLS_LIST, PATHWAYS, LABELS_CODES, MULTILABEL2MULTICLASS, USE_FINGERPRINT
+import datetime
+# Open the report file stream to close it at the end of the training
+report_file = os.path.join(EXPERIMENT_FOLDER, "report.txt")
+f = open(report_file, "w")
+f.write("Training report\n")
+f.write(f"Models: {MODELS}\n")
+f.write(f"Target type: {TARGET_TYPE}\n")
+f.write(f"Target mode: {TARGET_MODE}\n")
+f.write(f"Number of epochs: {N_EPOCHS}\n")
+f.write(f"Number of runs: {N_RUNS}\n")
+f.write(f"Batch size: {BATCH_SIZE}\n")
+f.write(f"Number of samples: {N_SAMPLES}\n")
+f.write(f"Randomize samples: {RANDOMIZE_SAMPLES}\n")
+f.write(f"Use available dataset: {USE_AVAILABLE_DATASET}\n")
+f.write(f"Use fingerprint: {USE_FINGERPRINT}\n")
+f.write(f"Use multi-label to multi-class: {MULTILABEL2MULTICLASS}\n")
+f.write(f"Target classes: {CLS_LIST}\n")
+f.write(f"Target pathways: {PATHWAYS}\n")
+f.write(f"Target labels codes: {LABELS_CODES}\n")
+f.write(f"Experiment folder: {EXPERIMENT_FOLDER}\n")
+f.write(f"Device: {DEVICE}\n")
+f.write(f"Training started at: {datetime.datetime.now()}\n")
+f.write("-"*50 + "\n")
+
 for MODEL in MODELS:
     print(f"Training {MODEL.upper()} model")
+    f.write(f"Training {MODEL.upper()} model\n")
     
     if MODEL == "gin":
         N_FEATURES = train_dataloader.dataset[0].x.shape[-1]
@@ -98,12 +125,16 @@ for MODEL in MODELS:
                 MPL_VAL_REC_LIST.append(val_recall)
                 MPL_VAL_F1_LIST.append(val_f1)
                 
-            print(f'[TRAINING {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {train_avg_loss:.4f}, Training Precision: {train_precision:.4f}, Training Recall: {train_recall:.4f}, Training F1-score: {train_f1:.4f}')
+            log_string = f'[TRAINING {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {train_avg_loss:.4f}, Training Precision: {train_precision:.4f}, Training Recall: {train_recall:.4f}, Training F1-score: {train_f1:.4f}'
+            f.write(log_string + "\n")
+            print(log_string)
             if TARGET_TYPE == "pathway":
                 print("Training confusion matrix:") 
                 print(train_conf_matrix)
             
-            print(f'[VALIDATION {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {val_avg_loss:.4f}, Val Precision: {val_precision:.4f}, Val Recall: {val_recall:.4f}, Val F1-score: {val_f1:.4f}')
+            log_string = f'[VALIDATION {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {val_avg_loss:.4f}, Val Precision: {val_precision:.4f}, Val Recall: {val_recall:.4f}, Val F1-score: {val_f1:.4f}'
+            f.write(log_string + "\n")
+            print(log_string)
             if TARGET_TYPE == "pathway":
                 print("Validation confusion matrix:") 
                 print(val_conf_matrix)
@@ -121,6 +152,16 @@ try:
     print(f"Recall: {sum(GIN_VAL_REC_LIST)/len(GIN_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GIN_VAL_REC_LIST)):.4f}")
     print(f"F1-score: {sum(GIN_VAL_F1_LIST)/len(GIN_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GIN_VAL_F1_LIST)):.4f}")
     print("-"*50)
+    f.write(f"REPORT USING GIN OVER {N_RUNS} RUNS\n")
+    f.write("Avg and std of training precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GIN_TRAIN_PREC_LIST)/len(GIN_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GIN_TRAIN_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GIN_TRAIN_REC_LIST)/len(GIN_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(GIN_TRAIN_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GIN_TRAIN_F1_LIST)/len(GIN_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(GIN_TRAIN_F1_LIST)):.4f}\n")
+    f.write("Avg and std of validation precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GIN_VAL_PREC_LIST)/len(GIN_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(GIN_VAL_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GIN_VAL_REC_LIST)/len(GIN_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GIN_VAL_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GIN_VAL_F1_LIST)/len(GIN_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GIN_VAL_F1_LIST)):.4f}\n")
+    f.write("-"*50 + "\n")
 except:
     # print("GIN model not trained")
     pass
@@ -136,6 +177,15 @@ try:
     print(f"Recall: {sum(GINE_VAL_REC_LIST)/len(GINE_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GINE_VAL_REC_LIST)):.4f}")
     print(f"F1-score: {sum(GINE_VAL_F1_LIST)/len(GINE_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GINE_VAL_F1_LIST)):.4f}")
     print("-"*50)
+    f.write(f"REPORT USING GINE OVER {N_RUNS} RUNS\n")
+    f.write("Avg and std of training precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GINE_TRAIN_PREC_LIST)/len(GINE_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(GINE_TRAIN_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GINE_TRAIN_REC_LIST)/len(GINE_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(GINE_TRAIN_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GINE_TRAIN_F1_LIST)/len(GINE_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(GINE_TRAIN_F1_LIST)):.4f}\n")
+    f.write("Avg and std of validation precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(GINE_VAL_PREC_LIST)/len(GINE_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(GINE_VAL_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(GINE_VAL_REC_LIST)/len(GINE_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(GINE_VAL_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(GINE_VAL_F1_LIST)/len(GINE_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(GINE_VAL_F1_LIST)):.4f}\n")
 except:
     # print("GINE model not trained")
     pass
@@ -151,6 +201,17 @@ try:
     print(f"Recall: {sum(MPL_VAL_REC_LIST)/len(MPL_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_REC_LIST)):.4f}")
     print(f"F1-score: {sum(MPL_VAL_F1_LIST)/len(MPL_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_F1_LIST)):.4f}")
     print("-"*50)
+    f.write(f"REPORT USING MLP OVER {N_RUNS} RUNS\n")
+    f.write("Avg and std of training precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(MPL_TRAIN_PREC_LIST)/len(MPL_TRAIN_PREC_LIST):.4f} ± {torch.std(torch.tensor(MPL_TRAIN_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(MPL_TRAIN_REC_LIST)/len(MPL_TRAIN_REC_LIST):.4f} ± {torch.std(torch.tensor(MPL_TRAIN_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(MPL_TRAIN_F1_LIST)/len(MPL_TRAIN_F1_LIST):.4f} ± {torch.std(torch.tensor(MPL_TRAIN_F1_LIST)):.4f}\n")
+    f.write("Avg and std of validation precision, recall and f1-score:\n")
+    f.write(f"Precision: {sum(MPL_VAL_PREC_LIST)/len(MPL_VAL_PREC_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_PREC_LIST)):.4f}\n")
+    f.write(f"Recall: {sum(MPL_VAL_REC_LIST)/len(MPL_VAL_REC_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_REC_LIST)):.4f}\n")
+    f.write(f"F1-score: {sum(MPL_VAL_F1_LIST)/len(MPL_VAL_F1_LIST):.4f} ± {torch.std(torch.tensor(MPL_VAL_F1_LIST)):.4f}\n")
+    f.write("-"*50 + "\n")
 except:
     # print("MLP model not trained")
     pass
+
