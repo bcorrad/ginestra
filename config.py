@@ -1,7 +1,7 @@
 import os, torch
 import numpy as np
 
-REPRODUCIBLE = True
+REPRODUCIBLE = False
 if REPRODUCIBLE:
     SEED = 123
     # Set random seed for reproducibility
