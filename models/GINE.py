@@ -28,7 +28,7 @@ class GINWithEdgeFeatures(torch.nn.Module):
         else:
             self.fingerprint_processor = None
             
-        # TODO: ridurre il numero di layer dei GINECONV
+        # TODO: ridurre il numero di layer dei GINEConv
         # GIN layer
         self.conv1 = GINEConv(
             Sequential(Linear(in_channels, hidden_channels), 

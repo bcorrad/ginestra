@@ -1,0 +1,3 @@
+# To-Do List
+
+1. In ``GINE.py`` and ``GIN.py``: reduce the number of Linear layers of GINConv and GINEConv Sequentials.

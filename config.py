@@ -36,10 +36,11 @@ TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary
 USE_FINGERPRINT = False
 
 ## NETWORK CONFIG
-H_DIM = 128
-MODELS = ["gine", "gin"] #, "mlp"] # Options: "gin", "gine", "mlp"
+H_DIM = 16
+MODELS = ["gine", "gin", "mlp"] # Options: "gin", "gine", "mlp"
 # OR
 # MODELS = ["mlp"] 
+MODELS = MODELS.sort()  # Minimize the dataset exchanges between models during training
 
 import pickle
 # Build dictionaries of classes, superclasses and pathways based on the target type

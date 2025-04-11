@@ -1,6 +1,6 @@
 import torch, os
 from config import N_EPOCHS, DEVICE, MODELS, LABELS_CODES, TARGET_MODE, H_DIM, USE_FINGERPRINT, N_RUNS, TARGET_TYPE
-from alternative_dataset_builder import train_dataloader, val_dataloader
+from alternative_dataset_builder import mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader
 
 GIN_TRAIN_PREC_LIST = []
 GIN_TRAIN_REC_LIST = []
@@ -54,6 +54,9 @@ for MODEL in MODELS:
     f.write(f"Training {MODEL.upper()} model\n")
     
     if MODEL == "gin":
+        train_dataloader = gnn_train_dataloader
+        val_dataloader = gnn_val_dataloader
+        test_dataloader = gnn_test_dataloader
         N_FEATURES = train_dataloader.dataset[0].x.shape[-1]
         from models.GIN import GIN, GINWithEdgeFeatures
         model = GIN(num_node_features=N_FEATURES, 
@@ -65,6 +68,9 @@ for MODEL in MODELS:
         from models.GIN import evaluate   
 
     elif MODEL == "gine":
+        train_dataloader = gnn_train_dataloader
+        val_dataloader = gnn_val_dataloader
+        test_dataloader = gnn_test_dataloader
         N_FEATURES = train_dataloader.dataset[0].x.shape[-1]
         EDGE_FEATURES = train_dataloader.dataset[0].edge_attr.shape[-1]
         if USE_FINGERPRINT and hasattr(train_dataloader.dataset[0], "fingerprint"):
@@ -84,6 +90,9 @@ for MODEL in MODELS:
         from models.GINE import evaluate
         
     elif MODEL == "mlp":
+        train_dataloader = mlp_train_dataloader
+        val_dataloader = mlp_val_dataloader
+        test_dataloader = mlp_test_dataloader
         from models.MLP import MLP
         # N_FEATURES = the length of the extended fingerprint in the dataloader
         N_FEATURES = len(train_dataloader.dataset[0][1][0])
