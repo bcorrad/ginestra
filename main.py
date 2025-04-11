@@ -133,14 +133,14 @@ for MODEL in MODELS:
                 MPL_VAL_REC_LIST.append(val_recall)
                 MPL_VAL_F1_LIST.append(val_f1)
                 
-            log_string = f'[TRAINING {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {train_avg_loss:.4f}, Training Precision: {train_precision:.4f}, Training Recall: {train_recall:.4f}, Training F1-score: {train_f1:.4f}'
+            log_string = f'[{MODEL} TRAINING {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {train_avg_loss:.4f}, Training Precision: {train_precision:.4f}, Training Recall: {train_recall:.4f}, Training F1-score: {train_f1:.4f}'
             f.write(log_string + "\n")
             print(log_string)
             if TARGET_TYPE == "pathway":
                 print("Training confusion matrix:") 
                 print(train_conf_matrix)
             
-            log_string = f'[VALIDATION {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {val_avg_loss:.4f}, Val Precision: {val_precision:.4f}, Val Recall: {val_recall:.4f}, Val F1-score: {val_f1:.4f}'
+            log_string = f'[{MODEL} VALIDATION {n_run+1}/{N_RUNS}] Epoch: {epoch:03d}, Loss: {val_avg_loss:.4f}, Val Precision: {val_precision:.4f}, Val Recall: {val_recall:.4f}, Val F1-score: {val_f1:.4f}'
             f.write(log_string + "\n")
             print(log_string)
             if TARGET_TYPE == "pathway":
