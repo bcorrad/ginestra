@@ -400,9 +400,9 @@ else:
         val_dataset = CustomDataset(val_df)
         test_dataset = CustomDataset(test_df)
         # Create DataLoader objects
-        mlp_train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-        mlp_val_dataloader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
-        mlp_test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+        mlp_train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
+        mlp_val_dataloader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True)
+        mlp_test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True)
         
         # Save the DataLoader objects to pickle files
         save_pickle(mlp_train_dataloader, f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
