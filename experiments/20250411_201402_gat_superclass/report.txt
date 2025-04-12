@@ -1,0 +1,89 @@
+Training report
+Models: ['gat']
+Target type: superclass
+Target mode: hot
+Number of epochs: 10
+Number of runs: 3
+Batch size: 32
+Number of samples: None
+Randomize samples: True
+Use available dataset: True
+Use fingerprint: False
+Use multi-label to multi-class: False
+Target classes: None
+Target pathways: {'Alkylresorsinols': 0, 'Amino acid glycosides': 1, 'Aminosugars and aminoglycosides': 2, 'Anthranilic acid alkaloids': 3, 'Apocarotenoids': 4, 'Aromatic polyketides': 5, 'Carotenoids (C40)': 6, 'Carotenoids (C45)': 7, 'Carotenoids (C50)': 8, 'Chromanes': 9, 'Coumarins': 10, 'Cyclic polyketides': 11, 'Diarylheptanoids': 12, 'Diazotetronic acids and derivatives': 13, 'Diterpenoids': 14, 'Docosanoids': 15, 'Eicosanoids': 16, 'Fatty Acids and Conjugates': 17, 'Fatty acyl glycosides': 18, 'Fatty acyls': 19, 'Fatty amides': 20, 'Fatty esters': 21, 'Flavonoids': 22, 'Fluorenes': 23, 'Glycerolipids': 24, 'Glycerophospholipids': 25, 'Guanidine alkaloids': 26, 'Histidine alkaloids': 27, 'Isoflavonoids': 28, 'Lignans': 29, 'Linear polyketides': 30, 'Lysine alkaloids': 31, 'Macrolides': 32, 'Meroterpenoids': 33, 'Monoterpenoids': 34, 'Mycosporine derivatives': 35, 'Naphthalenes': 36, 'Nicotinic acid alkaloids': 37, 'Nucleosides': 38, 'Octadecanoids': 39, 'Oligopeptides': 40, 'Ornithine alkaloids': 41, 'Peptide alkaloids': 42, 'Phenolic acids (C6-C1)': 43, 'Phenylethanoids (C6-C2)': 44, 'Phenylpropanoids (C6-C3)': 45, 'Phloroglucinols': 46, 'Polycyclic aromatic polyketides': 47, 'Polyethers': 48, 'Polyols': 49, 'Polyprenols': 50, 'Proline alkaloids': 51, 'Pseudoalkaloids (transamidation)': 52, 'Saccharides': 53, 'Sesquiterpenoids': 54, 'Sesterterpenoids': 55, 'Small peptides': 56, 'Spingolipids': 57, 'Steroids': 58, 'Stilbenoids': 59, 'Styrylpyrones': 60, 'Terphenyls': 61, 'Tetramate alkaloids': 62, 'Triterpenoids': 63, 'Tropolones': 64, 'Tryptophan alkaloids': 65, 'Tyrosine alkaloids': 66, 'Xanthones': 67, 'β-lactams': 68, 'γ-lactam-β-lactones': 69}
+Experiment folder: /repo/corradini/ginestra/experiments/20250411_201402_gat_superclass
+Device: cuda
+Training started at: 2025-04-11 20:14:21.633053
+--------------------------------------------------
+Training GAT model
+[GAT TRAINING 1/3] Epoch: 001, Loss: 2.0865, Training Precision: 0.4344, Training Recall: 0.4344, Training F1-score: 0.4344
+[GAT VALIDATION 1/3] Epoch: 001, Loss: 1.6205, Val Precision: 0.5365, Val Recall: 0.5365, Val F1-score: 0.5365
+[GAT TRAINING 1/3] Epoch: 002, Loss: 1.5343, Training Precision: 0.5699, Training Recall: 0.5699, Training F1-score: 0.5699
+[GAT VALIDATION 1/3] Epoch: 002, Loss: 1.3858, Val Precision: 0.6002, Val Recall: 0.6002, Val F1-score: 0.6002
+[GAT TRAINING 1/3] Epoch: 003, Loss: 1.3630, Training Precision: 0.6071, Training Recall: 0.6071, Training F1-score: 0.6071
+[GAT VALIDATION 1/3] Epoch: 003, Loss: 1.2437, Val Precision: 0.6380, Val Recall: 0.6380, Val F1-score: 0.6380
+[GAT TRAINING 1/3] Epoch: 004, Loss: 1.2738, Training Precision: 0.6290, Training Recall: 0.6290, Training F1-score: 0.6290
+[GAT VALIDATION 1/3] Epoch: 004, Loss: 1.1714, Val Precision: 0.6638, Val Recall: 0.6638, Val F1-score: 0.6638
+[GAT TRAINING 1/3] Epoch: 005, Loss: 1.2116, Training Precision: 0.6455, Training Recall: 0.6455, Training F1-score: 0.6455
+[GAT VALIDATION 1/3] Epoch: 005, Loss: 1.1347, Val Precision: 0.6712, Val Recall: 0.6712, Val F1-score: 0.6712
+[GAT TRAINING 1/3] Epoch: 006, Loss: 1.1637, Training Precision: 0.6603, Training Recall: 0.6603, Training F1-score: 0.6603
+[GAT VALIDATION 1/3] Epoch: 006, Loss: 1.0894, Val Precision: 0.6883, Val Recall: 0.6883, Val F1-score: 0.6883
+[GAT TRAINING 1/3] Epoch: 007, Loss: 1.1253, Training Precision: 0.6715, Training Recall: 0.6715, Training F1-score: 0.6715
+[GAT VALIDATION 1/3] Epoch: 007, Loss: 1.0502, Val Precision: 0.6879, Val Recall: 0.6879, Val F1-score: 0.6879
+[GAT TRAINING 1/3] Epoch: 008, Loss: 1.0877, Training Precision: 0.6828, Training Recall: 0.6828, Training F1-score: 0.6828
+[GAT VALIDATION 1/3] Epoch: 008, Loss: 1.0081, Val Precision: 0.7049, Val Recall: 0.7049, Val F1-score: 0.7049
+[GAT TRAINING 1/3] Epoch: 009, Loss: 1.0546, Training Precision: 0.6889, Training Recall: 0.6889, Training F1-score: 0.6889
+[GAT VALIDATION 1/3] Epoch: 009, Loss: 0.9710, Val Precision: 0.7183, Val Recall: 0.7183, Val F1-score: 0.7183
+[GAT TRAINING 1/3] Epoch: 010, Loss: 1.0222, Training Precision: 0.7021, Training Recall: 0.7021, Training F1-score: 0.7021
+[GAT VALIDATION 1/3] Epoch: 010, Loss: 0.9503, Val Precision: 0.7229, Val Recall: 0.7229, Val F1-score: 0.7229
+[GAT TRAINING 2/3] Epoch: 001, Loss: 2.0839, Training Precision: 0.4480, Training Recall: 0.4480, Training F1-score: 0.4480
+[GAT VALIDATION 2/3] Epoch: 001, Loss: 1.6357, Val Precision: 0.5547, Val Recall: 0.5547, Val F1-score: 0.5547
+[GAT TRAINING 2/3] Epoch: 002, Loss: 1.5529, Training Precision: 0.5681, Training Recall: 0.5681, Training F1-score: 0.5681
+[GAT VALIDATION 2/3] Epoch: 002, Loss: 1.4131, Val Precision: 0.6058, Val Recall: 0.6058, Val F1-score: 0.6058
+[GAT TRAINING 2/3] Epoch: 003, Loss: 1.4022, Training Precision: 0.5990, Training Recall: 0.5990, Training F1-score: 0.5990
+[GAT VALIDATION 2/3] Epoch: 003, Loss: 1.3091, Val Precision: 0.6162, Val Recall: 0.6162, Val F1-score: 0.6162
+[GAT TRAINING 2/3] Epoch: 004, Loss: 1.3091, Training Precision: 0.6218, Training Recall: 0.6218, Training F1-score: 0.6218
+[GAT VALIDATION 2/3] Epoch: 004, Loss: 1.2041, Val Precision: 0.6587, Val Recall: 0.6587, Val F1-score: 0.6587
+[GAT TRAINING 2/3] Epoch: 005, Loss: 1.2299, Training Precision: 0.6417, Training Recall: 0.6417, Training F1-score: 0.6417
+[GAT VALIDATION 2/3] Epoch: 005, Loss: 1.1262, Val Precision: 0.6733, Val Recall: 0.6733, Val F1-score: 0.6733
+[GAT TRAINING 2/3] Epoch: 006, Loss: 1.1624, Training Precision: 0.6612, Training Recall: 0.6612, Training F1-score: 0.6612
+[GAT VALIDATION 2/3] Epoch: 006, Loss: 1.0766, Val Precision: 0.6783, Val Recall: 0.6783, Val F1-score: 0.6783
+[GAT TRAINING 2/3] Epoch: 007, Loss: 1.1109, Training Precision: 0.6772, Training Recall: 0.6772, Training F1-score: 0.6772
+[GAT VALIDATION 2/3] Epoch: 007, Loss: 1.0511, Val Precision: 0.7020, Val Recall: 0.7020, Val F1-score: 0.7020
+[GAT TRAINING 2/3] Epoch: 008, Loss: 1.0743, Training Precision: 0.6848, Training Recall: 0.6848, Training F1-score: 0.6848
+[GAT VALIDATION 2/3] Epoch: 008, Loss: 1.0159, Val Precision: 0.7054, Val Recall: 0.7054, Val F1-score: 0.7054
+[GAT TRAINING 2/3] Epoch: 009, Loss: 1.0423, Training Precision: 0.6974, Training Recall: 0.6974, Training F1-score: 0.6974
+[GAT VALIDATION 2/3] Epoch: 009, Loss: 0.9776, Val Precision: 0.7141, Val Recall: 0.7141, Val F1-score: 0.7141
+[GAT TRAINING 2/3] Epoch: 010, Loss: 1.0157, Training Precision: 0.7018, Training Recall: 0.7018, Training F1-score: 0.7018
+[GAT VALIDATION 2/3] Epoch: 010, Loss: 0.9501, Val Precision: 0.7333, Val Recall: 0.7333, Val F1-score: 0.7333
+[GAT TRAINING 3/3] Epoch: 001, Loss: 2.0867, Training Precision: 0.4430, Training Recall: 0.4430, Training F1-score: 0.4430
+[GAT VALIDATION 3/3] Epoch: 001, Loss: 1.5969, Val Precision: 0.5638, Val Recall: 0.5638, Val F1-score: 0.5638
+[GAT TRAINING 3/3] Epoch: 002, Loss: 1.5299, Training Precision: 0.5726, Training Recall: 0.5726, Training F1-score: 0.5726
+[GAT VALIDATION 3/3] Epoch: 002, Loss: 1.3746, Val Precision: 0.6117, Val Recall: 0.6117, Val F1-score: 0.6117
+[GAT TRAINING 3/3] Epoch: 003, Loss: 1.3835, Training Precision: 0.6032, Training Recall: 0.6032, Training F1-score: 0.6032
+[GAT VALIDATION 3/3] Epoch: 003, Loss: 1.2710, Val Precision: 0.6290, Val Recall: 0.6290, Val F1-score: 0.6290
+[GAT TRAINING 3/3] Epoch: 004, Loss: 1.2911, Training Precision: 0.6242, Training Recall: 0.6242, Training F1-score: 0.6242
+[GAT VALIDATION 3/3] Epoch: 004, Loss: 1.1960, Val Precision: 0.6542, Val Recall: 0.6542, Val F1-score: 0.6542
+[GAT TRAINING 3/3] Epoch: 005, Loss: 1.2186, Training Precision: 0.6482, Training Recall: 0.6482, Training F1-score: 0.6482
+[GAT VALIDATION 3/3] Epoch: 005, Loss: 1.1432, Val Precision: 0.6664, Val Recall: 0.6664, Val F1-score: 0.6664
+[GAT TRAINING 3/3] Epoch: 006, Loss: 1.1584, Training Precision: 0.6619, Training Recall: 0.6619, Training F1-score: 0.6619
+[GAT VALIDATION 3/3] Epoch: 006, Loss: 1.0596, Val Precision: 0.7002, Val Recall: 0.7002, Val F1-score: 0.7002
+[GAT TRAINING 3/3] Epoch: 007, Loss: 1.1026, Training Precision: 0.6774, Training Recall: 0.6774, Training F1-score: 0.6774
+[GAT VALIDATION 3/3] Epoch: 007, Loss: 1.0678, Val Precision: 0.6777, Val Recall: 0.6777, Val F1-score: 0.6777
+[GAT TRAINING 3/3] Epoch: 008, Loss: 1.0597, Training Precision: 0.6912, Training Recall: 0.6912, Training F1-score: 0.6912
+[GAT VALIDATION 3/3] Epoch: 008, Loss: 0.9765, Val Precision: 0.7159, Val Recall: 0.7159, Val F1-score: 0.7159
+[GAT TRAINING 3/3] Epoch: 009, Loss: 1.0222, Training Precision: 0.7021, Training Recall: 0.7021, Training F1-score: 0.7021
+[GAT VALIDATION 3/3] Epoch: 009, Loss: 0.9343, Val Precision: 0.7256, Val Recall: 0.7256, Val F1-score: 0.7256
+[GAT TRAINING 3/3] Epoch: 010, Loss: 0.9973, Training Precision: 0.7084, Training Recall: 0.7084, Training F1-score: 0.7084
+[GAT VALIDATION 3/3] Epoch: 010, Loss: 0.9313, Val Precision: 0.7362, Val Recall: 0.7362, Val F1-score: 0.7362
+REPORT USING GAT OVER 3 RUNS
+Avg and std of training precision, recall and f1-score:
+Precision: 0.6308 ± 0.0762
+Recall: 0.6308 ± 0.0762
+F1-score: 0.6308 ± 0.0762
+Avg and std of validation precision, recall and f1-score:
+Precision: 0.6652 ± 0.0544
+Recall: 0.6652 ± 0.0544
+F1-score: 0.6652 ± 0.0544
+--------------------------------------------------

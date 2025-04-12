@@ -108,7 +108,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n):
                 else:
                     out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
                 #out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
-            elif model.__class__.__name__ == "GATE":
+            elif model.__class__.__name__ == "GATWithEdgeFeatures":
                 out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
             # out = model(batch.x, batch.edge_index, batch.batch)  # Forward pass
             # Determine targets

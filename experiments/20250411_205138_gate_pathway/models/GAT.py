@@ -11,14 +11,13 @@ from config import TARGET_MODE
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 BCE_THRESHOLD = "tanto te ne andrai"
-
-class GATE(torch.nn.Module):
+class GAT(torch.nn.Module):
     """
     Graph Attention Network with edge features.
 
     """
     
-    def __init__(self, in_channels, hidden_channels, out_channels, edge_dim, n_heads=4, **kwargs):
+    def __init__(self, in_channels, hidden_channels, out_channels, edge_dim=None, n_heads=4, **kwargs):
         super().__init__()
         if "fingerprint_length" in kwargs and kwargs["fingerprint_length"] is not None:
             self.fingerprint_processor = torch.nn.Sequential(
@@ -41,7 +40,7 @@ class GATE(torch.nn.Module):
             self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
 
 
-    def forward(self, x, edge_index, edge_attr, batch, p=0.2, **kwargs):
+    def forward(self, x, edge_index, batch, p=0.2, **kwargs):
         
         if "fingerprint" in kwargs:
             fingerprint = kwargs["fingerprint"]
@@ -50,15 +49,15 @@ class GATE(torch.nn.Module):
             fingerprint = None
             
         # # Primo livello: GAT
-        # x = self.gat_conv1(x, edge_index)  # Output (batch_size, hidden_channels * heads)
+        # x = self.conv1(x, edge_index)  # Output (batch_size, hidden_channels * heads)
         # x = F.dropout(x, p=0.5, training=self.training)
 
         # Strati GINEConv
-        h1 = self.conv1(x, edge_index, edge_attr)
+        h1 = self.conv1(x, edge_index)
         h1 = F.dropout(h1, p=p, training=self.training)
-        h2 = self.conv2(h1, edge_index, edge_attr)
+        h2 = self.conv2(h1, edge_index)
         h2 = F.dropout(h2, p=p, training=self.training)
-        h3 = self.conv3(h2, edge_index, edge_attr)
+        h3 = self.conv3(h2, edge_index)
 
         # Global pooling on node features
         h1_pool = global_add_pool(h1, batch)
@@ -75,7 +74,7 @@ class GATE(torch.nn.Module):
         h = self.fc1(h).relu()
         h = self.fc2(h)
 
-        return h    
+        return h   
     
 
 def evaluate(model, dataloader, device, criterion, epoch_n):
@@ -108,7 +107,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n):
                 else:
                     out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
                 #out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
-            elif model.__class__.__name__ == "GATE":
+            elif model.__class__.__name__ == "GAT":
                 out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
             # out = model(batch.x, batch.edge_index, batch.batch)  # Forward pass
             # Determine targets
