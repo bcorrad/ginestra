@@ -18,7 +18,7 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(BASEDIR, "data")
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-N_EPOCHS = 10
+N_EPOCHS = 30
 N_RUNS = 3  # Number of runs for the model
 ## DATASET PARAMETERS
 USE_AVAILABLE_DATASET = False # If True, use the dataset already downloaded and preprocessed
@@ -39,7 +39,7 @@ USE_FINGERPRINT = False
 H_DIM = 16
 # MODELS = ["gine", "gin", "gat", "gate", "mlp"] # Options: "gin", "gine", "mlp", "gat", "gate"
 # OR
-MODELS = ["mlp"] 
+MODELS = ["gat"] 
 MODELS.sort()  # Minimize the dataset exchanges between models during training
 
 import pickle

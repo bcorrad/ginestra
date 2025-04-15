@@ -1,0 +1,15 @@
+Dataset does not exist. Generating new dataset.
+Row 0 corresponding to class 6 occurs 22235 times in the original matrix.
+Row 1 corresponding to class 5 occurs 9762 times in the original matrix.
+Row 2 corresponding to class 4 occurs 6942 times in the original matrix.
+Row 3 corresponding to class 3 occurs 24088 times in the original matrix.
+Row 4 corresponding to class 2 occurs 897 times in the original matrix.
+Row 5 corresponding to class 1 occurs 2683 times in the original matrix.
+Row 6 corresponding to class 0 occurs 7616 times in the original matrix.
+Class 6 - Training: 13341, Validation: 4447, Test: 4447
+Class 5 - Training: 19198, Validation: 6399, Test: 6400
+Class 4 - Training: 23363, Validation: 7787, Test: 7789
+Class 3 - Training: 37815, Validation: 12605, Test: 12607
+Class 2 - Training: 38353, Validation: 12784, Test: 12787
+Class 1 - Training: 39962, Validation: 13321, Test: 13324
+Class 0 - Training: 44531, Validation: 14844, Test: 14848

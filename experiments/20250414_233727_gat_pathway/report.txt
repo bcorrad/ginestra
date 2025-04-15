@@ -1,0 +1,19 @@
+Training report
+Models: ['gat']
+Target type: pathway
+Target mode: hot
+Number of epochs: 30
+Number of runs: 3
+Batch size: 32
+Number of samples: None
+Randomize samples: True
+Use available dataset: False
+Use fingerprint: False
+Use multi-label to multi-class: False
+Target classes: None
+Target pathways: {'Alkaloids': 0, 'Amino acids and Peptides': 1, 'Carbohydrates': 2, 'Fatty acids': 3, 'Polyketides': 4, 'Shikimates and Phenylpropanoids': 5, 'Terpenoids': 6}
+Experiment folder: /home/AMM/aprete/Metabolomics/Ginestra/experiments/20250414_233727_gat_pathway
+Device: cpu
+Training started at: 2025-04-14 23:41:11.073666
+--------------------------------------------------
+Training GAT model

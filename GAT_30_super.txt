@@ -1,0 +1,220 @@
+Dataset does not exist. Generating new dataset.
+Row 0 corresponding to class 69 occurs 7 times in the original matrix.
+Row 1 corresponding to class 68 occurs 205 times in the original matrix.
+Row 2 corresponding to class 67 occurs 270 times in the original matrix.
+Row 3 corresponding to class 66 occurs 1710 times in the original matrix.
+Row 4 corresponding to class 65 occurs 2374 times in the original matrix.
+Row 5 corresponding to class 64 occurs 46 times in the original matrix.
+Row 6 corresponding to class 63 occurs 3929 times in the original matrix.
+Row 7 corresponding to class 62 occurs 49 times in the original matrix.
+Row 8 corresponding to class 61 occurs 138 times in the original matrix.
+Row 9 corresponding to class 60 occurs 121 times in the original matrix.
+Row 10 corresponding to class 59 occurs 318 times in the original matrix.
+Row 11 corresponding to class 58 occurs 2761 times in the original matrix.
+Row 12 corresponding to class 57 occurs 749 times in the original matrix.
+Row 13 corresponding to class 56 occurs 985 times in the original matrix.
+Row 14 corresponding to class 55 occurs 346 times in the original matrix.
+Row 15 corresponding to class 54 occurs 6026 times in the original matrix.
+Row 16 corresponding to class 53 occurs 187 times in the original matrix.
+Row 17 corresponding to class 52 occurs 1097 times in the original matrix.
+Row 18 corresponding to class 51 occurs 38 times in the original matrix.
+Row 19 corresponding to class 50 occurs 29 times in the original matrix.
+Row 20 corresponding to class 49 occurs 104 times in the original matrix.
+Row 21 corresponding to class 48 occurs 188 times in the original matrix.
+Row 22 corresponding to class 47 occurs 1136 times in the original matrix.
+Row 23 corresponding to class 46 occurs 365 times in the original matrix.
+Row 24 corresponding to class 45 occurs 131 times in the original matrix.
+Row 25 corresponding to class 44 occurs 33 times in the original matrix.
+Row 26 corresponding to class 43 occurs 370 times in the original matrix.
+Row 27 corresponding to class 42 occurs 352 times in the original matrix.
+Row 28 corresponding to class 41 occurs 1055 times in the original matrix.
+Row 29 corresponding to class 40 occurs 2048 times in the original matrix.
+Row 30 corresponding to class 39 occurs 256 times in the original matrix.
+Row 31 corresponding to class 38 occurs 435 times in the original matrix.
+Row 32 corresponding to class 37 occurs 448 times in the original matrix.
+Row 33 corresponding to class 36 occurs 579 times in the original matrix.
+Row 34 corresponding to class 35 occurs 25 times in the original matrix.
+Row 35 corresponding to class 34 occurs 1648 times in the original matrix.
+Row 36 corresponding to class 33 occurs 1209 times in the original matrix.
+Row 37 corresponding to class 32 occurs 2098 times in the original matrix.
+Row 38 corresponding to class 31 occurs 471 times in the original matrix.
+Row 39 corresponding to class 30 occurs 908 times in the original matrix.
+Row 40 corresponding to class 29 occurs 667 times in the original matrix.
+Row 41 corresponding to class 28 occurs 725 times in the original matrix.
+Row 42 corresponding to class 27 occurs 198 times in the original matrix.
+Row 43 corresponding to class 26 occurs 116 times in the original matrix.
+Row 44 corresponding to class 25 occurs 8977 times in the original matrix.
+Row 45 corresponding to class 24 occurs 7554 times in the original matrix.
+Row 46 corresponding to class 23 occurs 42 times in the original matrix.
+Row 47 corresponding to class 22 occurs 5045 times in the original matrix.
+Row 48 corresponding to class 21 occurs 1442 times in the original matrix.
+Row 49 corresponding to class 20 occurs 368 times in the original matrix.
+Row 50 corresponding to class 19 occurs 1649 times in the original matrix.
+Row 51 corresponding to class 18 occurs 223 times in the original matrix.
+Row 52 corresponding to class 17 occurs 2287 times in the original matrix.
+Row 53 corresponding to class 16 occurs 437 times in the original matrix.
+Row 54 corresponding to class 15 occurs 114 times in the original matrix.
+Row 55 corresponding to class 14 occurs 5829 times in the original matrix.
+Row 56 corresponding to class 13 occurs 68 times in the original matrix.
+Row 57 corresponding to class 12 occurs 225 times in the original matrix.
+Row 58 corresponding to class 11 occurs 730 times in the original matrix.
+Row 59 corresponding to class 10 occurs 1500 times in the original matrix.
+Row 60 corresponding to class 9 occurs 529 times in the original matrix.
+Row 61 corresponding to class 8 occurs 29 times in the original matrix.
+Row 62 corresponding to class 7 occurs 9 times in the original matrix.
+Row 63 corresponding to class 6 occurs 643 times in the original matrix.
+Row 64 corresponding to class 5 occurs 647 times in the original matrix.
+Row 65 corresponding to class 4 occurs 349 times in the original matrix.
+Row 66 corresponding to class 3 occurs 539 times in the original matrix.
+Row 67 corresponding to class 2 occurs 124 times in the original matrix.
+Row 68 corresponding to class 1 occurs 105 times in the original matrix.
+Row 69 corresponding to class 0 occurs 49 times in the original matrix.
+Class 69 - Training: 4, Validation: 1, Test: 2
+Class 68 - Training: 127, Validation: 42, Test: 43
+Class 67 - Training: 289, Validation: 96, Test: 97
+Class 66 - Training: 1315, Validation: 438, Test: 439
+Class 65 - Training: 2739, Validation: 913, Test: 914
+Class 64 - Training: 2766, Validation: 922, Test: 924
+Class 63 - Training: 5123, Validation: 1708, Test: 1710
+Class 62 - Training: 5152, Validation: 1718, Test: 1720
+Class 61 - Training: 5234, Validation: 1746, Test: 1748
+Class 60 - Training: 5306, Validation: 1770, Test: 1773
+Class 59 - Training: 5496, Validation: 1834, Test: 1837
+Class 58 - Training: 7152, Validation: 2386, Test: 2390
+Class 57 - Training: 7601, Validation: 2536, Test: 2540
+Class 56 - Training: 8192, Validation: 2733, Test: 2737
+Class 55 - Training: 8399, Validation: 2802, Test: 2807
+Class 54 - Training: 12014, Validation: 4007, Test: 4013
+Class 53 - Training: 12126, Validation: 4044, Test: 4051
+Class 52 - Training: 12784, Validation: 4263, Test: 4271
+Class 51 - Training: 12806, Validation: 4271, Test: 4279
+Class 50 - Training: 12823, Validation: 4277, Test: 4285
+Class 49 - Training: 12885, Validation: 4298, Test: 4306
+Class 48 - Training: 12997, Validation: 4336, Test: 4344
+Class 47 - Training: 13678, Validation: 4563, Test: 4572
+Class 46 - Training: 13897, Validation: 4636, Test: 4645
+Class 45 - Training: 13975, Validation: 4662, Test: 4672
+Class 44 - Training: 13994, Validation: 4669, Test: 4679
+Class 43 - Training: 14216, Validation: 4743, Test: 4753
+Class 42 - Training: 14427, Validation: 4813, Test: 4824
+Class 41 - Training: 15060, Validation: 5024, Test: 5035
+Class 40 - Training: 16288, Validation: 5434, Test: 5445
+Class 39 - Training: 16441, Validation: 5485, Test: 5497
+Class 38 - Training: 16702, Validation: 5572, Test: 5584
+Class 37 - Training: 16970, Validation: 5662, Test: 5674
+Class 36 - Training: 17317, Validation: 5778, Test: 5790
+Class 35 - Training: 17332, Validation: 5783, Test: 5795
+Class 34 - Training: 18320, Validation: 6113, Test: 6125
+Class 33 - Training: 19045, Validation: 6355, Test: 6367
+Class 32 - Training: 20303, Validation: 6775, Test: 6787
+Class 31 - Training: 20585, Validation: 6869, Test: 6882
+Class 30 - Training: 21129, Validation: 7051, Test: 7064
+Class 29 - Training: 21529, Validation: 7184, Test: 7198
+Class 28 - Training: 21964, Validation: 7329, Test: 7343
+Class 27 - Training: 22082, Validation: 7369, Test: 7383
+Class 26 - Training: 22151, Validation: 7392, Test: 7407
+Class 25 - Training: 27537, Validation: 9187, Test: 9203
+Class 24 - Training: 32069, Validation: 10698, Test: 10714
+Class 23 - Training: 32094, Validation: 10706, Test: 10723
+Class 22 - Training: 35121, Validation: 11715, Test: 11732
+Class 21 - Training: 35986, Validation: 12003, Test: 12021
+Class 20 - Training: 36206, Validation: 12077, Test: 12095
+Class 19 - Training: 37195, Validation: 12407, Test: 12425
+Class 18 - Training: 37328, Validation: 12452, Test: 12470
+Class 17 - Training: 38700, Validation: 12909, Test: 12928
+Class 16 - Training: 38962, Validation: 12996, Test: 13016
+Class 15 - Training: 39030, Validation: 13019, Test: 13039
+Class 14 - Training: 42527, Validation: 14185, Test: 14205
+Class 13 - Training: 42567, Validation: 14199, Test: 14219
+Class 12 - Training: 42702, Validation: 14244, Test: 14264
+Class 11 - Training: 43140, Validation: 14390, Test: 14410
+Class 10 - Training: 44040, Validation: 14690, Test: 14710
+Class 9 - Training: 44357, Validation: 14796, Test: 14816
+Class 8 - Training: 44374, Validation: 14802, Test: 14822
+Class 7 - Training: 44379, Validation: 14804, Test: 14824
+Class 6 - Training: 44764, Validation: 14933, Test: 14953
+Class 5 - Training: 45152, Validation: 15062, Test: 15083
+Class 4 - Training: 45361, Validation: 15132, Test: 15153
+Class 3 - Training: 45684, Validation: 15240, Test: 15261
+Class 2 - Training: 45758, Validation: 15265, Test: 15286
+Class 1 - Training: 45821, Validation: 15286, Test: 15307
+Class 0 - Training: 45850, Validation: 15296, Test: 15317
+Training GAT model
+                                     precision    recall  f1-score   support
+
+                   Alkylresorsinols       0.00      0.00      0.00        32
+              Amino acid glycosides       0.00      0.00      0.00        68
+    Aminosugars and aminoglycosides       0.17      0.03      0.05        75
+         Anthranilic acid alkaloids       0.17      0.02      0.04       326
+                     Apocarotenoids       0.10      0.00      0.01       211
+               Aromatic polyketides       0.00      0.00      0.00       401
+                  Carotenoids (C40)       0.52      0.49      0.50       366
+                  Carotenoids (C45)       0.00      0.00      0.00         4
+                  Carotenoids (C50)       0.00      0.00      0.00        16
+                          Chromanes       0.00      0.00      0.00       333
+                          Coumarins       0.11      0.06      0.07       927
+                 Cyclic polyketides       0.00      0.00      0.00       451
+                   Diarylheptanoids       0.00      0.00      0.00       121
+Diazotetronic acids and derivatives       0.00      0.00      0.00        40
+                       Diterpenoids       0.23      0.45      0.30      3408
+                        Docosanoids       0.00      0.00      0.00        76
+                        Eicosanoids       0.37      0.08      0.13       270
+         Fatty Acids and Conjugates       0.44      0.18      0.26      1388
+              Fatty acyl glycosides       0.27      0.02      0.04       141
+                        Fatty acyls       0.61      0.34      0.44       974
+                       Fatty amides       0.45      0.17      0.25       215
+                       Fatty esters       0.44      0.12      0.19       897
+                         Flavonoids       0.38      0.74      0.50      3047
+                          Fluorenes       0.00      0.00      0.00        26
+                      Glycerolipids       0.64      0.94      0.77      4577
+               Glycerophospholipids       0.76      0.96      0.85      5427
+                Guanidine alkaloids       0.21      0.08      0.12        72
+                Histidine alkaloids       0.20      0.01      0.02       120
+                      Isoflavonoids       0.13      0.02      0.04       413
+                            Lignans       0.32      0.01      0.03       404
+                 Linear polyketides       0.08      0.02      0.03       553
+                   Lysine alkaloids       0.14      0.02      0.03       284
+                         Macrolides       0.45      0.53      0.49      1235
+                     Meroterpenoids       0.29      0.04      0.07       734
+                     Monoterpenoids       0.37      0.06      0.10       948
+            Mycosporine derivatives       0.00      0.00      0.00        15
+                       Naphthalenes       0.17      0.01      0.02       375
+           Nicotinic acid alkaloids       0.00      0.00      0.00       282
+                        Nucleosides       0.47      0.40      0.43       271
+                      Octadecanoids       0.00      0.00      0.00       143
+                      Oligopeptides       0.47      0.77      0.58      1226
+                Ornithine alkaloids       0.21      0.12      0.15       629
+                  Peptide alkaloids       0.08      0.01      0.02       195
+             Phenolic acids (C6-C1)       0.43      0.19      0.26       216
+            Phenylethanoids (C6-C2)       0.00      0.00      0.00        22
+           Phenylpropanoids (C6-C3)       0.00      0.00      0.00        79
+                    Phloroglucinols       0.00      0.00      0.00       245
+    Polycyclic aromatic polyketides       0.12      0.03      0.05       677
+                         Polyethers       0.00      0.00      0.00       115
+                            Polyols       0.31      0.17      0.22        64
+                        Polyprenols       0.00      0.00      0.00        18
+                  Proline alkaloids       0.00      0.00      0.00        24
+   Pseudoalkaloids (transamidation)       0.23      0.06      0.10       636
+                        Saccharides       0.59      0.29      0.39       115
+                   Sesquiterpenoids       0.31      0.31      0.31      3569
+                   Sesterterpenoids       0.00      0.00      0.00       208
+                     Small peptides       0.48      0.29      0.36       590
+                       Spingolipids       0.69      0.51      0.59       445
+                           Steroids       0.33      0.32      0.32      1660
+                        Stilbenoids       0.27      0.03      0.06       190
+                      Styrylpyrones       0.00      0.00      0.00        71
+                         Terphenyls       0.00      0.00      0.00        82
+                Tetramate alkaloids       0.00      0.00      0.00        30
+                      Triterpenoids       0.34      0.43      0.38      2306
+                         Tropolones       0.00      0.00      0.00        33
+               Tryptophan alkaloids       0.36      0.54      0.43      1406
+                 Tyrosine alkaloids       0.39      0.41      0.40      1017
+                          Xanthones       0.00      0.00      0.00       163
+                          β-lactams       0.17      0.01      0.02       124
+                γ-lactam-β-lactones       0.00      0.00      0.00         3
+
+                          micro avg       0.45      0.45      0.45     45824
+                          macro avg       0.20      0.15      0.15     45824
+                       weighted avg       0.39      0.45      0.39     45824
+                        samples avg       0.45      0.45      0.45     45824
+
