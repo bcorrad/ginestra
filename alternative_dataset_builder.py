@@ -327,7 +327,7 @@ mlp_test_dataloader = None
 if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
     if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
         os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
-            os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')):
+            os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')) and FORCE_DATASET_GENERATION is False:
         USE_AVAILABLE_DATASET = True
                 
         print("Dataset already exists for GIN/GINE. Loading from pickle files.")
@@ -340,7 +340,7 @@ if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
 if "mlp" in MODELS:
     if (os.path.exists(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
         os.path.exists(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
-            os.path.exists(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')):
+            os.path.exists(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')) and FORCE_DATASET_GENERATION is False:
         USE_AVAILABLE_DATASET = True
                         
         print("Dataset already exists for MLP. Loading from pickle files.")
@@ -351,7 +351,7 @@ else:
     USE_AVAILABLE_DATASET = False
     print("Dataset does not exist for MLP. Generating new dataset.")
     
-if USE_AVAILABLE_DATASET is False or FORCE_DATASET_GENERATION is True:
+if USE_AVAILABLE_DATASET is False and FORCE_DATASET_GENERATION is True:
     print("Dataset does not exist. Generating new dataset.")
     # Load data from pkl files
     with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
