@@ -1,4 +1,4 @@
-from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS, EXPERIMENT_FOLDER, FORCE_GENERATE_DATASET
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS, EXPERIMENT_FOLDER, FORCE_DATASET_GENERATION
 from typing import Union, Literal
 import pickle
 import os
@@ -351,7 +351,7 @@ else:
     USE_AVAILABLE_DATASET = False
     print("Dataset does not exist for MLP. Generating new dataset.")
     
-if USE_AVAILABLE_DATASET is False and FORCE_GENERATE_DATASET is True:
+if USE_AVAILABLE_DATASET is False or FORCE_DATASET_GENERATION is True:
     print("Dataset does not exist. Generating new dataset.")
     # Load data from pkl files
     with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
