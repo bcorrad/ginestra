@@ -81,7 +81,7 @@ def grid_search(train_loader, val_loader, test_loader, n_features):
             f.write(log_string + "\n")
             
         # Initialize a report file to save in EXPERIMENT_FOLDER
-        report_file = os.path.join(EXPERIMENT_FOLDER, f"report_grid_MLP_{config_idx}.txt")
+        report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_grid_MLP_{config_idx}.txt")
         
         mlp_config = dict(zip(param_grid.keys(), values))
         print("Testing config:", mlp_config)

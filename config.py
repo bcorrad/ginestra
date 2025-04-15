@@ -80,6 +80,8 @@ os.makedirs(os.path.join(EXPERIMENT_FOLDER, "models"), exist_ok=True)
 os.makedirs(os.path.join(EXPERIMENT_FOLDER, "utils"), exist_ok=True)
 # Create the weights folder
 os.makedirs(os.path.join(EXPERIMENT_FOLDER, "pt"), exist_ok=True)
+# Create the reports folder
+os.makedirs(os.path.join(EXPERIMENT_FOLDER, "reports"), exist_ok=True)
 
 # Save the configuration file
 import shutil

@@ -10,7 +10,7 @@ from alternative_dataset_builder import gnn_train_dataloader, gnn_val_dataloader
 
 # Hyperparameter grid
 param_grid = {
-    'hidden_channels': [64, 128],
+    'hidden_channels': [16, 32, 64, 128],
     'drop_rate': [0.1, 0.2],
     'learning_rate': [1e-3, 1e-4],
     'l2_rate': [1e-2, 1e-3],
@@ -40,7 +40,7 @@ def grid_search(train_loader, val_loader, test_loader, in_channels, out_channels
         with open(os.path.join(EXPERIMENT_FOLDER, "log.txt"), "a") as f:
             f.write(log_string + "\n")
 
-        report_file = os.path.join(EXPERIMENT_FOLDER, f"report_grid_GAT_{config_idx}.txt")
+        report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_grid_GAT_{config_idx}.txt")
         gat_config = dict(zip(param_grid.keys(), values))
         print("Testing config:", gat_config)
         with open(report_file, "a") as f:

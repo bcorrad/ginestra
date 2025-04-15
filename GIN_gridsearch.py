@@ -39,7 +39,7 @@ def grid_search(train_loader, val_loader, test_loader, num_node_features, num_cl
         with open(os.path.join(EXPERIMENT_FOLDER, "log.txt"), "a") as f:
             f.write(log_string + "\n")
 
-        report_file = os.path.join(EXPERIMENT_FOLDER, f"report_grid_GIN_{config_idx}.txt")
+        report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_grid_GIN_{config_idx}.txt")
         gin_config = dict(zip(param_grid.keys(), values))
         print("Testing config:", gin_config)
 
