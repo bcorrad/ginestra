@@ -41,7 +41,7 @@ USE_FINGERPRINT = False
 H_DIM = 16
 # MODELS = ["gine", "gin", "gat", "gate", "mlp"] # Options: "gin", "gine", "mlp", "gat", "gate"
 # OR
-MODELS = ["gin"] 
+MODELS = ["mlp"] 
 MODELS.sort()  # Minimize the dataset exchanges between models during training
 
 import pickle
