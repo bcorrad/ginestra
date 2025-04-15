@@ -18,7 +18,8 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(BASEDIR, "data")
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-N_EPOCHS = 10
+N_EPOCHS = 10   # Number of epochs for training
+GRID_N_EPOCHS = 20 # Number of epochs for grid search
 N_RUNS = 3  # Number of runs for the model
 ## DATASET PARAMETERS
 USE_AVAILABLE_DATASET = None # If True, use the dataset already downloaded and preprocessed
@@ -71,7 +72,7 @@ if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
     
 # Initialize experiment folder 
 import datetime
-EXPERIMENT_FOLDER = os.path.join(BASEDIR, "experiments", datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + "-".join(MODELS) + "_" + TARGET_TYPE.lower())
+EXPERIMENT_FOLDER = os.path.join(BASEDIR, "experiments", "-".join(MODELS) + "_" + TARGET_TYPE.lower() + "_" +datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
 os.makedirs(EXPERIMENT_FOLDER, exist_ok=True)
 
 # Create a models folder
