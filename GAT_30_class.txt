@@ -1944,3 +1944,664 @@ Polyprenylated cyclic polyketides (Hop meroterpenoids)       0.14      0.50     
                                              macro avg       0.03      0.03      0.02     43968
                                           weighted avg       0.14      0.22      0.15     43968
                                            samples avg       0.22      0.22      0.22     43968
+
+                                                        precision    recall  f1-score   support
+
+                   12-oxophytodienoic acid metabolites       0.00      0.00      0.00         0
+                                     2-arylbenzofurans       0.00      0.00      0.00        21
+                                  2-pyrone derivatives       0.00      0.00      0.00        48
+                            3-Decalinoyltetramic acids       0.00      0.00      0.00        10
+                                 3-Spirotetramic acids       0.00      0.00      0.00         4
+                                 3-acyl tetramic acids       0.00      0.00      0.00        15
+                            3-oligoenoyltetramic acids       0.00      0.00      0.00         8
+                                  4-pyrone derivatives       0.00      0.00      0.00         4
+                             Abeoabietane diterpenoids       0.00      0.00      0.00        20
+                              Abeolupane triterpenoids       0.00      0.00      0.00         0
+                               Abeotaxane diterpenoids       0.00      0.00      0.00         6
+                                 Abietane diterpenoids       0.00      0.00      0.00        36
+                             Acetate-derived alkaloids       0.00      0.00      0.00         3
+                                           Acetogenins       0.34      0.60      0.44        63
+                             Acidic glycosphingolipids       0.00      0.00      0.00         0
+                              Acorane sesquiterpenoids       0.00      0.00      0.00        17
+                                    Acridone alkaloids       0.07      0.28      0.11        60
+                                          Actinomycins       0.88      0.83      0.86        18
+                                   Acutumine alkaloids       0.00      0.00      0.00         2
+                           Acyclic guanidine alkaloids       0.00      0.00      0.00         0
+                                Acyclic monoterpenoids       0.00      0.00      0.00        38
+                                  Acyl phloroglucinols       0.00      0.00      0.00        10
+                                Adianane triterpenoids       0.00      0.00      0.00         2
+                                          Aeruginosins       0.00      0.00      0.00         0
+                                            Aflatoxins       0.00      0.00      0.00         9
+                           Africanane sesquiterpenoids       0.00      0.00      0.00         7
+                           Agarofuran sesquiterpenoids       0.07      0.90      0.13        69
+                            Alliacane sesquiterpenoids       0.00      0.00      0.00         2
+                      Allohimachalane sesquiterpenoids       0.00      0.00      0.00         5
+                               Amarylidaceae alkaloids       0.00      0.00      0.00        34
+                                       Amino cyclitols       0.00      0.00      0.00        15
+                                     Amino fatty acids       0.00      0.00      0.00         2
+                                            Aminoacids       0.38      0.56      0.45        71
+                                       Aminoglycosides       0.00      0.00      0.00         1
+                                           Aminosugars       0.26      0.55      0.35        20
+                             Amphilectane diterpenoids       0.00      0.00      0.00        11
+                                       Anabaenopeptins       0.00      0.00      0.00         0
+                                   Androstane steroids       0.00      0.00      0.00        33
+                                          Angucyclines       0.27      0.06      0.10        49
+                                       Ansa macrolides       0.64      0.67      0.65       125
+                                Ansa peptide alkaloids       0.12      0.29      0.16        21
+                                        Anthocyanidins       0.28      0.54      0.37       114
+                                        Anthracyclines       1.00      0.06      0.11        34
+                         Anthranillic acid derivatives       0.00      0.00      0.00         5
+                          Anthraquinones and anthrones       0.24      0.35      0.28       109
+                                            Antimycins       0.00      0.00      0.00        10
+                             Aphidicolane diterpenoids       0.00      0.00      0.00         1
+                             Apocarotenoids (C30, Ψ-Ψ)       0.00      0.00      0.00         6
+                                   Apocarotenoids (Ψ-)       0.00      0.00      0.00         2
+                                   Apocarotenoids (β-)       0.00      0.00      0.00        20
+                                    Apocarotenoids(ε-)       0.00      0.00      0.00        13
+                                   Aporphine alkaloids       0.00      0.00      0.00        15
+                          Apotirucallane triterpenoids       0.00      0.00      0.00        18
+                           Aristolane sesquiterpenoids       0.00      0.00      0.00        13
+                        Aromadendrane sesquiterpenoids       0.00      0.00      0.00        17
+                 Aromatic polyketides with side chains       0.00      0.00      0.00         5
+                                           Arteminisin       0.00      0.00      0.00         6
+              Arylnaphthalene and aryltetralin lignans       0.06      0.05      0.05        22
+                              Asbestinane diterpenoids       0.00      0.00      0.00         1
+                                           Ascarosides       0.00      0.00      0.00        30
+                             Ascomycins and Rapamycins       0.00      0.00      0.00        16
+                             Asperane sesterterpenoids       0.00      0.00      0.00         2
+                                     Aspidosperma type       0.11      0.15      0.13        40
+      Aspidosperma-Iboga hybrid type (Vinca alkaloids)       0.00      0.00      0.00         2
+                          Asteriscane sesquiterpenoids       0.00      0.00      0.00         7
+                                  Atisane diterpenoids       0.00      0.00      0.00        12
+                                               Aurones       0.00      0.00      0.00        10
+                                           Avermectins       0.00      0.00      0.00        36
+                           Avilamycins and derivatives       0.00      0.00      0.00         2
+                                           Azaphilones       0.00      0.00      0.00        60
+                              Baccharane triterpenoids       0.00      0.00      0.00         1
+                                          Bactoprenols       0.00      0.00      0.00         2
+                                          Bafilomycins       0.00      0.00      0.00         4
+                                           Bagremycins       0.00      0.00      0.00         0
+                                Bauerane triterpenoids       0.00      0.00      0.00         4
+                           Benastatins and derivatives       0.00      0.00      0.00         3
+                              Benzodiazepine alkaloids       0.00      0.00      0.00         8
+                          Bergamotane sesquiterpenoids       0.00      0.00      0.00         6
+                     Betaestacin-type sesterterpenoids       0.00      0.00      0.00         1
+                                    Betalain alkaloids       0.00      0.00      0.00         2
+                                 Beyerane diterpenoids       0.00      0.00      0.00         7
+                          Biaryl type diarylheptanoids       0.00      0.00      0.00         9
+                          Bicyclic guanidine alkaloids       0.00      0.00      0.00         4
+                    Bicyclogermacrane sesquiterpenoids       0.00      0.00      0.00        12
+                      Bicyclohumulane sesquiterpenoids       0.00      0.00      0.00         0
+                           Bisabolane sesquiterpenoids       0.00      0.00      0.00        50
+                                       Bisnaphthalenes       0.00      0.00      0.00        23
+                                            Bleomycins       0.00      0.00      0.00         0
+                             Botryane sesquiterpenoids       0.00      0.00      0.00         3
+                           Bourbonane sesquiterpenoids       0.00      0.00      0.00         2
+                                  Branched fatty acids       0.30      0.27      0.28        64
+                            Brasilane sesquiterpenoids       0.00      0.00      0.00         5
+                                 Breviane diterpenoids       0.00      0.00      0.00         0
+                                 Briarane diterpenoids       0.33      0.05      0.08        42
+                                           Bryostatins       0.00      0.00      0.00         2
+                                        Bufadienolides       0.00      0.00      0.00        14
+                                         CDP-Glycerols       1.00      0.25      0.40         8
+                             Cadinane sesquiterpenoids       0.00      0.00      0.00        62
+                               Camphane monoterpenoids       0.00      0.00      0.00        13
+                         Campherenane sesquiterpenoids       0.00      0.00      0.00         3
+                                          Cannabinoids       0.00      0.00      0.00        21
+                           Capnellane sesquiterpenoids       0.00      0.00      0.00         3
+                          Capsaicins and Capsaicinoids       0.00      0.00      0.00         0
+                            Carabrane sesquiterpenoids       0.00      0.00      0.00         6
+                                 Carane monoterpenoids       0.12      0.03      0.05        29
+                                           Carbapenems       0.00      0.00      0.00         9
+                                   Carbazole alkaloids       0.13      0.31      0.19        70
+                               Carbocyclic fatty acids       0.00      0.00      0.00        25
+                                   Carboline alkaloids       0.29      0.72      0.41       144
+                                          Cardenolides       0.00      0.00      0.00         5
+                                Carotenoids (C40, Χ-Χ)       0.00      0.00      0.00         0
+                                Carotenoids (C40, Χ-Ψ)       0.00      0.00      0.00         0
+                                Carotenoids (C40, Ψ-Ψ)       0.00      0.00      0.00        24
+                                Carotenoids (C40, β-Χ)       0.00      0.00      0.00         1
+                                Carotenoids (C40, β-Ψ)       0.00      0.00      0.00        25
+                                Carotenoids (C40, β-β)       0.21      0.68      0.32        47
+                                Carotenoids (C40, β-γ)       0.00      0.00      0.00         0
+                                Carotenoids (C40, β-ε)       0.00      0.00      0.00        17
+                                Carotenoids (C40, β-κ)       0.00      0.00      0.00         8
+                                Carotenoids (C40, β-π)       0.00      0.00      0.00         3
+                                Carotenoids (C40, γ-Ψ)       0.00      0.00      0.00         0
+                                Carotenoids (C40, γ-ε)       0.00      0.00      0.00         0
+                                Carotenoids (C40, ε-Ψ)       0.00      0.00      0.00         1
+                                Carotenoids (C40, ε-ε)       0.00      0.00      0.00         2
+                                Carotenoids (C40, κ-Χ)       0.00      0.00      0.00         0
+                                Carotenoids (C40, κ-κ)       0.00      0.00      0.00         1
+                                Carotenoids (C40, π-Χ)       0.00      0.00      0.00         1
+                                Carotenoids (C40, π-Ψ)       0.00      0.00      0.00         0
+                                Carotenoids (C40, π-π)       0.00      0.00      0.00         1
+                                Carotenoids (C45, Ψ-Ψ)       0.00      0.00      0.00         1
+                                Carotenoids (C45, β-Ψ)       0.00      0.00      0.00         0
+                                Carotenoids (C45, ε-Ψ)       0.00      0.00      0.00         2
+                                Carotenoids (C50, Ψ-Ψ)       0.00      0.00      0.00         5
+                                Carotenoids (C50, β-Ψ)       0.00      0.00      0.00         1
+                                Carotenoids (C50, β-β)       0.00      0.00      0.00         1
+                                Carotenoids (C50, γ-γ)       0.00      0.00      0.00         0
+                                Carotenoids (C50, ε-ε)       0.00      0.00      0.00         1
+                            Caryolane sesquiterpenoids       0.00      0.00      0.00         1
+                        Caryophyllane sesquiterpenoids       0.00      0.00      0.00        26
+                                  Casbane diterpenoids       0.00      0.00      0.00         4
+                                  Cassane diterpenoids       0.00      0.00      0.00        29
+                            Catechols with side chains       0.50      0.05      0.10        56
+               Cedrane and Isocedrane sesquiterpenoids       0.00      0.00      0.00         5
+                                 Cembrane diterpenoids       0.00      0.00      0.00        95
+                                        Cephalosporins       0.08      0.17      0.11        23
+                                           Cephamycins       0.00      0.00      0.00         0
+                                             Ceramides       0.91      0.71      0.79        41
+                           Cericerane sesterterpenoids       0.00      0.00      0.00         3
+                                             Chalcones       0.21      0.60      0.31       280
+                           Chamigrane sesquiterpenoids       0.00      0.00      0.00        22
+                         Cheilanthane sesterterpenoids       0.00      0.00      0.00         7
+                        Chiloscyphane sesquiterpenoids       0.00      0.00      0.00         3
+                                      Cholane steroids       0.00      0.00      0.00        11
+                                   Cholestane steroids       0.13      0.65      0.21        96
+                                             Chromones       0.00      0.00      0.00        50
+                                  Cinnamic acid amides       0.00      0.00      0.00         1
+                        Cinnamic acids and derivatives       0.00      0.00      0.00        24
+                                     Cinnamoyl phenols       0.00      0.00      0.00         5
+                                               Clavams       0.00      0.00      0.00         2
+                                            Clavulones       0.00      0.00      0.00        10
+                            Cleistanthane diterpenoids       0.00      0.00      0.00         9
+                              Clovane sesquiterpenoids       0.00      0.00      0.00         4
+                  Colensane and Clerodane diterpenoids       0.00      0.00      0.00        19
+                           Coloratane sesquiterpenoids       0.00      0.00      0.00         4
+                              Copaane sesquiterpenoids       0.00      0.00      0.00         3
+                         Copacamphane sesquiterpenoids       0.00      0.00      0.00         0
+                                       Corynanthe type       0.00      0.00      0.00        37
+                                      Coumarinolignans       0.00      0.00      0.00         4
+                                    Coumaronochromones       0.00      0.00      0.00         4
+                                             Coumestan       0.00      0.00      0.00         4
+                                         Cryptophycins       0.00      0.00      0.00         0
+                             Cubebane sesquiterpenoids       0.00      0.00      0.00         4
+                             Cucurbitane triterpenoids       0.05      0.23      0.09        40
+                             Cuparane sesquiterpenoids       0.00      0.00      0.00        18
+                                          Cyano esters       0.00      0.00      0.00         7
+                                 Cyanogenic glycosides       0.00      0.00      0.00         4
+                                        Cyanopeptolins       0.00      0.00      0.00         0
+                                 Cyathane diterpenoids       0.00      0.00      0.00        13
+                                            Cyclamides       0.00      0.00      0.00         1
+                                       Cyclic peptides       0.17      0.35      0.23        79
+                                             Cyclitols       0.00      0.00      0.00         9
+                            Cycloabietane diterpenoids       0.00      0.00      0.00         8
+                        Cycloamphilectane diterpenoids       0.00      0.00      0.00         2
+                     Cycloapotirucallane triterpenoids       0.00      0.00      0.00         7
+                             Cycloartane triterpenoids       0.00      0.00      0.00        59
+                      Cyclobisabolane sesquiterpenoids       0.00      0.00      0.00         2
+                       Cycloeudesmane sesquiterpenoids       0.00      0.00      0.00        19
+                       Cyclofarnesane sesquiterpenoids       0.00      0.00      0.00         3
+                      Cyclogermacrane sesquiterpenoids       0.00      0.00      0.00         1
+                         Cyclolaurane sesquiterpenoids       0.00      0.00      0.00         1
+                          Cyclonerane sesquiterpenoids       0.00      0.00      0.00         1
+                             Cyclophytane diterpenoids       0.00      0.00      0.00        17
+                               Cyclopiane diterpenoids       0.00      0.00      0.00         2
+           Cyclopiazonic acid-tpye tetramate alkaloids       0.00      0.00      0.00         4
+                                Cytochalasan alkaloids       0.24      0.40      0.30        20
+                                           Cytosporins       0.00      0.00      0.00         2
+                           DKXanthenes and derivatives       0.00      0.00      0.00         2
+                            Dactylomelane diterpenoids       0.00      0.00      0.00         4
+                Dammarane and Protostane triterpenoids       0.00      0.00      0.00        51
+                                 Daphnane diterpenoids       1.00      0.05      0.10        20
+                              Daucane sesquiterpenoids       0.00      0.00      0.00        25
+                               Decalins with 2-pyrones       0.00      0.00      0.00         3
+                             Decalins with side chains       0.00      0.00      0.00        14
+                                Decipiane diterpenoids       0.00      0.00      0.00         0
+                               Depsides and depsidones       0.00      0.00      0.00        41
+                                         Depsipeptides       0.00      0.00      0.00         6
+                               Devadarane diterpenoids       0.00      0.00      0.00         0
+                                       Diacylglycerols       0.00      0.00      0.00       137
+                                    Dialkylresorcinols       0.00      0.00      0.00        15
+                     Diarylether type diarylheptanoids       0.00      0.00      0.00        11
+                        Dibenzocyclooctadienes lignans       0.00      0.00      0.00        18
+                                Dibenzylbutane lignans       0.00      0.00      0.00         6
+                         Dibenzylbutyrolactone lignans       0.00      0.00      0.00         7
+                                    Dicarboxylic acids       0.00      0.00      0.00        23
+                                      Dihydroflavonols       0.00      0.00      0.00        11
+                               Dimeric phloroglucinols       0.09      0.20      0.13        15
+                                            Dipeptides       0.36      0.19      0.25       102
+                                         Disaccharides       0.00      0.00      0.00        10
+                                 Docosa-1,2-dioxolanes       0.00      0.00      0.00         0
+                              Dolabellane diterpenoids       0.00      0.00      0.00        12
+                                Dolastane diterpenoids       0.00      0.00      0.00         7
+                                             Dolichols       0.00      0.00      0.00         3
+                              Drimane sesquiterpenoids       0.00      0.00      0.00        21
+                             Dunniane sesquiterpenoids       0.00      0.00      0.00         1
+                                          Ecdysteroids       0.00      0.00      0.00        15
+                                 Eicosa-1,2-dioxolanes       0.00      0.00      0.00         1
+                              Elemane sesquiterpenoids       0.00      0.00      0.00        26
+                                            Elfamycins       0.00      0.00      0.00         2
+                                             Enediynes       0.00      0.00      0.00         8
+                                           Epothilones       0.00      0.00      0.00        12
+                                     Epoxy fatty acids       0.00      0.00      0.00         8
+                             Epoxyeicosatrienoic acids       0.00      0.00      0.00         0
+                                  Eremane diterpenoids       0.00      0.00      0.00         1
+                         Eremophilane sesquiterpenoids       0.00      0.00      0.00        61
+                                    Ergostane steroids       0.10      0.13      0.11       119
+                                       Ergot alkaloids       0.00      0.00      0.00        15
+                                         Erythromycins       0.32      0.94      0.47        98
+                            Erythroxylane diterpenoids       0.00      0.00      0.00         7
+                                      Estrane steroids       0.00      0.00      0.00         8
+                            Eudesmane sesquiterpenoids       0.00      0.00      0.00        55
+                              Eunicellane diterpenoids       1.00      0.04      0.08        23
+                            Farnesane sesquiterpenoids       0.00      0.00      0.00        31
+                            Fasamycins and derivatives       0.00      0.00      0.00         6
+                                  Fatty acid estolides       0.00      0.00      0.00         7
+                                       Fatty acyl CoAs       0.26      1.00      0.41        62
+                                 Fatty acyl carnitines       0.00      0.00      0.00        14
+      Fatty acyl glycosides of mono- and disaccharides       0.00      0.00      0.00         3
+                        Fatty acyl homoserine lactones       0.00      0.00      0.00         9
+                                        Fatty alcohols       0.28      0.29      0.28        82
+                                       Fatty aldehydes       0.00      0.00      0.00        34
+                                          Fatty ethers       0.00      0.00      0.00         0
+                                        Fatty nitriles       0.00      0.00      0.00         1
+                               Fenchane monoterpenoids       0.00      0.00      0.00         2
+                  Fernane and Arborinane triterpenoids       0.00      0.00      0.00        10
+                                Filicane triterpenoids       0.00      0.00      0.00         5
+                                          Flavan-3-ols       0.00      0.00      0.00        27
+                     Flavandiols (Leucoanthocyanidins)       0.00      0.00      0.00        19
+                                            Flavanones       0.00      0.00      0.00       104
+                                               Flavans       0.00      0.00      0.00         6
+                                              Flavones       0.20      0.44      0.27       234
+                                        Flavonolignans       0.00      0.00      0.00         5
+                                             Flavonols       0.25      0.15      0.19       215
+                                      Flavonostilbenes       0.00      0.00      0.00         0
+                              Friedelane triterpenoids       0.00      0.00      0.00        10
+                             Fukinane sesquiterpenoids       0.00      0.00      0.00        10
+                           Furanoabietane diterpenoids       0.00      0.00      0.00         4
+                                      Furanoid lignans       0.00      0.00      0.00         8
+                                         Furocoumarins       0.00      0.00      0.00        25
+                                  Furofuranoid lignans       0.00      0.00      0.00        12
+                                    Furostane steroids       0.10      0.54      0.17        37
+                              Fusicoccane diterpenoids       0.00      0.00      0.00        13
+                                Fusidane triterpenoids       0.00      0.00      0.00        16
+                                          Gallotannins       0.47      0.86      0.61        37
+                             Gammacerane triterpenoids       0.00      0.00      0.00         8
+                           Germacrane sesquiterpenoids       0.07      0.03      0.04       114
+                               Gersemiane diterpenoids       0.00      0.00      0.00         1
+                                          Gibberellins       0.33      0.16      0.22        31
+                                        Glucosinolates       0.37      0.67      0.48        15
+                               Glutinane triterpenoids       0.00      0.00      0.00         8
+                                     Glycerophosphates       0.38      0.08      0.14       253
+                                Glycerophosphocholines       0.70      0.88      0.78       323
+                           Glycerophosphoethanolamines       0.58      0.62      0.60       263
+                               Glycerophosphoglycerols       0.33      0.79      0.46       237
+                       Glycerophosphoglycerophosphates       0.00      0.00      0.00         1
+                 Glycerophosphoglycerophosphoglycerols       0.00      0.00      0.00       117
+                     Glycerophosphoinositol phosphates       0.00      0.00      0.00         0
+                         Glycerophosphoinositolglycans       0.67      0.08      0.15        24
+                               Glycerophosphoinositols       0.47      0.99      0.64       216
+                                 Glycerophosphoserines       0.55      0.66      0.60       237
+                               Glycosyldiacylglycerols       0.00      0.00      0.00         5
+                          Glycosylglycerophospholipids       0.00      0.00      0.00         1
+                             Glycosylmonoacylglycerols       0.00      0.00      0.00         1
+                            Gorgonane sesquiterpenoids       0.00      0.00      0.00         2
+                            Grayanotoxane diterpenoids       0.00      0.00      0.00        24
+                                         Griseofulvins       0.00      0.00      0.00         5
+                              Guaiane sesquiterpenoids       0.00      0.00      0.00        86
+                             Guanacastane diterpenoids       0.00      0.00      0.00        13
+                         Gymnomitrane sesquiterpenoids       0.00      0.00      0.00        13
+                                 Halimane diterpenoids       0.00      0.00      0.00        12
+                               Halogenated fatty acids       0.00      0.00      0.00        25
+                           Hamigerane sesquiterpenoids       0.00      0.00      0.00         2
+                                 Hapalindole alkaloids       0.00      0.00      0.00         3
+                                   Hasubanan alkaloids       0.00      0.00      0.00         6
+                                            Hepoxilins       0.00      0.00      0.00         0
+                           Herbertane sesquiterpenoids       0.00      0.00      0.00         4
+                              Heterocyclic fatty acids       0.00      0.00      0.00        15
+                          Himachalane sesquiterpenoids       0.00      0.00      0.00        10
+                            Hirsutane sesquiterpenoids       0.00      0.00      0.00        12
+                        Homofarnesane sesquiterpenoids       0.00      0.00      0.00         2
+                     Hopane and Moretane triterpenoids       0.25      0.04      0.07        46
+                          Humbertiane sesquiterpenoids       0.00      0.00      0.00         4
+                             Humulane sesquiterpenoids       0.00      0.00      0.00        16
+                                          Hydrocarbons       0.45      0.94      0.60       128
+                               Hydroperoxy fatty acids       0.00      0.00      0.00         7
+                                   Hydroxy fatty acids       0.22      0.04      0.07        50
+             Hydroxy-hydroperoxyeicosapentaenoic acids       0.00      0.00      0.00         3
+             Hydroxy-hydroperoxyeicosatetraenoic acids       0.00      0.00      0.00        15
+               Hydroxy-hydroperoxyeicosatrienoic acids       0.00      0.00      0.00         4
+                                            Iboga type       0.50      0.05      0.08        22
+                                Icetexane diterpenoids       0.00      0.00      0.00         8
+                           Illudalane sesquiterpenoids       0.00      0.00      0.00         8
+                             Illudane sesquiterpenoids       0.00      0.00      0.00         6
+                                   Imidazole alkaloids       0.00      0.00      0.00        39
+      Indole diketopiperazine alkaloids (L-Trp, L-Ala)       0.00      0.00      0.00         9
+      Indole diketopiperazine alkaloids (L-Trp, L-Pro)       0.00      0.00      0.00         9
+      Indole diketopiperazine alkaloids (L-Trp, L-Trp)       0.00      0.00      0.00         5
+              Indole-Diterpenoid alkaloids (Penitrems)       0.00      0.00      0.00        10
+                                Indolizidine alkaloids       0.00      0.00      0.00        27
+                                 Ingenane diterpenoids       0.00      0.00      0.00         4
+                            Iphionane sesquiterpenoids       0.00      0.00      0.00         3
+                               Iridoids monoterpenoids       0.18      0.24      0.21        68
+                              Irregular monoterpenoids       0.00      0.00      0.00         6
+                                   Isariotin alkaloids       0.00      0.00      0.00         1
+                            Ishwarane sesquiterpenoids       0.00      0.00      0.00         1
+                                            Isoaurones       0.00      0.00      0.00         4
+                            Isocomane sesquiterpenoids       0.00      0.00      0.00         2
+                                          Isocoumarins       0.16      0.06      0.08        88
+                           Isodaucane sesquiterpenoids       0.00      0.00      0.00         1
+                                         Isoflavanones       0.00      0.00      0.00        15
+                                           Isoflavones       0.00      0.00      0.00        51
+                                             Isofurans       0.00      0.00      0.00         2
+                                   Isoindole alkaloids       0.00      0.00      0.00        14
+                         Isolactarane sesquiterpenoids       0.00      0.00      0.00         3
+                                          Isoprostanes       0.00      0.00      0.00         3
+                                Isoquinoline alkaloids       0.00      0.00      0.00        50
+                         Ivaxillarane sesquiterpenoids       0.00      0.00      0.00         1
+                                        Jasmonic acids       0.00      0.00      0.00         3
+                               Jatrophane diterpenoids       0.00      0.00      0.00        25
+                             Jatropholane diterpenoids       0.00      0.00      0.00         2
+                Kaurane and Phyllocladane diterpenoids       0.00      0.00      0.00        34
+                          Kavalactones and derivatives       0.00      0.00      0.00        25
+                                  Kempane diterpenoids       0.00      0.00      0.00         0
+                                  Labdane diterpenoids       0.00      0.00      0.00        49
+                     Lactam bearing macrolide lactones       0.00      0.00      0.00         2
+                            Lactarane sesquiterpenoids       0.00      0.00      0.00         8
+                                              Lactones       0.00      0.00      0.00        28
+                                     Ladder polyethers       0.00      0.00      0.00         6
+      Lanostane, Tirucallane and Euphane triterpenoids       0.05      0.21      0.08        66
+                                Lathyrane diterpenoids       0.00      0.00      0.00         8
+                              Laurane sesquiterpenoids       0.00      0.00      0.00        12
+                                          Leukotrienes       0.00      0.00      0.00         8
+                                          Levuglandins       0.00      0.00      0.00         4
+                                             Limonoids       0.14      0.28      0.19        97
+                               Linear diarylheptanoids       0.00      0.00      0.00        24
+                                       Linear peptides       0.00      0.00      0.00        10
+                                       Linear polyenes       0.00      0.00      0.00         5
+                               Linear sesterterpenoids       0.00      0.00      0.00        10
+                                     Linear tetronates       0.00      0.00      0.00         2
+                                          Lipopeptides       0.00      0.00      0.00         3
+                                              Lipoxins       0.00      0.00      0.00         1
+                         Lippifoliane sesquiterpenoids       0.00      0.00      0.00         0
+                                   Lobane diterpenoids       0.00      0.00      0.00        10
+                   Long-Chain Bicyclic Phosphotriester       0.00      0.00      0.00         3
+                         Longibornane sesquiterpenoids       0.00      0.00      0.00         1
+                          Longifolane sesquiterpenoids       0.00      0.00      0.00         6
+                          Longipinane sesquiterpenoids       0.00      0.00      0.00        13
+                            Luminacins and derivatives       0.00      0.00      0.00         2
+                                  Lupane triterpenoids       0.07      0.65      0.13       127
+                            Macrocyclic tetramic acids       0.19      0.67      0.30         6
+                                     Macrolide lactams       0.00      0.00      0.00         5
+                                    Macrolide lactones       0.20      0.06      0.10        16
+                                       Macrotetrolides       0.00      0.00      0.00         3
+                            Malabaricane triterpenoids       0.00      0.00      0.00        13
+                                           Maleidrides       0.00      0.00      0.00         3
+                        Mangicol-type sesterterpenoids       0.00      0.00      0.00         2
+                            Marasmane sesquiterpenoids       0.00      0.00      0.00         5
+                                              Maresins       0.00      0.00      0.00         0
+                                         Megastigmanes       0.20      0.07      0.10        15
+             Melithiazole and Myxothiazole derivatives       0.00      0.00      0.00         8
+                               Menthane monoterpenoids       0.00      0.00      0.00        20
+                                    Meromonoterpenoids       0.00      0.00      0.00        15
+                                  Merosesquiterpenoids       0.00      0.00      0.00         6
+             Meroterpenoids with 5- or 6-membered ring       0.00      0.00      0.00         1
+                      Meroterpenoids with bridged ring       0.00      0.00      0.00         1
+                                   Methoxy fatty acids       0.00      0.00      0.00         5
+                                      Methyl xanthones       0.00      0.00      0.00        15
+                            Microcolins and mirabimids       0.00      0.00      0.00         0
+                                          Microcystins       0.00      0.00      0.00         0
+                                           Microginins       0.00      0.00      0.00         0
+                                         Minor lignans       0.00      0.00      0.00         5
+                          Miscellaneous apocarotenoids       0.00      0.00      0.00         7
+                          Miscellaneous meroterpenoids       0.00      0.00      0.00        33
+                  Monacolins and Monacolin derivatives       0.00      0.00      0.00        13
+                                     Monoacylglycerols       0.00      0.00      0.00         9
+                                  Monoalkylresorcinols       0.00      0.00      0.00         0
+                      Monocarbocyclic sesterterpenoids       0.00      0.00      0.00         3
+                        Monocyclic guanidine alkaloids       0.00      0.00      0.00         1
+                             Monocyclic monoterpenoids       0.00      0.00      0.00        15
+                                   Monomeric stilbenes       0.00      0.00      0.00        22
+                                       Monosaccharides       0.37      0.37      0.37        19
+                                   Morphinan alkaloids       0.00      0.00      0.00        42
+                                 Mulinane diterpenoids       0.00      0.00      0.00         6
+                            Multiflorane triterpenoids       0.00      0.00      0.00         8
+                                         Mycolic acids       0.12      0.03      0.05        29
+          Mycosporine and Mycosporine-like amino acids       0.00      0.00      0.00         0
+                                Myrsinane diterpenoids       0.00      0.00      0.00         8
+                                         N-acyl amines       0.12      0.04      0.06        51
+               N-acyl ethanolamines (endocannabinoids)       0.00      0.00      0.00        10
+                              Nagilactone diterpenoids       0.00      0.00      0.00        12
+                          Naphthalenes and derivatives       0.00      0.00      0.00        10
+                                       Naphthoquinones       0.00      0.00      0.00        61
+                          Nardosinane sesquiterpenoids       0.00      0.00      0.00        17
+                                         Neoflavonoids       0.00      0.00      0.00        15
+                               Neohopane triterpenoids       0.00      0.00      0.00         2
+                                            Neolignans       0.00      0.00      0.00        36
+                                           Neurofurans       0.00      0.00      0.00         4
+                                        Neuroprostanes       0.00      0.00      0.00        10
+                            Neutral glycosphingolipids       0.00      0.00      0.00        23
+                                     Nitro fatty acids       0.00      0.00      0.00         3
+                              Norcembrane diterpenoids       0.00      0.00      0.00         2
+                      Noreremophilane sesquiterpenoids       0.00      0.00      0.00         4
+                         Noreudesmane sesquiterpenoids       0.00      0.00      0.00         3
+                               Norkaurane diterpenoids       0.00      0.00      0.00        37
+                               Norlabdane diterpenoids       0.00      0.00      0.00        11
+           Norpimarane and Norisopimarane diterpenoids       0.00      0.00      0.00        17
+                                   Norsesterterpenoids       0.00      0.00      0.00         5
+                                           Oblogolides       0.00      0.00      0.00         5
+                                 Obtusane diterpenoids       0.00      0.00      0.00         0
+                                Oleanane triterpenoids       0.05      0.07      0.06        69
+            Oligomeric phloroglucinols (phlorotannins)       0.15      0.25      0.19        16
+                                   Oligomeric stibenes       0.50      0.91      0.65        47
+                                           Oligomycins       0.00      0.00      0.00         6
+                               Onocerane triterpenoids       0.00      0.00      0.00         3
+                                Open-chain polyketides       0.15      0.06      0.09        77
+                            Open-chained neoflavonoids       0.00      0.00      0.00         2
+                          Ophiobolane sesterterpenoids       0.00      0.00      0.00         5
+                             Oplopane sesquiterpenoids       0.00      0.00      0.00         8
+                           Oppositane sesquiterpenoids       0.00      0.00      0.00         5
+                                     Other Docosanoids       0.00      0.00      0.00         6
+                                     Other Eicosanoids       0.00      0.00      0.00         2
+                                   Other Octadecanoids       0.00      0.00      0.00        44
+               Other indole diketopiperazine alkaloids       0.00      0.00      0.00        11
+                       Other polyketide meroterpenoids       0.00      0.00      0.00         4
+                                Oxa-Bridged Macrolides       0.00      0.00      0.00         6
+                                        Oxasqualenoids       0.00      0.00      0.00         5
+                                     Oxazole alkaloids       0.00      0.00      0.00         2
+                         Oxidized glycerophospholipids       0.67      0.03      0.06        59
+                                       Oxo fatty acids       0.00      0.00      0.00        31
+                               Oxygenated hydrocarbons       0.00      0.00      0.00        55
+                            Pachydictyane diterpenoids       0.00      0.00      0.00        10
+                             Pachysanane triterpenoids       0.00      0.00      0.00         1
+                       Pacifigorgiane sesquiterpenoids       0.00      0.00      0.00         0
+                          Panasinsane sesquiterpenoids       0.00      0.00      0.00         1
+                       Paraconic acids and derivatives       0.00      0.00      0.00         6
+                                Paraliane diterpenoids       0.00      0.00      0.00         1
+                               Parguerane diterpenoids       0.00      0.00      0.00         1
+                          Patchoulane sesquiterpenoids       0.00      0.00      0.00         7
+                           Paulomycins and derivatives       0.00      0.00      0.00         2
+                                           Penicillins       0.00      0.00      0.00        18
+                       Pentacyclic guanidine alkaloids       0.00      0.00      0.00         8
+                          Pentalenane sesquiterpenoids       0.00      0.00      0.00         3
+                                 Pepluane diterpenoids       0.00      0.00      0.00         1
+                            Perforane sesquiterpenoids       0.00      0.00      0.00         4
+                                   Phenazine alkaloids       0.00      0.00      0.00        16
+                       Phenethylisoquinoline alkaloids       0.00      0.00      0.00        23
+                                 Phenoxazine alkaloids       0.00      0.00      0.00         1
+                       Phenylalanine-derived alkaloids       0.00      0.00      0.00        20
+                                       Phenylethanoids       0.00      0.00      0.00        10
+                                     Phenylethylamines       0.00      0.00      0.00        26
+                        Phloroglucinol-terpene hybrids       0.00      0.00      0.00         8
+                                  Phosphosphingolipids       0.52      0.44      0.48        63
+                                 Phthalide derivatives       0.00      0.00      0.00        18
+                                  Phytane diterpenoids       0.00      0.00      0.00        19
+                                           Phytofurans       0.00      0.00      0.00         1
+                                        Phytoprostanes       0.00      0.00      0.00         3
+                          Picrotoxane sesquiterpenoids       0.00      0.00      0.00         9
+                 Pimarane and Isopimarane diterpenoids       0.00      0.00      0.00        27
+                                  Pimprinine alkaloids       0.00      0.00      0.00         1
+                                 Pinane monoterpenoids       0.00      0.00      0.00        34
+                           Pinguisane sesquiterpenoids       0.00      0.00      0.00         7
+                                  Piperidine alkaloids       0.00      0.00      0.00        45
+                                       Plant xanthones       0.00      0.00      0.00        31
+                          Platensimycin and Platencins       0.00      0.00      0.00         7
+                              Podocarpane diterpenoids       0.00      0.00      0.00        37
+                                            Polyamines       0.39      0.10      0.17        86
+                                    Polyene macrolides       0.29      0.06      0.10        33
+                                            Polyesters       0.00      0.00      0.00         0
+                                  Polyether ionophores       0.00      0.00      0.00        23
+                              Polypodane triterpenoids       0.00      0.00      0.00         5
+Polyprenylated cyclic polyketides (Hop meroterpenoids)       0.24      0.86      0.37        69
+                                       Polysaccharides       0.08      0.33      0.13         9
+                                           Pradimicins       0.00      0.00      0.00         0
+                                     Pregnane steroids       0.05      0.18      0.08        57
+                             Premyrsinane diterpenoids       0.00      0.00      0.00         3
+                         Prenyl quinone meroterpenoids       0.00      0.00      0.00        52
+                Prenylated,geranylated phloroglucinols       0.00      0.00      0.00         7
+                         Prenylbisabolane diterpenoids       0.00      0.00      0.00         4
+                          Prenyleudesmane diterpenoids       0.00      0.00      0.00         3
+   Presilphiperfolane and Probotryane sesquiterpenoids       0.00      0.00      0.00         4
+                           Prezizaane sesquiterpenoids       0.00      0.00      0.00         6
+                                        Primary amides       0.00      0.00      0.00         4
+                                       Proanthocyanins       0.00      0.00      0.00        15
+                                        Prostaglandins       0.13      0.37      0.19        27
+                              Protoberberine alkaloids       0.00      0.00      0.00         2
+                        Protoilludane sesquiterpenoids       0.00      0.00      0.00        11
+                                   Protopine alkaloids       0.00      0.00      0.00         4
+                        Pseudoguaiane sesquiterpenoids       0.00      0.00      0.00         9
+                            Pseudopterane diterpenoids       0.00      0.00      0.00         9
+                                           Pterocarpan       0.00      0.00      0.00        34
+                                            Pulvinones       0.00      0.00      0.00        10
+                                      Purine alkaloids       0.46      0.65      0.54        37
+                                    Purine nucleosides       0.00      0.00      0.00        21
+                                    Purine nucleotides       1.00      0.03      0.07        29
+                                       Pyranocoumarins       0.00      0.00      0.00        25
+                     Pyrazine and Piperazine alkaloids       0.00      0.00      0.00         6
+                                    Pyridine alkaloids       0.04      0.03      0.03        79
+                                Pyrimidine nucleosides       0.00      0.00      0.00        16
+                                Pyrimidine nucleotides       0.29      0.64      0.40        11
+                       Pyrrocidine tetramate alkaloids       0.00      0.00      0.00         4
+                                     Pyrrole alkaloids       0.00      0.00      0.00        14
+                                 Pyrrolidine alkaloids       0.00      0.00      0.00        25
+                               Pyrrolizidine alkaloids       0.00      0.00      0.00        44
+                               Pyrroloindole alkaloids       0.00      0.00      0.00        15
+                            Pyrroloquinoline alkaloids       0.00      0.00      0.00        36
+                             Quadrane sesquiterpenoids       0.00      0.00      0.00         4
+                                           Quassinoids       0.00      0.00      0.00        37
+                                 Quinazoline alkaloids       0.00      0.00      0.00         8
+                                   Quinoline alkaloids       0.00      0.00      0.00        25
+                               Quinolizidine alkaloids       0.28      0.50      0.36        28
+                                      Resin glycosides       0.35      0.23      0.27        31
+                                           Resolvin Ds       0.00      0.00      0.00         2
+                                           Resolvin Es       0.00      0.00      0.00         3
+                             Rhamnofolane diterpenoids       0.00      0.00      0.00         4
+                                          Rhamnolipids       0.00      0.00      0.00         5
+                                             Rhizoxins       0.00      0.00      0.00         3
+                                                 RiPPs       0.15      0.43      0.23        30
+                                             Rotenoids       0.00      0.00      0.00        20
+                            Rotundane sesquiterpenoids       0.00      0.00      0.00         2
+                              Sacculatane diterpenoids       0.00      0.00      0.00         8
+                                      Salinosporamides       0.00      0.00      0.00         3
+                            Santalane sesquiterpenoids       0.00      0.00      0.00         7
+                           Saponaceolide triterpenoids       0.00      0.00      0.00         2
+                             Sativane sesquiterpenoids       0.00      0.00      0.00         1
+                                            Saxitoxins       0.00      0.00      0.00         1
+                            Scalarane sesterterpenoids       0.00      0.00      0.00        21
+                             Secoabietane diterpenoids       0.00      0.00      0.00        16
+                       Secochamigrane sesquiterpenoids       0.00      0.00      0.00         2
+                        Secoeudesmane sesquiterpenoids       0.00      0.00      0.00         3
+                       Secogermacrane sesquiterpenoids       0.00      0.00      0.00         5
+                            Secoiridoid monoterpenoids       0.00      0.00      0.00        41
+                              Secokaurane diterpenoids       0.00      0.00      0.00        11
+                              Secolabdane diterpenoids       0.00      0.00      0.00        11
+                                 Segetane diterpenoids       0.00      0.00      0.00         2
+                                         Selaginellins       0.00      0.00      0.00        10
+                               Serratane triterpenoids       0.00      0.00      0.00        12
+                Serrulatane and Biflorane diterpenoids       0.00      0.00      0.00        14
+                        Shikimic acids and derivatives       0.00      0.00      0.00         3
+                                Shionane triterpenoids       0.00      0.00      0.00         4
+                           Silphinane sesquiterpenoids       0.00      0.00      0.00         9
+                      Silphiperfolane sesquiterpenoids       0.00      0.00      0.00         1
+                           Simple aromatic polyketides       0.00      0.00      0.00        12
+                                      Simple coumarins       0.06      0.09      0.07       100
+                             Simple cyclic polyketides       0.00      0.00      0.00        14
+                     Simple diketopiperazine alkaloids       0.00      0.00      0.00         2
+                               Simple indole alkaloids       0.00      0.00      0.00        17
+                             Simple oxindole alkaloids       0.00      0.00      0.00         7
+                                 Simple phenolic acids       0.00      0.00      0.00        32
+                           Sinularane sesquiterpenoids       0.00      0.00      0.00         1
+                                         Sophorolipids       0.00      0.00      0.00         2
+                                        Sorbicilinoids       0.00      0.00      0.00        18
+                                Sphaerane diterpenoids       0.00      0.00      0.00         4
+                               Sphaeroane diterpenoids       0.00      0.00      0.00         1
+                             Sphenolobane diterpenoids       0.00      0.00      0.00         6
+                                       Sphingoid bases       0.00      0.00      0.00         3
+                           Spiroaxane sesquiterpenoids       0.00      0.00      0.00         3
+                                Spirodioxynaphthalenes       0.00      0.00      0.00        15
+                                   Spirostane steroids       0.00      0.00      0.00        18
+                             Spirotetronate macrolides       0.58      0.28      0.38        25
+                        Spirovetivane sesquiterpenoids       0.00      0.00      0.00         6
+                                Spongiane diterpenoids       0.00      0.00      0.00        17
+                                  Spriromeroterpenoids       0.00      0.00      0.00         7
+                                     Stemona alkaloids       1.00      0.19      0.32        31
+                                   Steroidal alkaloids       0.00      0.00      0.00        64
+                           Sterpurane sesquiterpenoids       0.00      0.00      0.00         2
+                                Stictane triterpenoids       0.00      0.00      0.00         3
+                                  Stigmastane steroids       0.00      0.00      0.00        26
+                                       Stilbenolignans       0.00      0.00      0.00         1
+                            Straight chain fatty acids       0.00      0.00      0.00         5
+                                        Streptogramins       0.00      0.00      0.00         0
+                       Streptothricins and derivatives       0.00      0.00      0.00         5
+                          Strobilurins and derivatives       0.00      0.00      0.00         0
+                                        Strychnos type       0.00      0.00      0.00        19
+                            Tantazoles and mirabazoles       0.00      0.00      0.00         0
+                              Taraxerane triterpenoids       0.00      0.00      0.00        12
+                                   Taxane diterpenoids       0.00      0.00      0.00        21
+                                   Terpenoid alkaloids       0.25      0.03      0.05        65
+            Terpenoid tetrahydroisoquinoline alkaloids       0.00      0.00      0.00         1
+                              Tetracyclic diterpenoids       0.00      0.00      0.00        11
+                                         Tetracyclines       0.10      0.11      0.11        27
+                      Tetrahydroisoquinoline alkaloids       0.00      0.00      0.00        17
+                            Tetraketide meroterpenoids       0.00      0.00      0.00        28
+                                         Tetrodotoxins       0.00      0.00      0.00         9
+                             Thapsane sesquiterpenoids       0.00      0.00      0.00         6
+                                      Thia fatty acids       0.00      0.00      0.00         0
+                        Thiodiketopiperazine alkaloids       0.00      0.00      0.00         8
+                                          Thromboxanes       0.00      0.00      0.00         1
+                                Thujane monoterpenoids       0.00      0.00      0.00         8
+                           Thujopsane sesquiterpenoids       0.00      0.00      0.00         3
+                                 Tigliane diterpenoids       0.00      0.00      0.00        13
+                                 Totarane diterpenoids       0.00      0.00      0.00         8
+                             Trachylobane diterpenoids       0.00      0.00      0.00        10
+                            Tremulane sesquiterpenoids       0.00      0.00      0.00        10
+                                      Triacylglycerols       0.77      1.00      0.87      1371
+                        Trichothecane sesquiterpenoids       0.08      0.14      0.10        28
+                         Tricyclic guanidine alkaloids       0.00      0.00      0.00         6
+                              Triketide meroterpenoids       0.00      0.00      0.00        10
+                             Trinervitane diterpenoids       0.00      0.00      0.00         9
+                                           Tripeptides       0.00      0.00      0.00        37
+                                     Tropane alkaloids       0.26      0.11      0.15        47
+                      Tropolones and derivatives (PKS)       0.00      0.00      0.00         9
+                Tropolones and derivatives (Shikimate)       0.00      0.00      0.00         2
+                                              Tylosins       0.00      0.00      0.00        12
+                               Unsaturated fatty acids       0.42      0.24      0.31       140
+                  Ursane and Taraxastane triterpenoids       0.00      0.00      0.00        34
+                             Valerane sesquiterpenoids       0.00      0.00      0.00         4
+                           Valerenane sesquiterpenoids       0.00      0.00      0.00         2
+                                Valparane diterpenoids       0.00      0.00      0.00         2
+                          Vancomycins and Teicoplanins       0.48      0.93      0.63        70
+                              Verrucosane diterpenoids       0.00      0.00      0.00         2
+                             Verticillane diterpenoids       0.00      0.00      0.00        12
+                              Villanovane diterpenoids       0.00      0.00      0.00         1
+                                Viscidane diterpenoids       0.00      0.00      0.00         0
+                            Vitamin D2 and derivatives       0.00      0.00      0.00         7
+                            Vitamin D3 and derivatives       0.24      0.98      0.39        89
+                                          Wax diesters       0.00      0.00      0.00         1
+                                        Wax monoesters       0.45      0.44      0.45       172
+                            Xeniaphyllane diterpenoids       0.00      0.00      0.00         4
+                                 Xenicane diterpenoids       0.00      0.00      0.00        10
+                              Yohimbine-like alkaloids       0.00      0.00      0.00        16
+                                          Zearalenones       0.00      0.00      0.00        17
+                              Zizaane sesquiterpenoids       0.00      0.00      0.00         2
+                                          m-Terphenyls       0.00      0.00      0.00         1
+                                          p-Terphenyls       0.00      0.00      0.00        25
+
+                                             micro avg       0.31      0.31      0.31     14720
+                                             macro avg       0.05      0.05      0.04     14720
+                                          weighted avg       0.23      0.31      0.24     14720
+                                           samples avg       0.31      0.31      0.31     14720
