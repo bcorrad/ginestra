@@ -22,7 +22,7 @@ N_EPOCHS = 10
 N_RUNS = 3  # Number of runs for the model
 ## DATASET PARAMETERS
 USE_AVAILABLE_DATASET = None # If True, use the dataset already downloaded and preprocessed
-FORCE_DATASET_GENERATION = True # If True, force the generation of the dataset
+FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
 N_SAMPLES = None  # Number of samples to pick from the training set. If set to None, all samples are used
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
@@ -30,7 +30,7 @@ MULTILABEL2MULTICLASS = False
 
 # CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE),
-TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "pathway"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
@@ -40,7 +40,7 @@ USE_FINGERPRINT = False
 H_DIM = 16
 # MODELS = ["gine", "gin", "gat", "gate", "mlp"] # Options: "gin", "gine", "mlp", "gat", "gate"
 # OR
-MODELS = ["gat"] 
+MODELS = ["gin"] 
 MODELS.sort()  # Minimize the dataset exchanges between models during training
 
 import pickle
