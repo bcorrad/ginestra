@@ -324,26 +324,34 @@ mlp_train_dataloader = None
 mlp_val_dataloader = None
 mlp_test_dataloader = None
 
-if USE_AVAILABLE_DATASET:   
-    if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
-        if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
-            os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
-                os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')):
-                    
-            print("Dataset already exists for GIN/GINE. Loading from pickle files.")
-            gnn_train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
-            gnn_val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
-            gnn_test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
-    elif "mlp" in MODELS:
-        if (os.path.exists(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
-            os.path.exists(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
-                os.path.exists(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')):
-                    
-            print("Dataset already exists for MLP. Loading from pickle files.")
-            mlp_train_dataloader = load_pickle(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
-            mlp_val_dataloader = load_pickle(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
-            mlp_test_dataloader = load_pickle(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
+if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
+    if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
+        os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
+            os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')):
+        USE_AVAILABLE_DATASET = True
+                
+        print("Dataset already exists for GIN/GINE. Loading from pickle files.")
+        gnn_train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+        gnn_val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+        gnn_test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+    else:
+        USE_AVAILABLE_DATASET = False
+        print("Dataset does not exist for GIN/GINE. Generating new dataset.")
+if "mlp" in MODELS:
+    if (os.path.exists(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
+        os.path.exists(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
+            os.path.exists(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')):
+        USE_AVAILABLE_DATASET = True
+                        
+        print("Dataset already exists for MLP. Loading from pickle files.")
+        mlp_train_dataloader = load_pickle(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
+        mlp_val_dataloader = load_pickle(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
+        mlp_test_dataloader = load_pickle(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
 else:
+    USE_AVAILABLE_DATASET = False
+    print("Dataset does not exist for MLP. Generating new dataset.")
+    
+if USE_AVAILABLE_DATASET is False and FORCE_GENERATE_DATASET is True:
     print("Dataset does not exist. Generating new dataset.")
     # Load data from pkl files
     with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
@@ -409,7 +417,7 @@ else:
         save_pickle(mlp_val_dataloader, f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
         save_pickle(mlp_test_dataloader, f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
     
-    if "gin" in MODELS or "gine" in MODELS:
+    if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
         # Convert train_df, val_df, and test_df to PyTorch Geometric DataLoader objects
         train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
         val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
