@@ -93,7 +93,7 @@ for MODEL in MODELS:
             else:
                 FINGERPRINT_LENGTH = None
 
-            from models.GINE import GINWithEdgeFeatures
+            from models.GINE import GINE as GINWithEdgeFeatures
             model = GINWithEdgeFeatures(in_channels=N_FEATURES, 
                                         hidden_channels=H_DIM, 
                                         edge_dim=EDGE_FEATURES, 

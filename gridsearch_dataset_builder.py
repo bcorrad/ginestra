@@ -310,124 +310,92 @@ def load_pickle(filepath):
 def save_pickle(data, filepath):
     with open(filepath, 'wb') as f:
         pickle.dump(data, f)
-
-
+        
 if N_SAMPLES is not None:
     suffix = f'_{N_SAMPLES}'
 else:
     suffix = ''
     
-gnn_train_dataloader = None
-gnn_val_dataloader = None
-gnn_test_dataloader = None
-mlp_train_dataloader = None
-mlp_val_dataloader = None
-mlp_test_dataloader = None
+def prepare_dataloaders(model_name: str):
+    gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader, mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader = None, None, None, None, None, None
 
-if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
-    if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
-        os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
-            os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')) and FORCE_DATASET_GENERATION is False:
-        USE_AVAILABLE_DATASET = True
-                
-        print("Dataset already exists for GIN/GINE. Loading from pickle files.")
-        gnn_train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
-        gnn_val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
-        gnn_test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+    if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
+        if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
+            os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
+                os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')) and FORCE_DATASET_GENERATION is False:
+            USE_AVAILABLE_DATASET = True
+                    
+            print("Dataset already exists for GNN. Loading from pickle files.")
+            gnn_train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            gnn_val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            gnn_test_dataloader = load_pickle(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+        else:
+            USE_AVAILABLE_DATASET = False
+            print("Dataset does not exist for GNN.")
+    elif "mlp" in model_name:
+        if (os.path.exists(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
+            os.path.exists(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
+                os.path.exists(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')) and FORCE_DATASET_GENERATION is False:
+            USE_AVAILABLE_DATASET = True
+            print("Dataset already exists for MLP. Loading from pickle files.")
+            mlp_train_dataloader = load_pickle(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
+            mlp_val_dataloader = load_pickle(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
+            mlp_test_dataloader = load_pickle(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
+        else:
+            USE_AVAILABLE_DATASET = False
+            print("Dataset does not exist for MLP.")
     else:
-        USE_AVAILABLE_DATASET = False
-        print("Dataset does not exist for GIN/GINE.")
-if "mlp" in MODELS:
-    if (os.path.exists(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
-        os.path.exists(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
-            os.path.exists(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')) and FORCE_DATASET_GENERATION is False:
-        USE_AVAILABLE_DATASET = True
-                        
-        print("Dataset already exists for MLP. Loading from pickle files.")
-        mlp_train_dataloader = load_pickle(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
-        mlp_val_dataloader = load_pickle(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
-        mlp_test_dataloader = load_pickle(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
-else:
-    USE_AVAILABLE_DATASET = False
-    print("Dataset does not exist for MLP.")
-    
-if USE_AVAILABLE_DATASET is False and FORCE_DATASET_GENERATION is True:
-    print("Dataset does not exist. Generating new dataset.")
-    # Load data from pkl files
-    with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
-        class_  = pickle.load(f)
-    with open(f'{DATADIR}/char2idx_super_V1.pkl','rb') as f:
-        superclass_  = pickle.load(f)
-    with open(f'{DATADIR}/char2idx_path_V1.pkl','rb') as f:
-        pathway_  = pickle.load(f)
-    with open(f'{DATADIR}/datset_class_all_V1.pkl','rb') as r:
-        dataset = pickle.load(r)
-        # Remove _ from the keys of the dictionary at the second level (Super_class -> Superclass)
-        dataset = {k: {k2.replace("_", ""): v2 for k2, v2 in v.items()} for k, v in dataset.items()}
+        raise ValueError(f"Unknown model name: {model_name}")
 
-    # Train, Validation, and test set 
-    molecule_inchikey = list(dataset.keys())
-    np.random.shuffle(molecule_inchikey)
-    molecule_dict = np.array(molecule_inchikey)
+    if USE_AVAILABLE_DATASET is False and FORCE_DATASET_GENERATION is True:
+        print("Generating new dataset.")
+        with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
+            class_  = pickle.load(f)
+        with open(f'{DATADIR}/char2idx_super_V1.pkl','rb') as f:
+            superclass_  = pickle.load(f)
+        with open(f'{DATADIR}/char2idx_path_V1.pkl','rb') as f:
+            pathway_  = pickle.load(f)
+        with open(f'{DATADIR}/datset_class_all_V1.pkl','rb') as r:
+            dataset = pickle.load(r)
+            dataset = {k: {k2.replace("_", ""): v2 for k2, v2 in v.items()} for k, v in dataset.items()}
 
-    # MULTICLASS MODE: Drop the dataset[i] elements that sum to > 1 for the key TARGET_TYPE
-    dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE.capitalize()]) == 1}
+        dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE.capitalize()]) == 1}
+        smiles_df = [dataset[i]['SMILES'] for i in dataset.keys()]
+        fingerprint_list = [np.concatenate(calculate_fingerprint(i, 2), axis=1) for i in smiles_df]
+        labels_list = [dataset[i][TARGET_TYPE.capitalize()] for i in dataset.keys()]
 
-    # Build the list of SMILES
-    smiles_df = []
-    for i in dataset.keys():
-        smiles_df.append(dataset[i]['SMILES'])
-    smiles_df = np.array(smiles_df)
+        df = pd.DataFrame({'SMILES': smiles_df, 'fingerprint': fingerprint_list, TARGET_TYPE.capitalize(): labels_list})
+        df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+        train_indices, val_indices, test_indices, _, _, _ = dataset_split(np.array(labels_list))
 
-    # Build the list of fingerprints
-    fingerprint_list = [] 
-    for i in smiles_df:
-        fingerprint_list.append(np.concatenate(calculate_fingerprint(i, 2), axis=1))
+        train_df = df.iloc[train_indices]
+        val_df = df.iloc[val_indices]
+        test_df = df.iloc[test_indices]
 
-    # Build the list of targets (Class, Super_class, Pathway)
-    labels_list = []
-    for i in dataset.keys():
-        labels_list.append(dataset[i][TARGET_TYPE.capitalize()])
+        if "mlp" in model_name:
+            train_dataset = CustomDataset(train_df)
+            val_dataset = CustomDataset(val_df)
+            test_dataset = CustomDataset(test_df)
 
-    # Create a dataframe with the SMILES, fingerprints, and labels
-    df = pd.DataFrame({'SMILES': smiles_df, 'fingerprint': fingerprint_list, TARGET_TYPE.capitalize(): labels_list})
+            mlp_train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
+            mlp_val_dataloader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True)
+            mlp_test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True)
 
-    # Shuffle the dataframe
-    df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+            save_pickle(mlp_train_dataloader, f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
+            save_pickle(mlp_val_dataloader, f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
+            save_pickle(mlp_test_dataloader, f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
 
-    # Split the dataframe into training, validation, and test sets using the dataset_split function
-    train_indices, val_indices, test_indices, train_samples, val_samples, test_samples = dataset_split(np.array(labels_list))
-    train_df = df.iloc[train_indices]
-    val_df = df.iloc[val_indices]
-    test_df = df.iloc[test_indices]
-    
-    # Save the train_df, val_df, and test_df to pickle files
-    if "mlp" in MODELS:
-        # Convert train_df, val_df, and test_df to PyTorch Dataset objects
-        train_dataset = CustomDataset(train_df)
-        val_dataset = CustomDataset(val_df)
-        test_dataset = CustomDataset(test_df)
-        # Create DataLoader objects
-        mlp_train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
-        mlp_val_dataloader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True)
-        mlp_test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True)
-        
-        # Save the DataLoader objects to pickle files
-        save_pickle(mlp_train_dataloader, f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
-        save_pickle(mlp_val_dataloader, f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
-        save_pickle(mlp_test_dataloader, f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
-    
-    if "gin" in MODELS or "gine" in MODELS or "gat" in MODELS or "gate" in MODELS:
-        # Convert train_df, val_df, and test_df to PyTorch Geometric DataLoader objects
-        train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
-        val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
-        test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df, target=TARGET_TYPE.capitalize())
+        if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
+            train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
+            val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
+            test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df, target=TARGET_TYPE.capitalize())
 
-        gnn_train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
-        gnn_val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
-        gnn_test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
+            gnn_train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
+            gnn_val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
+            gnn_test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
 
-        # Save the GeoDataLoader objects to pickle files
-        save_pickle(gnn_train_dataloader, f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
-        save_pickle(gnn_val_dataloader, f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
-        save_pickle(gnn_test_dataloader, f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            save_pickle(gnn_train_dataloader, f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            save_pickle(gnn_val_dataloader, f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            save_pickle(gnn_test_dataloader, f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+
+    return mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader

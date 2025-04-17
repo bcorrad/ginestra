@@ -1,4 +1,6 @@
-# To-Do List
-
-
-1. In ``GINE.py`` and ``GIN.py``: reduce the number of Linear layers of GINConv and GINEConv Sequentials
+<!-- Run the setup/packages_installer.sh file to install the required packages -->
+<!--  -->
+## Install required packages
+```bash
+./setup/packages_installer.sh
+```

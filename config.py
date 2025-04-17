@@ -19,7 +19,7 @@ DATADIR = os.path.join(BASEDIR, "data")
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 N_EPOCHS = 10   # Number of epochs for training
-GRID_N_EPOCHS = 20 # Number of epochs for grid search
+GRID_N_EPOCHS = 100 # Number of epochs for grid search
 N_RUNS = 3  # Number of runs for the model
 ## DATASET PARAMETERS
 USE_AVAILABLE_DATASET = None # If True, use the dataset already downloaded and preprocessed

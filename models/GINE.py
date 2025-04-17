@@ -3,7 +3,6 @@ import torch.nn.functional as F
 import numpy as np
 import os
 from config import TARGET_MODE, PATHWAYS, EXPERIMENT_FOLDER 
-from ripser import Rips
 
 from torch_geometric.nn import global_add_pool, GINEConv
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
@@ -18,7 +17,7 @@ metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro
 
 BCE_THRESHOLD = 0.5
 
-class GINWithEdgeFeatures(torch.nn.Module):
+class GINE(torch.nn.Module):
     def __init__(self, in_channels, hidden_channels, edge_dim, out_channels, **kwargs):
         super().__init__()
         
@@ -146,7 +145,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n):
             batch = batch.to(device)
             if model.__class__.__name__ == "GIN":
                 out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch)
-            elif model.__class__.__name__ == "GINWithEdgeFeatures" or model.__class__.__name__ == "NewGINE":
+            elif model.__class__.__name__ == "GINE" or model.__class__.__name__ == "NewGINE":
                 from config import USE_FINGERPRINT
                 if USE_FINGERPRINT:
                     out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
@@ -219,7 +218,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
         # Forward pass
         if model.__class__.__name__ == "GIN":
             out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch)
-        elif model.__class__.__name__ == "GINWithEdgeFeatures":
+        elif model.__class__.__name__ == "GINE":
             from config import USE_FINGERPRINT
             if USE_FINGERPRINT:
                 out = model(x=batch.x, 
