@@ -94,7 +94,33 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_d
                     f.write(f"[EARLY STOPPING at epoch {epoch+1}]\n")
                 break
 
+    # Final summary stats
+    avg_train_loss = sum(GRID_TRAIN_LOSS) / len(GRID_TRAIN_LOSS)
+    avg_train_precision = sum(GRID_TRAIN_PRECISION) / len(GRID_TRAIN_PRECISION)
+    avg_train_recall = sum(GRID_TRAIN_RECALL) / len(GRID_TRAIN_RECALL)
+    avg_train_f1 = sum(GRID_TRAIN_F1) / len(GRID_TRAIN_F1)
+    std_train_loss = torch.std(torch.tensor(GRID_TRAIN_LOSS))
+    std_train_precision = torch.std(torch.tensor(GRID_TRAIN_PRECISION))
+    std_train_recall = torch.std(torch.tensor(GRID_TRAIN_RECALL))
+    std_train_f1 = torch.std(torch.tensor(GRID_TRAIN_F1))
+
     avg_val_loss = sum(GRID_VAL_LOSS) / len(GRID_VAL_LOSS)
+    avg_val_precision = sum(GRID_VAL_PRECISION) / len(GRID_VAL_PRECISION)
+    avg_val_recall = sum(GRID_VAL_RECALL) / len(GRID_VAL_RECALL)
+    avg_val_f1 = sum(GRID_VAL_F1) / len(GRID_VAL_F1)
+    std_val_loss = torch.std(torch.tensor(GRID_VAL_LOSS))
+    std_val_precision = torch.std(torch.tensor(GRID_VAL_PRECISION))
+    std_val_recall = torch.std(torch.tensor(GRID_VAL_RECALL))
+    std_val_f1 = torch.std(torch.tensor(GRID_VAL_F1))
+
+    final_log_train = f"Train Loss: {avg_train_loss:.4f} ± {std_train_loss:.4f}, Precision: {avg_train_precision:.4f} ± {std_train_precision:.4f}, Recall: {avg_train_recall:.4f} ± {std_train_recall:.4f}, F1: {avg_train_f1:.4f} ± {std_train_f1:.4f}"
+    final_log_val = f"Val Loss: {avg_val_loss:.4f} ± {std_val_loss:.4f}, Precision: {avg_val_precision:.4f} ± {std_val_precision:.4f}, Recall: {avg_val_recall:.4f} ± {std_val_recall:.4f}, F1: {avg_val_f1:.4f} ± {std_val_f1:.4f}"
+
+    print("Final Training Summary:", final_log_train)
+    print("Final Validation Summary:", final_log_val)
+    with open(report_file, "a") as f:
+        f.write("\n" + final_log_train + "\n")
+        f.write(final_log_val + "\n")
     return avg_val_loss
 
 def export_results_to_csv(study, filename="optuna_results_gate.csv"):
