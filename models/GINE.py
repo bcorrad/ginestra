@@ -122,7 +122,7 @@ class GINE(torch.nn.Module):
         return h
 
 
-def evaluate(model, dataloader, device, criterion, epoch_n):
+def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, save_all_models=False):
     """
     Evaluates the model on the given dataloader.
     
@@ -185,13 +185,21 @@ def evaluate(model, dataloader, device, criterion, epoch_n):
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
-    # Save model if needed
-    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"eval_{epoch_n}_{model.__class__.__name__}.pt"))
     
-    return avg_loss, precision, recall, f1, conf_matrix
+    # Save model if needed
+    if save_all_models:
+        try:
+            torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"eval_{epoch_n}_{model.__class__.__name__}.pt"))
+        except:
+            print(f"Error saving model")
+            
+    if not return_model:
+        return avg_loss, precision, recall, f1, conf_matrix
+    else:
+        return avg_loss, precision, recall, f1, conf_matrix, model
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False, return_model=False, save_all_models=False):
     """
     Training loop for the model.
     Args:
@@ -280,7 +288,14 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
         
     # Class-wise metrics (precision, recall, f1 score)
     print(classification_report(all_targets, all_preds, target_names=PATHWAYS.keys()))
-    # Save model if needed
-    torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"train_{epoch_n}_{model.__class__.__name__}.pt"))
     
-    return avg_loss, precision, recall, f1, conf_matrix
+    if save_all_models:
+        try:
+            torch.save(model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"train_{epoch_n}_{model.__class__.__name__}.pt"))
+        except:
+            print(f"Error saving model")
+            
+    if not return_model:
+        return avg_loss, precision, recall, f1, conf_matrix
+    else:
+        return avg_loss, precision, recall, f1, conf_matrix, model

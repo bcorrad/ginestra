@@ -56,8 +56,8 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
         early_stopper = EarlyStopping(patience=10, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
-            train_loss, precision, recall, f1, _ = train_epoch(model, train_loader, optimizer, criterion, device, epoch)
-            val_loss, val_precision, val_recall, val_f1, _ = evaluate(model, val_loader, device, criterion, epoch)
+            train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
+            val_loss, val_precision, val_recall, val_f1, _, val_model = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
 
             GRID_TRAIN_LOSS.append(train_loss)
             GRID_TRAIN_PRECISION.append(precision)
@@ -78,6 +78,12 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
 
             if early_stopper(val_loss):
                 print(f"[EARLY STOPPING at epoch {epoch+1}] No improvement in {early_stopper.patience} epochs.")
+                # Save the early stopping model
+                try:
+                    torch.save(train_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, f"C-{config_idx}_E-{epoch}_train_early_stopping_model.pth"))
+                    torch.save(val_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, f"C-{config_idx}_E-{epoch}_val_early_stopping_model.pth"))
+                except Exception as e:
+                    print(f"Error saving model: {e}")
                 with open(report_file, "a") as f:
                     f.write(f"[EARLY STOPPING at epoch {epoch+1}]\n")
                 break
@@ -121,8 +127,13 @@ def test_model(best_params, train_loader, test_loader, num_features, num_classes
     for epoch in range(GRID_N_EPOCHS):
         train_epoch(model, train_loader, optimizer, criterion, device, epoch)
 
-    test_loss, test_precision, test_recall, test_f1, _ = evaluate(model, test_loader, device, criterion, epoch)
+    test_loss, test_precision, test_recall, test_f1, _, test_model = evaluate(model, test_loader, device, criterion, epoch, return_model=True, save_all_models=False)
     print(f"Test Results — Loss: {test_loss:.4f}, P: {test_precision:.4f}, R: {test_recall:.4f}, F1: {test_f1:.4f}")
+    # Save the test model
+    try:
+        torch.save(test_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, f"test_best_model.pth"))
+    except Exception as e:
+        print(f"Error saving model: {e}")
     return dict(loss=test_loss, precision=test_precision, recall=test_recall, f1=test_f1)
 
 def export_results_to_csv(study, filename="optuna_results_mlp.csv"):
