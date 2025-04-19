@@ -72,8 +72,8 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
             GRID_VAL_RECALL.append(val_recall)
             GRID_VAL_F1.append(val_f1)
 
-            log_train = f"[MLP TRAINING RUN {run+1}/{N_RUNS} E{epoch+1}] Loss: {train_loss:.4f}, P: {precision:.4f}, R: {recall:.4f}, F1: {f1:.4f}"
-            log_val = f"[MLP VALIDATION RUN {run+1}/{N_RUNS} E{epoch+1}] Loss: {val_loss:.4f}, P: {val_precision:.4f}, R: {val_recall:.4f}, F1: {val_f1:.4f}"
+            log_train = f"[CONFIG {config_idx}][MLP TRAINING RUN {run+1}/{N_RUNS} E{epoch+1}] Loss: {train_loss:.4f}, P: {precision:.4f}, R: {recall:.4f}, F1: {f1:.4f}"
+            log_val = f"[CONFIG {config_idx}][MLP VALIDATION RUN {run+1}/{N_RUNS} E{epoch+1}] Loss: {val_loss:.4f}, P: {val_precision:.4f}, R: {val_recall:.4f}, F1: {val_f1:.4f}"
             print(log_train)
             print(log_val)
             with open(report_file, "a") as f:
@@ -111,8 +111,8 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
     std_val_recall = torch.std(torch.tensor(GRID_VAL_RECALL))
     std_val_f1 = torch.std(torch.tensor(GRID_VAL_F1))
 
-    final_log_train = f"Train Loss: {avg_train_loss:.4f} ± {std_train_loss:.4f}, Precision: {avg_train_precision:.4f} ± {std_train_precision:.4f}, Recall: {avg_train_recall:.4f} ± {std_train_recall:.4f}, F1: {avg_train_f1:.4f} ± {std_train_f1:.4f}"
-    final_log_val = f"Val Loss: {avg_val_loss:.4f} ± {std_val_loss:.4f}, Precision: {avg_val_precision:.4f} ± {std_val_precision:.4f}, Recall: {avg_val_recall:.4f} ± {std_val_recall:.4f}, F1: {avg_val_f1:.4f} ± {std_val_f1:.4f}"
+    final_log_train = f"[CONFIG {config_idx}] Train Loss: {avg_train_loss:.4f} ± {std_train_loss:.4f}, Precision: {avg_train_precision:.4f} ± {std_train_precision:.4f}, Recall: {avg_train_recall:.4f} ± {std_train_recall:.4f}, F1: {avg_train_f1:.4f} ± {std_train_f1:.4f}"
+    final_log_val = f"[CONFIG {config_idx}] Val Loss: {avg_val_loss:.4f} ± {std_val_loss:.4f}, Precision: {avg_val_precision:.4f} ± {std_val_precision:.4f}, Recall: {avg_val_recall:.4f} ± {std_val_recall:.4f}, F1: {avg_val_f1:.4f} ± {std_val_f1:.4f}"
 
     print("Final Training Summary:", final_log_train)
     print("Final Validation Summary:", final_log_val)
