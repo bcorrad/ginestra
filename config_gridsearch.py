@@ -24,7 +24,7 @@ MULTILABEL2MULTICLASS = False
 
 # CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE),
-TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
@@ -77,7 +77,7 @@ def initialize_experiment(models: Literal["mlp", "gin", "gine", "gat", "gate"]):
 
     # Save the configuration file
     import shutil
-    shutil.copy(__file__, os.path.join(EXPERIMENT_FOLDER, "config.py"))
+    shutil.copy(__file__, os.path.join(EXPERIMENT_FOLDER, "config_gridsearch.py"))
 
     # Save the models file from the directory
     for model_file in os.listdir(os.path.join(BASEDIR, "models")):

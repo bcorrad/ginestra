@@ -5,37 +5,18 @@ import optuna
 from optuna.samplers import GridSampler
 import os
 
-from models.GINE import GINE, train_epoch, evaluate
+from models.GINE import *
+
 from gridsearch_dataset_builder import prepare_dataloaders
+
+from utils.earlystop import EarlyStopping
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gine")
 
-from config_gridsearch import initialize_experiment
-EXPERIMENT_FOLDER = initialize_experiment("gine")
-from config_gridsearch import GRID_N_EPOCHS, LABELS_CODES, N_RUNS, USE_FINGERPRINT
+from utils.experiment_init import initialize_experiment
+EXPERIMENT_FOLDER = initialize_experiment("gine", TARGET_TYPE, BASEDIR)
 
-class EarlyStopping:
-    def __init__(self, patience=10, min_delta=0.0):
-        self.patience = patience
-        self.min_delta = min_delta
-        self.counter = 0
-        self.best_score = None
-        self.early_stop = False
-
-    def __call__(self, current_score):
-        if self.best_score is None:
-            self.best_score = current_score
-            return False
-
-        if current_score < self.best_score - self.min_delta:
-            self.best_score = current_score
-            self.counter = 0
-        else:
-            self.counter += 1
-            if self.counter >= self.patience:
-                self.early_stop = True
-                return True
-        return False
 
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, edge_dim, num_classes, fingerprint_length, config_idx, n_config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

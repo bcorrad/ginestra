@@ -1,22 +1,17 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
-from config import EXPERIMENT_FOLDER
+from config import EXPERIMENT_FOLDER, PATHWAYS, TARGET_MODE
 import os
 from torch_geometric.nn import GINConv, global_add_pool
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from sklearn.metrics import classification_report
-
-from config import PATHWAYS
-
-from config import TARGET_MODE
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
 BCE_THRESHOLD = 0.5
 class GIN(torch.nn.Module):
     """GIN"""
-
     def __init__(self, num_node_features, dim_h, num_classes, **kwargs):   #, num_heads=4
         super(GIN, self).__init__()
         

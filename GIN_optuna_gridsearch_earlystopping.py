@@ -5,38 +5,17 @@ import torch.optim as optim
 import optuna
 from optuna.samplers import GridSampler
 import os
-from models.GIN import GIN, train_epoch, evaluate
-# from config_gridsearch import GRID_N_EPOCHS, LABELS_CODES, EXPERIMENT_FOLDER, N_RUNS
 from gridsearch_dataset_builder import prepare_dataloaders
+from models.GIN import *
+
+from utils.earlystop import EarlyStopping
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gin")
 
-from config_gridsearch import initialize_experiment
-EXPERIMENT_FOLDER = initialize_experiment("gin")
-from config_gridsearch import GRID_N_EPOCHS, LABELS_CODES, N_RUNS, USE_FINGERPRINT
+from utils.experiment_init import initialize_experiment
+EXPERIMENT_FOLDER = initialize_experiment("gin", TARGET_TYPE, BASEDIR)
 
-class EarlyStopping:
-    def __init__(self, patience=10, min_delta=0.0):
-        self.patience = patience
-        self.min_delta = min_delta
-        self.counter = 0
-        self.best_score = None
-        self.early_stop = False
-
-    def __call__(self, current_score):
-        if self.best_score is None:
-            self.best_score = current_score
-            return False
-
-        if current_score < self.best_score - self.min_delta:
-            self.best_score = current_score
-            self.counter = 0
-        else:
-            self.counter += 1
-            if self.counter >= self.patience:
-                self.early_stop = True
-                return True
-        return False
 
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -129,6 +108,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         f.write(final_log_val + "\n")
     return avg_val_loss
 
+
 def test_model(best_params, train_loader, test_loader, num_node_features, num_classes):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -163,10 +143,12 @@ def test_model(best_params, train_loader, test_loader, num_node_features, num_cl
         'test_f1': test_f1
     }
 
+
 def export_results_to_csv(study, filename='optuna_results.csv'):
     df = study.trials_dataframe()
     df.to_csv(filename, index=False)
     print(f"Risultati esportati in {filename}")
+
 
 def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features, num_classes):
     param_grid = {
@@ -198,6 +180,7 @@ def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features,
         f.write(f"Best Loss: {best.value:.4f}\n")
 
     return best.params, study
+
 
 if __name__ == "__main__":
     train_dataloader = gnn_train_dataloader
