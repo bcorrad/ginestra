@@ -8,10 +8,14 @@ import pandas as pd
 import os
 
 from models.GATE import GATE, train_epoch, evaluate
-from config import GRID_N_EPOCHS, LABELS_CODES, EXPERIMENT_FOLDER, N_RUNS, USE_FINGERPRINT
+# from config_gridsearch import GRID_N_EPOCHS, LABELS_CODES, EXPERIMENT_FOLDER, N_RUNS, USE_FINGERPRINT, REPRODUCIBLE
 from gridsearch_dataset_builder import prepare_dataloaders
 
-mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gin")
+mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gate")
+
+from config_gridsearch import initialize_experiment
+EXPERIMENT_FOLDER = initialize_experiment("gate")
+from config_gridsearch import GRID_N_EPOCHS, LABELS_CODES, N_RUNS, USE_FINGERPRINT
 
 class EarlyStopping:
     def __init__(self, patience=10, min_delta=0.0):
@@ -92,8 +96,8 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_d
                 print(f"[EARLY STOPPING at epoch {epoch+1}] No improvement in {early_stopper.patience} epochs.")
                 # Save the early stopping model
                 try:
-                    torch.save(train_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, f"C-{config_idx}_E-{epoch}_train_early_stopping_model.pth"))
-                    torch.save(val_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, f"C-{config_idx}_E-{epoch}_val_early_stopping_model.pth"))
+                    torch.save(train_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_train_early_stopping_model.pth"))
+                    torch.save(val_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_val_early_stopping_model.pth"))
                 except Exception as e:
                     print(f"Error saving model: {e}")
                 with open(report_file, "a") as f:
