@@ -177,5 +177,10 @@ if __name__ == "__main__":
     num_classes = len(LABELS_CODES)
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_features, num_classes)
-    test_results = test_model(best_params, train_dataloader, test_dataloader, num_features, num_classes)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, "optuna_results_mlp.csv"))
+    
+    test_results = test_model(best_params, train_dataloader, test_dataloader, num_features, num_classes)
+    print("Test Results:", test_results)
+    with open(os.path.join(EXPERIMENT_FOLDER, "test_results_mlp.txt"), "w") as f:
+        f.write(f"Test Results: {test_results}\n")
+    print(f"Test results saved in {os.path.join(EXPERIMENT_FOLDER, 'test_results_mlp.txt')}")

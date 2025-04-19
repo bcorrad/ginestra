@@ -212,5 +212,10 @@ if __name__ == "__main__":
     num_classes = len(LABELS_CODES)
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, edge_dim, num_classes, fingerprint_length)
-    test_metrics = test_model(best_params, train_dataloader, test_dataloader, num_node_features, edge_dim, num_classes, fingerprint_length)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_gine.csv'))
+    test_metrics = test_model(best_params, train_dataloader, test_dataloader, num_node_features, edge_dim, num_classes, fingerprint_length)
+    print(f"Test metrics: {test_metrics}")
+    # Save the test metrics
+    with open(os.path.join(EXPERIMENT_FOLDER, "test_metrics_gine.txt"), "w") as f:
+        f.write(f"GIN Test Metrics: {test_metrics}\n")
+    print(f"Test metrics saved in {os.path.join(EXPERIMENT_FOLDER, 'test_metrics_gine.txt')}")

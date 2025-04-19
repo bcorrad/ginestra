@@ -202,5 +202,9 @@ if __name__ == "__main__":
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, in_channels, out_channels, edge_dim, fingerprint_length)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, "optuna_results_gate.csv"))
-    test_results = test_model(best_params, train_dataloader, test_dataloader, in_channels, out_channels)
-    print("Test Results:", test_results)
+    test_metrics = test_model(best_params, train_dataloader, test_dataloader, in_channels, out_channels)
+    print(f"Test metrics: {test_metrics}")
+    # Save the test metrics
+    with open(os.path.join(EXPERIMENT_FOLDER, "test_metrics_gate.txt"), "w") as f:
+        f.write(f"GATE Test Metrics: {test_metrics}\n")
+    print(f"Test metrics saved in {os.path.join(EXPERIMENT_FOLDER, 'test_metrics_gate.txt')}")

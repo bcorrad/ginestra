@@ -187,7 +187,12 @@ def test_model(best_params, train_loader, test_loader, in_channels, out_channels
     except Exception as e:
         print(f"Error saving model: {e}")
     
-    return dict(loss=test_loss, precision=test_precision, recall=test_recall, f1=test_f1)
+    return {
+        'test_loss': test_loss,
+        'test_precision': test_precision,
+        'test_recall': test_recall,
+        'test_f1': test_f1
+    }
 
 if __name__ == "__main__":
     train_dataloader = gnn_train_dataloader
@@ -199,5 +204,9 @@ if __name__ == "__main__":
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, in_channels, out_channels)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, "optuna_results_gat.csv"))
-    test_results = test_model(best_params, train_dataloader, test_dataloader, in_channels, out_channels)
-    print("Test Results:", test_results)
+    test_metrics = test_model(best_params, train_dataloader, test_dataloader, in_channels, out_channels)
+    print(f"Test metrics: {test_metrics}")
+    # Save the test metrics
+    with open(os.path.join(EXPERIMENT_FOLDER, "test_metrics_gat.txt"), "w") as f:
+        f.write(f"GAT Test Metrics: {test_metrics}\n")
+    print(f"Test metrics saved in {os.path.join(EXPERIMENT_FOLDER, 'test_metrics_gat.txt')}")
