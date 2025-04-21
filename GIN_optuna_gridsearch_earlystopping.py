@@ -33,6 +33,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
 
     GRID_TRAIN_LOSS, GRID_TRAIN_PRECISION, GRID_TRAIN_RECALL, GRID_TRAIN_F1 = [], [], [], []
     GRID_VAL_LOSS, GRID_VAL_PRECISION, GRID_VAL_RECALL, GRID_VAL_F1 = [], [], [], []
+    GRID_TOPK_ACCURACY_1, GRID_TOPK_ACCURACY_3, GRID_TOPK_ACCURACY_5 = [], [], []
 
     for run in range(N_RUNS):
         model = GIN(
@@ -48,7 +49,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
 
         for epoch in range(GRID_N_EPOCHS):
             train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
-            val_loss, val_precision, val_recall, val_f1, _, val_model = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
+            val_loss, val_precision, val_recall, val_f1, _, val_model, top_k_accuracy = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
 
             GRID_TRAIN_LOSS.append(train_loss)
             GRID_TRAIN_PRECISION.append(precision)
@@ -58,9 +59,12 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             GRID_VAL_PRECISION.append(val_precision)
             GRID_VAL_RECALL.append(val_recall)
             GRID_VAL_F1.append(val_f1)
+            GRID_TOPK_ACCURACY_1.append(top_k_accuracy["top_1"])
+            GRID_TOPK_ACCURACY_3.append(top_k_accuracy["top_3"])
+            GRID_TOPK_ACCURACY_5.append(top_k_accuracy["top_5"])
 
             log_train = f"[CONFIG {config_idx}/{n_config}][GIN TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}"
-            log_val = f"[CONFIG {config_idx}/{n_config}][GIN VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}"
+            log_val = f"[CONFIG {config_idx}/{n_config}][GIN VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1: {top_k_accuracy['top_1']:.4f}, Top-3: {top_k_accuracy['top_3']:.4f}, Top-5: {top_k_accuracy['top_5']:.4f}"
             print(log_train)
             print(log_val)
             with open(report_file, "a") as f:
@@ -97,9 +101,18 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
     std_val_precision = torch.std(torch.tensor(GRID_VAL_PRECISION))
     std_val_recall = torch.std(torch.tensor(GRID_VAL_RECALL))
     std_val_f1 = torch.std(torch.tensor(GRID_VAL_F1))
+    
+    avg_top_k_accuracy_1 = sum(GRID_TOPK_ACCURACY_1) / len(GRID_TOPK_ACCURACY_1)
+    avg_top_k_accuracy_3 = sum(GRID_TOPK_ACCURACY_3) / len(GRID_TOPK_ACCURACY_3)
+    avg_top_k_accuracy_5 = sum(GRID_TOPK_ACCURACY_5) / len(GRID_TOPK_ACCURACY_5)
+    std_top_k_accuracy_1 = torch.std(torch.tensor(GRID_TOPK_ACCURACY_1))
+    std_top_k_accuracy_3 = torch.std(torch.tensor(GRID_TOPK_ACCURACY_3))
+    std_top_k_accuracy_5 = torch.std(torch.tensor(GRID_TOPK_ACCURACY_5))
 
     final_log_train = f"[CONFIG {config_idx}/{n_config}] Train Loss: {avg_train_loss:.4f} ± {std_train_loss:.4f}, Precision: {avg_train_precision:.4f} ± {std_train_precision:.4f}, Recall: {avg_train_recall:.4f} ± {std_train_recall:.4f}, F1: {avg_train_f1:.4f} ± {std_train_f1:.4f}"
+    
     final_log_val = f"[CONFIG {config_idx}/{n_config}] Val Loss: {avg_val_loss:.4f} ± {std_val_loss:.4f}, Precision: {avg_val_precision:.4f} ± {std_val_precision:.4f}, Recall: {avg_val_recall:.4f} ± {std_val_recall:.4f}, F1: {avg_val_f1:.4f} ± {std_val_f1:.4f}"
+    final_log_val += f", Top-1: {avg_top_k_accuracy_1:.4f} ± {std_top_k_accuracy_1:.4f}, Top-3: {avg_top_k_accuracy_3:.4f} ± {std_top_k_accuracy_3:.4f}, Top-5: {avg_top_k_accuracy_5:.4f} ± {std_top_k_accuracy_5:.4f}"
 
     print("Final Training Summary:", final_log_train)
     print("Final Validation Summary:", final_log_val)

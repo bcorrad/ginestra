@@ -7,6 +7,7 @@ from config import TARGET_MODE, PATHWAYS, EXPERIMENT_FOLDER
 from torch_geometric.nn import global_add_pool, GINEConv
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from sklearn.metrics import classification_report
+from utils.topk import top_k_accuracy
 
 from config import PATHWAYS
 
@@ -139,6 +140,8 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
     total_loss = 0.0
     all_preds = []
     all_targets = []
+    top_k_accuracy_dict = {}
+    all_outs = []
     
     with torch.no_grad():
         for batch in dataloader:
@@ -170,12 +173,16 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
             
             all_preds.extend(preds.cpu().numpy())
             all_targets.extend(targets.cpu().numpy())
+            all_outs.extend(out.cpu().numpy())
     
     # Calcolo della loss media e dell'accuracy totale sul validation set
     avg_loss = total_loss / len(dataloader)
     precision = precision_score(all_targets, all_preds, average=metrics_average_mode)
     recall = recall_score(all_targets, all_preds, average=metrics_average_mode)
     f1 = f1_score(all_targets, all_preds, average=metrics_average_mode)
+    top_k_accuracy_dict["top_1"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=1)
+    top_k_accuracy_dict["top_3"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=3)
+    top_k_accuracy_dict["top_5"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=5)
     try:
         conf_matrix = confusion_matrix(np.argmax(all_targets, axis=1), np.argmax(all_preds, axis=1))
         # print("Validation Confusion Matrix")
@@ -194,9 +201,9 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
             print(f"Error saving model")
             
     if not return_model:
-        return avg_loss, precision, recall, f1, conf_matrix
+        return avg_loss, precision, recall, f1, conf_matrix, top_k_accuracy_dict
     else:
-        return avg_loss, precision, recall, f1, conf_matrix, model
+        return avg_loss, precision, recall, f1, conf_matrix, model, top_k_accuracy_dict
 
 
 def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False, return_model=False, save_all_models=False):

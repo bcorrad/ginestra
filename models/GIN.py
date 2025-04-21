@@ -7,6 +7,8 @@ from torch_geometric.nn import GINConv, global_add_pool
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from sklearn.metrics import classification_report
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+from utils.topk import top_k_accuracy
+
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
 BCE_THRESHOLD = 0.5
@@ -122,6 +124,8 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
     total_loss = 0.0
     all_preds = []
     all_targets = []
+    top_k_accuracy_dict = {}
+    all_outs = []
     
     with torch.no_grad():
         for batch in dataloader:
@@ -146,19 +150,25 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
             total_loss += loss.item()
             
             # Apply threshold for binary classification
-            max_idx = torch.argmax(F.softmax(out, dim=1), dim=1, keepdim=True)
+            out = F.softmax(out, dim=1)
+            max_idx = torch.argmax(out, dim=1, keepdim=True)
             preds = torch.zeros_like(out)
             for row_idx, col_idx in enumerate(max_idx):
                 preds[row_idx, col_idx] = 1
             
             all_preds.extend(preds.cpu().numpy())
             all_targets.extend(targets.cpu().numpy())
+            all_outs.extend(out.cpu().numpy())
     
     # Calcolo della loss media e dell'accuracy totale sul validation set
     avg_loss = total_loss / len(dataloader)
     precision = precision_score(all_targets, all_preds, average=metrics_average_mode)
     recall = recall_score(all_targets, all_preds, average=metrics_average_mode)
     f1 = f1_score(all_targets, all_preds, average=metrics_average_mode)
+    top_k_accuracy_dict["top_1"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=1)
+    top_k_accuracy_dict["top_3"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=3)
+    top_k_accuracy_dict["top_5"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=5)
+    
     try:
         conf_matrix = confusion_matrix(np.argmax(all_targets, axis=1), np.argmax(all_preds, axis=1))
         # print("Validation Confusion Matrix")
@@ -177,9 +187,9 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
             print("Error saving model")
     
     if not return_model:
-        return avg_loss, precision, recall, f1, conf_matrix
+        return avg_loss, precision, recall, f1, conf_matrix, top_k_accuracy_dict
     else:
-        return avg_loss, precision, recall, f1, conf_matrix, model
+        return avg_loss, precision, recall, f1, conf_matrix, model, top_k_accuracy_dict
 
 
 def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False, return_model=False, save_all_models:bool=False):
