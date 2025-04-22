@@ -16,27 +16,73 @@ mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloa
 from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment("mlp", TARGET_TYPE, BASEDIR)
 
+# Define the model
+class MLP_GRID(nn.Module):
+    def __init__(self, unit1, unit2, unit3, drop_rate, num_classes):
+        super(MLP_GRID, self).__init__()
+        self.fc1 = nn.Linear(2048 + 4096, 6144)
+        self.bn1 = nn.BatchNorm1d(6144)
+        
+        self.fc2 = nn.Linear(6144, unit1)
+        self.bn2 = nn.BatchNorm1d(unit1)
+        
+        self.fc3 = nn.Linear(unit1, unit2)
+        self.bn3 = nn.BatchNorm1d(unit2)
+        
+        self.fc4 = nn.Linear(unit2, unit3)
+        self.dropout = nn.Dropout(drop_rate)
+        
+        self.output = nn.Linear(unit3, num_classes)
+
+    def forward(self, input):
+        # x = torch.cat((input_f, input_b), dim=1)
+        x = input
+        x = F.relu(self.fc1(x))
+        x = self.bn1(x)
+        
+        x = F.relu(self.fc2(x))
+        x = self.bn2(x)
+        
+        x = F.relu(self.fc3(x))
+        x = self.bn3(x)
+        
+        x = F.relu(self.fc4(x))
+        x = self.dropout(x)
+        
+        x = torch.sigmoid(self.output(x))  # Binary multi-label classification
+        return x
 
 def objective(trial, train_loader, val_loader, num_features, num_classes, config_idx, n_config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    config = {
-        'learning_rate': trial.suggest_categorical("learning_rate", [1e-3, 1e-4, 1e-5]),
+    mlp_config = {
+        'unit1': trial.suggest_categorical("unit1", [3072, 4608, 6144]),
+        'unit2': trial.suggest_categorical("unit2", [1536, 2304, 3072]),
+        'unit3': trial.suggest_categorical("unit3", [768, 1152, 1536]),
+        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2, 0.3]),
+        'learning_rate': trial.suggest_categorical("learning_rate", [1e-2, 1e-3, 1e-4, 1e-5, 1e-6]),
         'l2_rate': trial.suggest_categorical("l2_rate", [1e-2, 1e-3]),
     }
 
     report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_MLP_{config_idx}.txt")
     with open(report_file, "a") as f:
-        f.write(f"Testing config: {config}\n")
+        f.write(f"Testing config: {mlp_config}\n")
 
     GRID_TRAIN_LOSS, GRID_TRAIN_PRECISION, GRID_TRAIN_RECALL, GRID_TRAIN_F1 = [], [], [], []
     GRID_VAL_LOSS, GRID_VAL_PRECISION, GRID_VAL_RECALL, GRID_VAL_F1 = [], [], [], []
     GRID_TOPK_ACCURACY_1, GRID_TOPK_ACCURACY_3, GRID_TOPK_ACCURACY_5 = [], [], []
-    
 
     for run in range(N_RUNS):
-        model = MLP(input_channels=num_features, num_categories=num_classes).to(device)
-        optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
+        # Initialize the model, optimizer, and loss function
+        model = MLP_GRID(
+            unit1=mlp_config['unit1'],
+            unit2=mlp_config['unit2'],
+            unit3=mlp_config['unit3'],
+            drop_rate=mlp_config['drop_rate'],
+            num_classes=num_classes
+        ).to(device)
+
+        optimizer = optim.Adam(model.parameters(), lr=mlp_config['learning_rate'], weight_decay=mlp_config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
 
         early_stopper = EarlyStopping(patience=10, min_delta=0.001)
@@ -140,11 +186,17 @@ def export_results_to_csv(study, filename="optuna_results_mlp.csv"):
     print(f"Risultati esportati in {filename}")
 
 def optuna_grid_search(train_loader, val_loader, test_loader, num_features, num_classes):
+    # Hyperparameter grid
     param_grid = {
-        'learning_rate': [1e-3, 1e-4, 1e-5],
+        'unit1': [3072, 4608, 6144],
+        'unit2': [1536, 2304, 3072],
+        'unit3': [768, 1152, 1536],
+        'drop_rate': [0.1, 0.2, 0.3],
+        'learning_rate': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
         'l2_rate': [1e-2, 1e-3],
     }
-    sampler = GridSampler(param_grid)
+    search_space = {key: list(values) for key, values in param_grid.items()}
+    sampler = GridSampler(search_space)
     study = optuna.create_study(direction="minimize", sampler=sampler)
 
     def wrapped_objective(trial):
