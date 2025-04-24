@@ -5,6 +5,7 @@ import torch.optim as optim
 import optuna
 from optuna.samplers import GridSampler
 import os
+import time
 from gridsearch_dataset_builder import prepare_dataloaders
 from models.GIN import *
 
@@ -46,10 +47,13 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         optimizer = optim.Adam(model.parameters(), lr=gin_config['learning_rate'], weight_decay=gin_config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
 
-        early_stopper = EarlyStopping(patience=10, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
+            start_time = time.time()
             train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
+            end_time = time.time()
+            print(f"Epoch {epoch+1}/{GRID_N_EPOCHS} took {end_time - start_time:.2f} seconds")
             val_loss, val_precision, val_recall, val_f1, _, val_model, val_topk_accuracy = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
 
             GRID_TRAIN_LOSS.append(train_loss)

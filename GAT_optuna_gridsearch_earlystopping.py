@@ -47,7 +47,7 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
-        early_stopper = EarlyStopping(patience=10, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
             train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
