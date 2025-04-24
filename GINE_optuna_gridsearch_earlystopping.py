@@ -23,7 +23,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
 
     config = {
         'dim_h': trial.suggest_categorical("dim_h", [16, 32, 64, 128]),
-        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2]),
+        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2, 0.5]),
         'learning_rate': trial.suggest_categorical("learning_rate", [1e-3, 1e-4]),
         'l2_rate': trial.suggest_categorical("l2_rate", [1e-2, 1e-3]),
     }
@@ -42,7 +42,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
             hidden_channels=config['dim_h'],
             edge_dim=edge_dim,
             out_channels=num_classes,
-            fingerprint_length=fingerprint_length
+            fingerprint_length=fingerprint_length,
+            drop_rate=config['drop_rate']
         ).to(device)
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
@@ -168,7 +169,7 @@ def export_results_to_csv(study, filename='optuna_results.csv'):
 def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features, edge_dim, num_classes, fingerprint_length):
     param_grid = {
         'dim_h': [16, 32, 64, 128],
-        'drop_rate': [0.1, 0.2],
+        'drop_rate': [0.1, 0.2, 0.5],
         'learning_rate': [1e-3, 1e-4],
         'l2_rate': [1e-2, 1e-3],
     }

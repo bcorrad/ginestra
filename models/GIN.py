@@ -46,6 +46,11 @@ class GIN(torch.nn.Module):
         # Self-Attention Layer (Multi-Head)
         # self.attention = MultiheadAttention(embed_dim=dim_h, num_heads=num_heads, batch_first=True)
 
+        # Dropout
+        if "drop_out" in kwargs and kwargs["dropout"] is not None:
+            self.dropout = kwargs["dropout"]
+        else:
+            self.dropout = 0.5
 
         # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
@@ -70,9 +75,9 @@ class GIN(torch.nn.Module):
         # Node embeddings 
         h1 = self.conv1(x, edge_index)
         # Dropout 
-        h1 = F.dropout(h1, p=p, training=self.training)
+        h1 = F.dropout(h1, p=self.dropout, training=self.training)
         h2 = self.conv2(h1, edge_index)
-        h2 = F.dropout(h2, p=p, training=self.training)
+        h2 = F.dropout(h2, p=self.dropout, training=self.training)
         h3 = self.conv3(h2, edge_index)
 
         # Graph-level readout

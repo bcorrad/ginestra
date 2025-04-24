@@ -59,6 +59,12 @@ class GINE(torch.nn.Module):
             edge_dim=edge_dim
         )
 
+        # Dropout
+        if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
+            self.dropout = kwargs["drop_rate"]
+        else:
+            self.dropout = 0.5
+            
         # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
             self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
@@ -83,12 +89,12 @@ class GINE(torch.nn.Module):
         # Forward of a GINE layer, with dropout, batchnorm, and ReLU. 
         # Apply global pooling after each layer.
         h1 = self.conv1(x, edge_index, edge_attr)  # Usa x, non h1
-        h1 = F.dropout(h1, p=p, training=self.training)
+        h1 = F.dropout(h1, p=self.dropout, training=self.training)
         if nonlinear:
             h1 = F.relu(h1)
 
         h2 = self.conv2(h1, edge_index, edge_attr)
-        h2 = F.dropout(h2, p=p, training=self.training)
+        h2 = F.dropout(h2, p=self.dropout, training=self.training)
         if nonlinear:
             h2 = F.relu(h2)
 

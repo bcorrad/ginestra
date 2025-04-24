@@ -22,7 +22,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
 
     gin_config = {
         'dim_h': trial.suggest_categorical("dim_h", [16, 32, 64, 128]),
-        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2]),
+        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2, 0.5]),
         'learning_rate': trial.suggest_categorical("learning_rate", [1e-3, 1e-4]),
         'l2_rate': trial.suggest_categorical("l2_rate", [1e-2, 1e-3]),
     }
@@ -39,7 +39,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         model = GIN(
             num_node_features=num_node_features,
             dim_h=gin_config['dim_h'],
-            num_classes=num_classes
+            num_classes=num_classes,
+            drop_rate=gin_config['drop_rate']
         ).to(device)
 
         optimizer = optim.Adam(model.parameters(), lr=gin_config['learning_rate'], weight_decay=gin_config['l2_rate'])
@@ -166,7 +167,7 @@ def export_results_to_csv(study, filename='optuna_results.csv'):
 def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features, num_classes):
     param_grid = {
         'dim_h': [16, 32, 64, 128],
-        'drop_rate': [0.1, 0.2],
+        'drop_rate': [0.1, 0.2, 0.5],
         'learning_rate': [1e-3, 1e-4],
         'l2_rate': [1e-2, 1e-3],
     }
