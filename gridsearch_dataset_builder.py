@@ -347,7 +347,7 @@ def prepare_dataloaders(model_name: str):
     else:
         raise ValueError(f"Unknown model name: {model_name}")
 
-    if USE_AVAILABLE_DATASET is False and FORCE_DATASET_GENERATION is True:
+    if USE_AVAILABLE_DATASET is False or FORCE_DATASET_GENERATION is True:
         print("Generating new dataset.")
         with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
             class_  = pickle.load(f)
