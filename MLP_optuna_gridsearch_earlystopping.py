@@ -7,7 +7,7 @@ from optuna.samplers import GridSampler
 import os
 from models.MLP import *
 from gridsearch_dataset_builder import prepare_dataloaders
-
+import time
 from utils.earlystop import EarlyStopping
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
 
@@ -88,8 +88,13 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
         early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
+            start_time_train = time.time()
             train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
+            end_time_train = time.time()
+            start_time_val = time.time()
             val_loss, val_precision, val_recall, val_f1, _, val_model, val_topk_accuracy = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
+            end_time_val = time.time()
+            print(f"Epoch {epoch+1}/{GRID_N_EPOCHS} — Train Time: {end_time_train - start_time_train:.2f}s, Val Time: {end_time_val - start_time_val:.2f}s")
 
             GRID_TRAIN_LOSS.append(train_loss)
             GRID_TRAIN_PRECISION.append(precision)
