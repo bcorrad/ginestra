@@ -21,7 +21,7 @@ MULTILABEL2MULTICLASS = False
 
 # CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE),
-TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
@@ -72,6 +72,8 @@ os.makedirs(os.path.join(EXPERIMENT_FOLDER, "utils"), exist_ok=True)
 os.makedirs(os.path.join(EXPERIMENT_FOLDER, "pt"), exist_ok=True)
 # Create the reports folder
 os.makedirs(os.path.join(EXPERIMENT_FOLDER, "reports"), exist_ok=True)
+# Create plots folder
+os.makedirs(os.path.join(EXPERIMENT_FOLDER, "plots"), exist_ok=True)
 
 # Save the configuration file
 import shutil

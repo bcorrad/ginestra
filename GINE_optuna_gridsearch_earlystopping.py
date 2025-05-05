@@ -10,9 +10,23 @@ from models.GINE import *
 from gridsearch_dataset_builder import prepare_dataloaders
 
 from utils.earlystop import EarlyStopping
+from utils.seed import set_seed
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gine")
+
+# PARAM_GRID = {
+#     'dim_h': [16, 32, 64, 128],
+#     'drop_rate': [0.1, 0.2, 0.5],
+#     'learning_rate': [1e-3, 1e-4],
+#     'l2_rate': [1e-2, 1e-3],
+# }
+PARAM_GRID = {
+    'dim_h': [128],
+    'drop_rate': [0.5],
+    'learning_rate': [1e-4],
+    'l2_rate': [5e-4],
+}
 
 from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment("gine", TARGET_TYPE, BASEDIR)
@@ -22,21 +36,20 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     config = {
-        'dim_h': trial.suggest_categorical("dim_h", [16, 32, 64, 128]),
-        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2, 0.5]),
-        'learning_rate': trial.suggest_categorical("learning_rate", [1e-3, 1e-4]),
-        'l2_rate': trial.suggest_categorical("l2_rate", [1e-2, 1e-3]),
+        'dim_h': trial.suggest_categorical("dim_h", PARAM_GRID['dim_h']),
+        'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
+        'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
+        'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
     }
 
     report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_GINE_{config_idx}.txt")
-    with open(report_file, "a") as f:
-        f.write(f"Testing config: {config}\n")
 
     GRID_TRAIN_LOSS, GRID_TRAIN_PRECISION, GRID_TRAIN_RECALL, GRID_TRAIN_F1 = [], [], [], []
     GRID_VAL_LOSS, GRID_VAL_PRECISION, GRID_VAL_RECALL, GRID_VAL_F1 = [], [], [], []
     GRID_TOPK_ACCURACY_1, GRID_TOPK_ACCURACY_3, GRID_TOPK_ACCURACY_5 = [], [], []
 
     for run in range(N_RUNS):
+        set_seed(run + 42)
         model = GINE(
             in_channels=num_node_features,
             hidden_channels=config['dim_h'],
@@ -45,6 +58,26 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
             fingerprint_length=fingerprint_length,
             drop_rate=config['drop_rate']
         ).to(device)
+        
+        # Reset the model weights
+        for layer in model.children():
+            if hasattr(layer, 'reset_parameters'):
+                layer.reset_parameters()
+                # Print the model architecture
+        print(model)
+        # Print the number of parameters
+        num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        print(f"Number of parameters: {num_params}")
+        # Print the model summary
+        print(f"Model summary: {model}")
+        # Print the model configuration
+        print(f"Model initialized with config: {config}")
+        # Save all to text file
+        with open(report_file, "a") as f:
+            f.write(f"Configuration {config_idx}/{n_config} - Run {run+1}/{N_RUNS}\n")
+            f.write(f"Number of parameters: {num_params}\n")
+            f.write(f"Model summary: {model}\n")
+            f.write(f"Model configuration: {config}\n")
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
@@ -75,7 +108,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
                 f.write(log_train + "\n")
                 f.write(log_val + "\n")
 
-            if early_stopper(val_loss):
+            if early_stopper(val_loss) or (val_precision < 0.15 and epoch > 10 and epoch % 5 == 0):
                 print(f"[EARLY STOPPING at epoch {epoch+1}] No improvement in {early_stopper.patience} epochs.")
                 # Save the early stopping model
                 try:
@@ -167,12 +200,7 @@ def export_results_to_csv(study, filename='optuna_results.csv'):
     print(f"Risultati esportati in {filename}")
 
 def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features, edge_dim, num_classes, fingerprint_length):
-    param_grid = {
-        'dim_h': [16, 32, 64, 128],
-        'drop_rate': [0.1, 0.2, 0.5],
-        'learning_rate': [1e-3, 1e-4],
-        'l2_rate': [1e-2, 1e-3],
-    }
+    param_grid = PARAM_GRID
     search_space = {key: list(values) for key, values in param_grid.items()}
     sampler = GridSampler(search_space)
     study = optuna.create_study(direction="minimize", sampler=sampler)

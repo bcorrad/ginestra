@@ -13,7 +13,17 @@ from gridsearch_dataset_builder import prepare_dataloaders
 from utils.earlystop import EarlyStopping
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
 
+from utils.seed import set_seed
+
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gate")
+
+PARAM_GRID = {
+    'hidden_channels': [16, 32, 64, 128],
+    'drop_rate': [0.1, 0.2, 0.5],
+    'learning_rate': [1e-3, 1e-4],
+    'l2_rate': [1e-2, 1e-3],
+    'n_heads': [2, 4],
+}
 
 from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment("gate", TARGET_TYPE, BASEDIR)
@@ -22,11 +32,11 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_d
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     config = {
-        'hidden_channels': trial.suggest_categorical("hidden_channels", [16, 32, 64, 128]),
-        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2]),
-        'learning_rate': trial.suggest_categorical("learning_rate", [1e-3, 1e-4]),
-        'l2_rate': trial.suggest_categorical("l2_rate", [1e-2, 1e-3]),
-        'n_heads': trial.suggest_categorical("n_heads", [2, 4]),
+        'hidden_channels': trial.suggest_categorical("hidden_channels", PARAM_GRID['hidden_channels']),
+        'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
+        'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
+        'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
+        'n_heads': trial.suggest_categorical("n_heads", PARAM_GRID['n_heads']),
     }
 
     report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_GATE_{config_idx}.txt")
@@ -46,6 +56,26 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_d
             n_heads=config['n_heads'],
             fingerprint_length=fingerprint_length
         ).to(device)
+
+        # Reset the model weights
+        for layer in model.children():
+            if hasattr(layer, 'reset_parameters'):
+                layer.reset_parameters()
+        # Print the model architecture
+        print(model)
+        # Print the number of parameters
+        num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        print(f"Number of parameters: {num_params}")
+        # Print the model summary
+        print(f"Model summary: {model}")
+        # Print the model configuration
+        print(f"Model initialized with config: {config}")
+        # Save all to text file
+        with open(report_file, "a") as f:
+            f.write(f"Configuration {config_idx}/{n_config} - Run {run+1}/{N_RUNS}\n")
+            f.write(f"Number of parameters: {num_params}\n")
+            f.write(f"Model summary: {model}\n")
+            f.write(f"Model configuration: {config}\n")
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
@@ -75,7 +105,7 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_d
                 f.write(log_train + "\n")
                 f.write(log_val + "\n")
 
-            if early_stopper(val_loss):
+            if early_stopper(val_loss) or (val_precision < 0.15 and epoch > 10 and epoch % 5 == 0):
                 print(f"[EARLY STOPPING at epoch {epoch+1}] No improvement in {early_stopper.patience} epochs.")
                 # Save the early stopping model
                 try:
@@ -131,13 +161,7 @@ def export_results_to_csv(study, filename="optuna_results_gate.csv"):
     print(f"Risultati esportati in {filename}")
 
 def optuna_grid_search(train_loader, val_loader, test_loader, in_channels, out_channels, edge_dim, fingerprint_length):
-    param_grid = {
-        'hidden_channels': [16, 32, 64, 128],
-        'drop_rate': [0.1, 0.2],
-        'learning_rate': [1e-3, 1e-4],
-        'l2_rate': [1e-2, 1e-3],
-        'n_heads': [2, 4],
-    }
+    param_grid = PARAM_GRID
     sampler = GridSampler(param_grid)
     study = optuna.create_study(direction="minimize", sampler=sampler)
 
@@ -153,6 +177,7 @@ def optuna_grid_search(train_loader, val_loader, test_loader, in_channels, out_c
     print("Best config:", best.params)
     print(f"Best validation loss: {best.value:.4f}")
     with open(os.path.join(EXPERIMENT_FOLDER, "best_config_gate.txt"), "w") as f:
+        f.write("GATE\n")
         f.write(f"Best Config: {best.params}\n")
         f.write(f"Best Loss: {best.value:.4f}\n")
     return best.params, study
