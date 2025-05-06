@@ -79,12 +79,12 @@ def get_bond_features(bond,
     bond_is_in_ring_enc = [int(bond.IsInRing())]                                        # shape 1
     # TODO: ATTENZIONE QUI
     bond_feature_vector = \
-        bond_type_enc +\
+        bond_type_enc + \
         bond_is_conj_enc + \
         bond_is_in_ring_enc        # shape 4 + 1 + 1 = 6   
     
     if use_stereochemistry == True:
-        stereo_type_enc = encode(str(bond.GetStereo()), permitted_list=["STEREOZ", "STEREOE", "STEREOANY", "STEREONONE"], encoding="label")
+        stereo_type_enc = encode(str(bond.GetStereo()), permitted_list=["STEREOZ", "STEREOE", "STEREOANY", "STEREONONE"], encoding="hot")
         bond_feature_vector += stereo_type_enc  # if one hot encoding: shape 6 + 4 = 10
     
     return np.array(bond_feature_vector)

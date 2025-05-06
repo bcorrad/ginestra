@@ -1,5 +1,5 @@
-import torch, os
-from config import N_EPOCHS, DEVICE, MODELS, LABELS_CODES, TARGET_MODE, H_DIM, USE_FINGERPRINT, N_RUNS, TARGET_TYPE
+import torch, os, datetime
+from config import N_EPOCHS, DEVICE, MODELS, LABELS_CODES, TARGET_MODE, H_DIM, USE_FINGERPRINT, N_RUNS, TARGET_TYPE, BASEDIR
 from alternative_dataset_builder import mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader
 
 GIN_TRAIN_PREC_LIST = []
@@ -38,31 +38,36 @@ GATE_VAL_REC_LIST = []
 GATE_VAL_F1_LIST = []
 
 # Initialize a report to save the log of the training
-from config import EXPERIMENT_FOLDER, N_SAMPLES, RANDOMIZE_SAMPLES, USE_AVAILABLE_DATASET, BATCH_SIZE, CLS_LIST, PATHWAYS, LABELS_CODES, MULTILABEL2MULTICLASS, USE_FINGERPRINT
-import datetime
-# Open the report file stream to close it at the end of the training
-report_file = os.path.join(EXPERIMENT_FOLDER, "report.txt")
-f = open(report_file, "w")
-f.write("Training report\n")
-f.write(f"Models: {MODELS}\n")
-f.write(f"Target type: {TARGET_TYPE}\n")
-f.write(f"Target mode: {TARGET_MODE}\n")
-f.write(f"Number of epochs: {N_EPOCHS}\n")
-f.write(f"Number of runs: {N_RUNS}\n")
-f.write(f"Batch size: {BATCH_SIZE}\n")
-f.write(f"Number of samples: {N_SAMPLES}\n")
-f.write(f"Randomize samples: {RANDOMIZE_SAMPLES}\n")
-f.write(f"Use available dataset: {USE_AVAILABLE_DATASET}\n")
-f.write(f"Use fingerprint: {USE_FINGERPRINT}\n")
-f.write(f"Use multi-label to multi-class: {MULTILABEL2MULTICLASS}\n")
-f.write(f"Target classes: {CLS_LIST}\n")
-f.write(f"Target pathways: {PATHWAYS}\n")
-f.write(f"Experiment folder: {EXPERIMENT_FOLDER}\n")
-f.write(f"Device: {DEVICE}\n")
-f.write(f"Training started at: {datetime.datetime.now()}\n")
-f.write("-"*50 + "\n")
+from config import N_SAMPLES, RANDOMIZE_SAMPLES, USE_AVAILABLE_DATASET, BATCH_SIZE, CLS_LIST, PATHWAYS, LABELS_CODES, MULTILABEL2MULTICLASS, USE_FINGERPRINT
+
+from utils.experiment_init import init_experiment
 
 for MODEL in MODELS:
+    EXPERIMENT_FOLDER = init_experiment(models=MODEL, target_type=TARGET_TYPE, base_dir=BASEDIR)
+    print(f"Experiment folder: {EXPERIMENT_FOLDER}")
+
+    # Open the report file stream to close it at the end of the training
+    report_file = os.path.join(EXPERIMENT_FOLDER, "report.txt")
+    f = open(report_file, "w")
+    f.write("Training report\n")
+    f.write(f"Models: {MODELS}\n")
+    f.write(f"Target type: {TARGET_TYPE}\n")
+    f.write(f"Target mode: {TARGET_MODE}\n")
+    f.write(f"Number of epochs: {N_EPOCHS}\n")
+    f.write(f"Number of runs: {N_RUNS}\n")
+    f.write(f"Batch size: {BATCH_SIZE}\n")
+    f.write(f"Number of samples: {N_SAMPLES}\n")
+    f.write(f"Randomize samples: {RANDOMIZE_SAMPLES}\n")
+    f.write(f"Use available dataset: {USE_AVAILABLE_DATASET}\n")
+    f.write(f"Use fingerprint: {USE_FINGERPRINT}\n")
+    f.write(f"Use multi-label to multi-class: {MULTILABEL2MULTICLASS}\n")
+    f.write(f"Target classes: {CLS_LIST}\n")
+    f.write(f"Target pathways: {PATHWAYS}\n")
+    f.write(f"Experiment folder: {EXPERIMENT_FOLDER}\n")
+    f.write(f"Device: {DEVICE}\n")
+    f.write(f"Training started at: {datetime.datetime.now()}\n")
+    f.write("-"*50 + "\n")
+    
     print(f"Training {MODEL.upper()} model")
     f.write(f"Training {MODEL.upper()} model\n")
     

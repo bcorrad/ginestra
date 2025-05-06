@@ -21,6 +21,7 @@ mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloa
 #     'learning_rate': [1e-3, 1e-4],
 #     'l2_rate': [1e-2, 1e-3],
 # }
+
 PARAM_GRID = {
     'dim_h': [128],
     'drop_rate': [0.5],
@@ -158,42 +159,6 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
         f.write(final_log_val + "\n")
     return avg_val_loss
 
-def test_model(best_params, train_loader, test_loader, num_node_features, edge_dim, num_classes, fingerprint_length):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    model = GINE(
-        in_channels=num_node_features,
-        hidden_channels=best_params['dim_h'],
-        edge_dim=edge_dim,
-        out_channels=num_classes,
-        fingerprint_length=fingerprint_length
-    ).to(device)
-
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=best_params['learning_rate'],
-        weight_decay=best_params['l2_rate']
-    )
-    criterion = nn.BCEWithLogitsLoss()
-
-    for epoch in range(GRID_N_EPOCHS):
-        train_epoch(model, train_loader, optimizer, criterion, device, epoch)
-
-    test_loss, test_precision, test_recall, test_f1, test_model = evaluate(model, test_loader, device, criterion, epoch)
-    print(f"Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}")
-    # Save the test model
-    try:
-        torch.save(test_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, f"best_test_model.pth"))
-    except Exception as e:
-        print(f"Error saving model: {e}")
-        
-    return {
-        'test_loss': test_loss,
-        'test_precision': test_precision,
-        'test_recall': test_recall,
-        'test_f1': test_f1
-    }
-
 def export_results_to_csv(study, filename='optuna_results.csv'):
     df = study.trials_dataframe()
     df.to_csv(filename, index=False)
@@ -237,9 +202,4 @@ if __name__ == "__main__":
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, edge_dim, num_classes, fingerprint_length)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_gine.csv'))
-    test_metrics = test_model(best_params, train_dataloader, test_dataloader, num_node_features, edge_dim, num_classes, fingerprint_length)
-    print(f"Test metrics: {test_metrics}")
-    # Save the test metrics
-    with open(os.path.join(EXPERIMENT_FOLDER, "test_metrics_gine.txt"), "w") as f:
-        f.write(f"GIN Test Metrics: {test_metrics}\n")
-    print(f"Test metrics saved in {os.path.join(EXPERIMENT_FOLDER, 'test_metrics_gine.txt')}")
+

@@ -60,36 +60,36 @@ if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
     LABELS_CODES[8] = np.array([1,0,0,0,0,0,1])
     LABELS_CODES[9] = np.array([0,0,0,0,1,0,1])
     
-# Initialize experiment folder 
-import datetime
-EXPERIMENT_FOLDER = os.path.join(BASEDIR, "experiments", "-".join(MODELS) + "_" + TARGET_TYPE.lower() + "_" +datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-os.makedirs(EXPERIMENT_FOLDER, exist_ok=True)
+# # Initialize experiment folder 
+# import datetime
+# EXPERIMENT_FOLDER = os.path.join(BASEDIR, "experiments", "-".join(MODELS) + "_" + TARGET_TYPE.lower() + "_" +datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+# os.makedirs(EXPERIMENT_FOLDER, exist_ok=True)
 
-# Create a models folder
-os.makedirs(os.path.join(EXPERIMENT_FOLDER, "models"), exist_ok=True)
-os.makedirs(os.path.join(EXPERIMENT_FOLDER, "utils"), exist_ok=True)
-# Create the weights folder
-os.makedirs(os.path.join(EXPERIMENT_FOLDER, "pt"), exist_ok=True)
-# Create the reports folder
-os.makedirs(os.path.join(EXPERIMENT_FOLDER, "reports"), exist_ok=True)
-# Create plots folder
-os.makedirs(os.path.join(EXPERIMENT_FOLDER, "plots"), exist_ok=True)
+# # Create a models folder
+# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "models"), exist_ok=True)
+# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "utils"), exist_ok=True)
+# # Create the weights folder
+# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "pt"), exist_ok=True)
+# # Create the reports folder
+# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "reports"), exist_ok=True)
+# # Create plots folder
+# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "plots"), exist_ok=True)
 
-# Save the configuration file
-import shutil
-shutil.copy(__file__, os.path.join(EXPERIMENT_FOLDER, "config.py"))
+# # Save the configuration file
+# import shutil
+# shutil.copy(__file__, os.path.join(EXPERIMENT_FOLDER, "config.py"))
 
-# Save the models file from the directory
-for model_file in os.listdir(os.path.join(BASEDIR, "models")):
-    if model_file.endswith(".py"):
-        shutil.copy(os.path.join(BASEDIR, "models", model_file), os.path.join(EXPERIMENT_FOLDER, "models", model_file))
+# # Save the models file from the directory
+# for model_file in os.listdir(os.path.join(BASEDIR, "models")):
+#     if model_file.endswith(".py"):
+#         shutil.copy(os.path.join(BASEDIR, "models", model_file), os.path.join(EXPERIMENT_FOLDER, "models", model_file))
         
-# Copy all the py files in the utils folder
-for file in os.listdir(os.path.join(BASEDIR, "utils")):
-    if file.endswith(".py"):
-        shutil.copy(os.path.join(BASEDIR, "utils", file), os.path.join(EXPERIMENT_FOLDER, "utils", file))
+# # Copy all the py files in the utils folder
+# for file in os.listdir(os.path.join(BASEDIR, "utils")):
+#     if file.endswith(".py"):
+#         shutil.copy(os.path.join(BASEDIR, "utils", file), os.path.join(EXPERIMENT_FOLDER, "utils", file))
         
-# Copy all the py files in the folder 
-for file in os.listdir(BASEDIR):
-    if file.endswith(".py") and file != "config.py":
-        shutil.copy(os.path.join(BASEDIR, file), os.path.join(EXPERIMENT_FOLDER, file))
+# # Copy all the py files in the folder 
+# for file in os.listdir(BASEDIR):
+#     if file.endswith(".py") and file != "config.py":
+#         shutil.copy(os.path.join(BASEDIR, file), os.path.join(EXPERIMENT_FOLDER, file))
