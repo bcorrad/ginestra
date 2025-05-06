@@ -1,4 +1,4 @@
-from config import DATADIR, TARGET_TYPE, N_SAMPLES, USE_AVAILABLE_DATASET, MODELS, EXPERIMENT_FOLDER, FORCE_DATASET_GENERATION
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, FORCE_DATASET_GENERATION
 from typing import Union, Literal
 import pickle
 import os

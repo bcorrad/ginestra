@@ -17,7 +17,7 @@ from utils.seed import set_seed
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gin")
 
 PARAM_GRID = {
-    'dim_h': [128],
+    'dim_h': [16],
     'drop_rate': [0.1],
     'learning_rate': [1e-4],
     'l2_rate': [5e-4],

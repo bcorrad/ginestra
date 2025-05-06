@@ -1,17 +1,15 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
-from config import EXPERIMENT_FOLDER
 import os
 from torch_geometric.nn import GATConv, global_add_pool
-from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from sklearn.metrics import classification_report
-from config import PATHWAYS
-from config import TARGET_MODE
+from config import PATHWAYS, TARGET_MODE
 from utils.topk import top_k_accuracy
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 BCE_THRESHOLD = "tanto te ne andrai"
+
 class GAT(torch.nn.Module):
     """
     Graph Attention Network with edge features.
@@ -78,7 +76,7 @@ class GAT(torch.nn.Module):
         return h   
     
 
-def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, save_all_models=False):
+def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, save_all_models=False, experiment_folder=None):
     """
     Evaluates the model on the given dataloader.
     
@@ -97,6 +95,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
     all_targets = []
     top_k_accuracy_dict = {}
     all_outs = []
+    EXPERIMENT_FOLDER = experiment_folder if experiment_folder is not None else os.path.join(os.getcwd(), "experiments")
     
     with torch.no_grad():
         for batch in dataloader:
@@ -161,7 +160,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
         return avg_loss, precision, recall, f1, conf_matrix, model, top_k_accuracy_dict
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False, return_model=False, save_all_models=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False, return_model=False, save_all_models=False, experiment_folder=None):
     """
     Training loop for the model.
     Args:
@@ -181,6 +180,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
     total_loss = 0.0
     all_preds = []
     all_targets = []
+    EXPERIMENT_FOLDER = experiment_folder if experiment_folder is not None else os.path.join(os.getcwd(), "experiments")
 
     for batch in dataloader:
         batch = batch.to(device)

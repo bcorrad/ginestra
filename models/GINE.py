@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 import os
-from config import TARGET_MODE, PATHWAYS, EXPERIMENT_FOLDER 
+from config import TARGET_MODE, PATHWAYS 
 
 from torch_geometric.nn import global_add_pool, GINEConv
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
@@ -129,7 +129,7 @@ class GINE(torch.nn.Module):
         return h
 
 
-def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, save_all_models=False):
+def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, save_all_models=False, experiment_folder=None):
     """
     Evaluates the model on the given dataloader.
     
@@ -148,6 +148,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
     all_targets = []
     top_k_accuracy_dict = {}
     all_outs = []
+    EXPERIMENT_FOLDER = experiment_folder if experiment_folder is not None else os.path.join(os.getcwd(), "experiments")
     
     with torch.no_grad():
         for batch in dataloader:
@@ -212,7 +213,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
         return avg_loss, precision, recall, f1, conf_matrix, model, top_k_accuracy_dict
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False, return_model=False, save_all_models=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose:bool=False, return_model=False, save_all_models=False, experiment_folder=None):
     """
     Training loop for the model.
     Args:
@@ -232,6 +233,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
     total_loss = 0.0
     all_preds = []
     all_targets = []
+    EXPERIMENT_FOLDER = experiment_folder if experiment_folder is not None else os.path.join(os.getcwd(), "experiments")
 
     for batch in dataloader:
         batch = batch.to(device)
