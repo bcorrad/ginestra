@@ -71,8 +71,10 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
     GRID_TRAIN_LOSS, GRID_TRAIN_PRECISION, GRID_TRAIN_RECALL, GRID_TRAIN_F1 = [], [], [], []
     GRID_VAL_LOSS, GRID_VAL_PRECISION, GRID_VAL_RECALL, GRID_VAL_F1 = [], [], [], []
     GRID_TOPK_ACCURACY_1, GRID_TOPK_ACCURACY_3, GRID_TOPK_ACCURACY_5 = [], [], []
+    from utils.seed import set_seed
 
     for run in range(N_RUNS):
+        set_seed(run + 42)
         # Initialize the model, optimizer, and loss function
         model = MLP_GRID(
             unit1=mlp_config['unit1'],
@@ -81,6 +83,26 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
             drop_rate=mlp_config['drop_rate'],
             num_classes=num_classes
         ).to(device)
+
+        # Reset the model weights
+        for layer in model.children():
+            if hasattr(layer, 'reset_parameters'):
+                layer.reset_parameters()
+        # Print the model architecture
+        print(model)
+        # Print the number of parameters
+        num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        print(f"Number of parameters: {num_params}")
+        # Print the model summary
+        print(f"Model summary: {model}")
+        # Print the model configuration
+        print(f"Model initialized with config: {mlp_config}")
+        # Save all to text file
+        with open(report_file, "a") as f:
+            f.write(f"Configuration {config_idx}/{n_config} - Run {run+1}/{N_RUNS}\n")
+            f.write(f"Number of parameters: {num_params}\n")
+            f.write(f"Model summary: {model}\n")
+            f.write(f"Model configuration: {mlp_config}\n")
 
         optimizer = optim.Adam(model.parameters(), lr=mlp_config['learning_rate'], weight_decay=mlp_config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
@@ -110,6 +132,7 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
 
             log_train = f"[CONFIG {config_idx}/{n_config}][MLP TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}"
             log_val = f"[CONFIG {config_idx}/{n_config}][MLP VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1: {val_topk_accuracy['top_1']:.4f}, Top-3: {val_topk_accuracy['top_3']:.4f}, Top-5: {val_topk_accuracy['top_5']:.4f}"
+            print(mlp_config)
             print(log_train)
             print(log_val)
             with open(report_file, "a") as f:

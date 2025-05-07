@@ -8,13 +8,17 @@ REPRODUCIBLE = True
 # Set the base directory and data directory
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(BASEDIR, "data")
+
+# Dataset information file
+DATASET_INFO_FILE = os.path.join(DATADIR, "dataset_info.csv")
+
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 ## === END FILESYSTEM PARAMETERS === ##
 
 ## === TRAINING EXPERIMENTAL PARAMETERS === ##
 
-N_EPOCHS = 1            # Number of epochs for training
+N_EPOCHS = 100            # Number of epochs for training
 GRID_N_EPOCHS = 100     # Number of epochs for grid search
 PARAM_GRID = {
     'dim_h': [16, 64, 128],
@@ -38,6 +42,10 @@ BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
 MULTILABEL2MULTICLASS = False
 
+TRAINING_SPLIT = 0.6  # Percentage of samples to use for training
+VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
+# TEST_SPLIT = 0.2  # Percentage of samples to use for testing (automaticlly calculated)
+
 # CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE),
 TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
@@ -47,13 +55,25 @@ TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary
 USE_FINGERPRINT = False
 
 ## ATOM FEATURES
-USE_CHIRALITY = False
-USE_HYDROGENS_IMPLICIT = False
-USE_TOPOLOGICAL_FEATURES = True
-USE_CHARGE_PROPERTIES = True
-USE_HYBRIDIZATION = True
-USE_RING_INFO = True
-USE_ATOMIC_PROPERTIES = True
+USE_CHIRALITY = False           # (4 bits) A
+USE_HYDROGENS_IMPLICIT = False  # (6 bits) B
+USE_TOPOLOGICAL_FEATURES = True # (6 bits) C
+USE_CHARGE_PROPERTIES = True    # (1 int) D
+USE_HYBRIDIZATION = True        # (7 ints) E 
+USE_RING_INFO = True            # (2 ints) F 
+USE_ATOMIC_PROPERTIES = True    # (3 ints) G 
+
+DATASET_ID = ""
+
+DATASET_ID += "A" if USE_CHIRALITY else ""
+DATASET_ID += "B" if USE_HYDROGENS_IMPLICIT else ""
+DATASET_ID += "C" if USE_TOPOLOGICAL_FEATURES else ""
+DATASET_ID += "D" if USE_CHARGE_PROPERTIES else ""
+DATASET_ID += "E" if USE_HYBRIDIZATION else ""
+DATASET_ID += "F" if USE_RING_INFO else ""
+DATASET_ID += "G" if USE_ATOMIC_PROPERTIES else "" 
+# Sort the dataset ID
+DATASET_ID = "".join(sorted(DATASET_ID))
 
 # Write a dictionary of atom features to a file
 ATOM_FEATURES_DICT = {

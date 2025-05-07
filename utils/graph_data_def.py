@@ -62,44 +62,45 @@ def get_atom_features(atom,
     # Initialize the atom feature vector with the atom type encoding
     atom_feature_vector = atom_type_enc
     
-    # === Topological / Structural Features
+    # === Topological / Structural Features (6+6 bits)
     if use_topological_features:
         n_heavy_neighbors_enc = encode(int(atom.GetDegree()), [0, 1, 2, 3, 4, "MoreThanFour"], encoding="hot")
         atom_feature_vector += n_heavy_neighbors_enc
-        if use_hydrogens_implicit is True:
-            n_hydrogens_enc = encode(int(atom.GetTotalNumHs()), [0, 1, 2, 3, 4, "MoreThanFour"], encoding="hot")
-            atom_feature_vector += n_hydrogens_enc
+    if use_hydrogens_implicit is True:
+        n_hydrogens_enc = encode(int(atom.GetTotalNumHs()), [0, 1, 2, 3, 4, "MoreThanFour"], encoding="hot")
+        atom_feature_vector += n_hydrogens_enc
         
-    # === Electronic / Charge Properties
+    # === Electronic / Charge Properties (1 int)
     if use_charge_properties:
         # formal_charge_enc = encode(int(atom.GetFormalCharge()), [-3, -2, -1, 0, 1, 2, 3, "Extreme"], encoding="label")
         formal_charge_enc = [int(atom.GetFormalCharge())]
         atom_feature_vector += formal_charge_enc
     
-    # === Hybridization / Bonding State
+    # === Hybridization / Bonding State (7 bits)
     if use_hybridization:
         hybridisation_type_enc = encode(str(atom.GetHybridization()), ["S", "SP", "SP2", "SP3", "SP3D", "SP3D2", "OTHER"], encoding="hot")
         atom_feature_vector += hybridisation_type_enc
     
-    # === Ring and Aromaticity Information
+    # === Ring and Aromaticity Information (2 ints)
     if use_ring_info:
         is_in_a_ring_enc = [int(atom.IsInRing())]
         is_aromatic_enc = [int(atom.GetIsAromatic())]
         atom_feature_vector += is_in_a_ring_enc + is_aromatic_enc
     
-    # === Atomic Properties (Scaled)
+    # === Atomic Properties (Scaled) (3 ints)
     if use_atomic_properties:
         atomic_mass_scaled = [float((atom.GetMass() - 10.812)/116.092)] # Sometimes omitted if atom type is already encoded
         vdw_radius_scaled = [float((Chem.GetPeriodicTable().GetRvdw(atom.GetAtomicNum()) - 1.5)/0.6)] # Useful but may introduce redundancy
         covalent_radius_scaled = [float((Chem.GetPeriodicTable().GetRcovalent(atom.GetAtomicNum()) - 0.64)/0.76)] # Useful but may introduce redundancy
         atom_feature_vector += atomic_mass_scaled + vdw_radius_scaled + covalent_radius_scaled
     
-    # === Chirality / Stereochemistry
+    # === Chirality / Stereochemistry (4 bits)
     if use_chirality:
         chirality_type_enc = encode(str(atom.GetChiralTag()), ["CHI_UNSPECIFIED", "CHI_TETRAHEDRAL_CW", "CHI_TETRAHEDRAL_CCW", "CHI_OTHER"], encoding="hot")
         atom_feature_vector += chirality_type_enc
 
     return np.array(atom_feature_vector)
+
 
 def get_bond_features(bond, 
                       use_stereochemistry=True):

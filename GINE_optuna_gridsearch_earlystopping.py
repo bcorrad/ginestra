@@ -99,6 +99,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
 
             log_train = f"[CONFIG {config_idx}/{n_config}][GINE TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}"
             log_val = f"[CONFIG {config_idx}/{n_config}][GINE VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1: {val_topk_accuracy['top_1']:.4f}, Top-3: {val_topk_accuracy['top_3']:.4f}, Top-5: {val_topk_accuracy['top_5']:.4f}"
+            print(config)
             print(log_train)
             print(log_val)
             with open(report_file, "a") as f:
