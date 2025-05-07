@@ -49,7 +49,7 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
         set_seed(run + 42)
         model = GAT(
             in_channels=in_channels,
-            hidden_channels=config['dim_h'],
+            hidden_channels=config['hidden_channels'],
             out_channels=out_channels,
             n_heads=config['n_heads'],
             drop_rate=config['drop_rate'],
