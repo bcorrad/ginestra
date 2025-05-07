@@ -41,6 +41,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
     GRID_TRAIN_LOSS, GRID_TRAIN_PRECISION, GRID_TRAIN_RECALL, GRID_TRAIN_F1 = [], [], [], []
     GRID_VAL_LOSS, GRID_VAL_PRECISION, GRID_VAL_RECALL, GRID_VAL_F1 = [], [], [], []
     GRID_TOPK_ACCURACY_1, GRID_TOPK_ACCURACY_3, GRID_TOPK_ACCURACY_5 = [], [], []
+    EPOCH_TIMES = []
 
     for run in range(N_RUNS):
         set_seed(run + 42)
@@ -80,7 +81,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             start_time = time.time()
             train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
             end_time = time.time()
-            print(f"Epoch {epoch+1}/{GRID_N_EPOCHS} took {end_time - start_time:.2f} seconds")
+
             val_loss, val_precision, val_recall, val_f1, _, val_model, val_topk_accuracy = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
 
             GRID_TRAIN_LOSS.append(train_loss)
@@ -94,8 +95,9 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             GRID_TOPK_ACCURACY_1.append(val_topk_accuracy["top_1"])
             GRID_TOPK_ACCURACY_3.append(val_topk_accuracy["top_3"])
             GRID_TOPK_ACCURACY_5.append(val_topk_accuracy["top_5"])
+            EPOCH_TIMES.append(end_time - start_time)
 
-            log_train = f"[CONFIG {config_idx}/{n_config}][GIN TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}"
+            log_train = f"[CONFIG {config_idx}/{n_config}][GIN TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
             log_val = f"[CONFIG {config_idx}/{n_config}][GIN VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1: {val_topk_accuracy['top_1']:.4f}, Top-3: {val_topk_accuracy['top_3']:.4f}, Top-5: {val_topk_accuracy['top_5']:.4f}"
             print(gin_config)
             print(log_train)
@@ -141,8 +143,9 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
     std_val_top_k_accuracy_1 = torch.std(torch.tensor(GRID_TOPK_ACCURACY_1))
     std_val_top_k_accuracy_3 = torch.std(torch.tensor(GRID_TOPK_ACCURACY_3))
     std_val_top_k_accuracy_5 = torch.std(torch.tensor(GRID_TOPK_ACCURACY_5))
+    avg_epoch_time = sum(EPOCH_TIMES) / len(EPOCH_TIMES)
 
-    final_log_train = f"[CONFIG {config_idx}/{n_config}] Train Loss: {avg_train_loss:.4f} ± {std_train_loss:.4f}, Precision: {avg_train_precision:.4f} ± {std_train_precision:.4f}, Recall: {avg_train_recall:.4f} ± {std_train_recall:.4f}, F1: {avg_train_f1:.4f} ± {std_train_f1:.4f}"
+    final_log_train = f"[CONFIG {config_idx}/{n_config}] Train Loss: {avg_train_loss:.4f} ± {std_train_loss:.4f}, Precision: {avg_train_precision:.4f} ± {std_train_precision:.4f}, Recall: {avg_train_recall:.4f} ± {std_train_recall:.4f}, F1: {avg_train_f1:.4f} ± {std_train_f1:.4f}, Epoch Time: {avg_epoch_time:.2f} seconds"
     
     final_log_val = f"[CONFIG {config_idx}/{n_config}] Val Loss: {avg_val_loss:.4f} ± {std_val_loss:.4f}, Precision: {avg_val_precision:.4f} ± {std_val_precision:.4f}, Recall: {avg_val_recall:.4f} ± {std_val_recall:.4f}, F1: {avg_val_f1:.4f} ± {std_val_f1:.4f}"
     final_log_val += f", Top-1: {avg_val_top_k_accuracy_1:.4f} ± {std_val_top_k_accuracy_1:.4f}, Top-3: {avg_val_top_k_accuracy_3:.4f} ± {std_val_top_k_accuracy_3:.4f}, Top-5: {avg_val_top_k_accuracy_5:.4f} ± {std_val_top_k_accuracy_5:.4f}"
