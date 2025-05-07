@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, classification_report
 import numpy as np
 import os
-from config import TARGET_MODE, PATHWAYS, EXPERIMENT_FOLDER
+from config import TARGET_MODE, PATHWAYS
 from utils.topk import top_k_accuracy
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
@@ -52,7 +52,7 @@ class MLP(nn.Module):
         return x
 
     
-def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, save_all_models=False):
+def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, save_all_models=False, experiment_folder=None):
     """
     Evaluates the model on the given dataloader.
     
@@ -71,6 +71,8 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
     all_targets = []
     top_k_accuracy_dict = {}
     all_outs = []
+    
+    EXPERIMENT_FOLDER = experiment_folder if experiment_folder else os.path.join("experiments")
     
     with torch.no_grad():
         for batch in dataloader:
@@ -124,8 +126,8 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
     top_k_accuracy_dict["top_5"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=5)
     try:
         conf_matrix = confusion_matrix(np.argmax(all_targets, axis=1), np.argmax(all_preds, axis=1))
-        print("Validation Confusion Matrix")
-        print(conf_matrix)
+        # print("Validation Confusion Matrix")
+        # print(conf_matrix)
     except:
         conf_matrix = None
         
@@ -145,7 +147,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
         return avg_loss, precision, recall, f1, conf_matrix, model, top_k_accuracy_dict
 
 
-def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose: bool=False, return_model=False, save_all_models=False):
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbose: bool=False, return_model=False, save_all_models=False, experiment_folder=None):
     """
     Training loop for the model.
     Args:
@@ -166,6 +168,8 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
     all_preds = []
     all_targets = []
 
+    EXPERIMENT_FOLDER = experiment_folder if experiment_folder else os.path.join("experiments")
+    
     for batch in dataloader:
         # Fingerprint at index 1
         fingerprint_features = batch[1].to(device)
@@ -212,8 +216,8 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
     f1 = f1_score(all_targets, all_preds, average=metrics_average_mode)
     try:
         conf_matrix = confusion_matrix(np.argmax(all_targets, axis=1), np.argmax(all_preds, axis=1))
-        print("Training Confusion Matrix")
-        print(conf_matrix)
+        # print("Training Confusion Matrix")
+        # print(conf_matrix)
     except:
         conf_matrix = None
         

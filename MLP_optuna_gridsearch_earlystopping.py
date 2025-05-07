@@ -1,11 +1,11 @@
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import optuna
 from optuna.samplers import GridSampler
 import os
-from models.MLP import *
+from models.MLP import train_epoch, evaluate
+import torch.nn.functional as F
 from gridsearch_dataset_builder import prepare_dataloaders
 import time
 from utils.earlystop import EarlyStopping
@@ -111,10 +111,10 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
 
         for epoch in range(GRID_N_EPOCHS):
             start_time_train = time.time()
-            train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
+            train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False, experiment_folder=EXPERIMENT_FOLDER)
             end_time_train = time.time()
             start_time_val = time.time()
-            val_loss, val_precision, val_recall, val_f1, _, val_model, val_topk_accuracy = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
+            val_loss, val_precision, val_recall, val_f1, _, val_model, val_topk_accuracy = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False, experiment_folder=EXPERIMENT_FOLDER)
             end_time_val = time.time()
             print(f"Epoch {epoch+1}/{GRID_N_EPOCHS} — Train Time: {end_time_train - start_time_train:.2f}s, Val Time: {end_time_val - start_time_val:.2f}s")
 
@@ -189,24 +189,6 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
         f.write(final_log_val + "\n")
     return avg_val_loss
 
-def test_model(best_params, train_loader, test_loader, num_features, num_classes):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    model = MLP(input_channels=num_features, num_categories=num_classes).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=best_params['learning_rate'], weight_decay=best_params['l2_rate'])
-    criterion = nn.BCEWithLogitsLoss()
-
-    for epoch in range(GRID_N_EPOCHS):
-        train_epoch(model, train_loader, optimizer, criterion, device, epoch)
-
-    test_loss, test_precision, test_recall, test_f1, _, test_model = evaluate(model, test_loader, device, criterion, epoch, return_model=True, save_all_models=False)
-    print(f"Test Results — Loss: {test_loss:.4f}, P: {test_precision:.4f}, R: {test_recall:.4f}, F1: {test_f1:.4f}")
-    # Save the test model
-    try:
-        torch.save(test_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, f"test_best_model.pth"))
-    except Exception as e:
-        print(f"Error saving model: {e}")
-    return dict(loss=test_loss, precision=test_precision, recall=test_recall, f1=test_f1)
 
 def export_results_to_csv(study, filename="optuna_results_mlp.csv"):
     df = study.trials_dataframe()
@@ -253,12 +235,6 @@ if __name__ == "__main__":
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_features, num_classes)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, "optuna_results_mlp.csv"))
-    
-    test_results = test_model(best_params, train_dataloader, test_dataloader, num_features, num_classes)
-    print("Test Results:", test_results)
-    with open(os.path.join(EXPERIMENT_FOLDER, "test_results_mlp.txt"), "w") as f:
-        f.write(f"Test Results: {test_results}\n")
-    print(f"Test results saved in {os.path.join(EXPERIMENT_FOLDER, 'test_results_mlp.txt')}")
 
     from utils.reports_scraper import process_all_experiments
     process_all_experiments(EXPERIMENT_FOLDER)
