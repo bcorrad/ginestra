@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from gridsearch_dataset_builder import prepare_dataloaders
 import time
 from utils.earlystop import EarlyStopping
+from utils.seed import set_seed
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("mlp")
@@ -59,9 +60,9 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
         'unit1': trial.suggest_categorical("unit1", [3072, 4608, 6144]),
         'unit2': trial.suggest_categorical("unit2", [1536, 2304, 3072]),
         'unit3': trial.suggest_categorical("unit3", [768, 1152, 1536]),
-        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2, 0.3]),
-        'learning_rate': trial.suggest_categorical("learning_rate", [1e-2, 1e-3, 1e-4, 1e-5, 1e-6]),
-        'l2_rate': trial.suggest_categorical("l2_rate", [1e-2, 1e-3]),
+        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.3, 0.5]),
+        'learning_rate': trial.suggest_categorical("learning_rate", [1e-4]),
+        'l2_rate': trial.suggest_categorical("l2_rate", [5e-4]),
     }
 
     report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_MLP_{config_idx}.txt")
@@ -71,7 +72,6 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
     GRID_TRAIN_LOSS, GRID_TRAIN_PRECISION, GRID_TRAIN_RECALL, GRID_TRAIN_F1 = [], [], [], []
     GRID_VAL_LOSS, GRID_VAL_PRECISION, GRID_VAL_RECALL, GRID_VAL_F1 = [], [], [], []
     GRID_TOPK_ACCURACY_1, GRID_TOPK_ACCURACY_3, GRID_TOPK_ACCURACY_5 = [], [], []
-    from utils.seed import set_seed
 
     for run in range(N_RUNS):
         set_seed(run + 42)

@@ -32,7 +32,7 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     config = {
-        'hidden_channels': trial.suggest_categorical("hidden_channels", PARAM_GRID['dim_h']),
+        'dim_h': trial.suggest_categorical("dim_h", PARAM_GRID['dim_h']),
         'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
         'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
         'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
@@ -49,7 +49,7 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
         set_seed(run + 42)
         model = GAT(
             in_channels=in_channels,
-            hidden_channels=config['hidden_channels'],
+            hidden_channels=config['dim_h'],
             out_channels=out_channels,
             n_heads=config['n_heads'],
             drop_rate=config['drop_rate'],
