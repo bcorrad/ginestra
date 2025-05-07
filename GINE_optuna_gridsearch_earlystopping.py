@@ -205,4 +205,7 @@ if __name__ == "__main__":
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, edge_dim, num_classes, fingerprint_length)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_gine.csv'))
-
+    
+    from utils.reports_scraper import process_all_experiments
+    process_all_experiments(EXPERIMENT_FOLDER)
+    print("All experiments processed.")

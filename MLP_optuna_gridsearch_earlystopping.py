@@ -236,3 +236,7 @@ if __name__ == "__main__":
     with open(os.path.join(EXPERIMENT_FOLDER, "test_results_mlp.txt"), "w") as f:
         f.write(f"Test Results: {test_results}\n")
     print(f"Test results saved in {os.path.join(EXPERIMENT_FOLDER, 'test_results_mlp.txt')}")
+
+    from utils.reports_scraper import process_all_experiments
+    process_all_experiments(EXPERIMENT_FOLDER)
+    print("All experiments processed.")

@@ -17,8 +17,8 @@ from utils.seed import set_seed
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gin")
 
 PARAM_GRID = {
-    'dim_h': [16],
-    'drop_rate': [0.1],
+    'dim_h': [16, 64, 128],
+    'drop_rate': [0.1, 0.3, 0.5],
     'learning_rate': [1e-4],
     'l2_rate': [5e-4],
 }
@@ -75,7 +75,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         optimizer = optim.Adam(model.parameters(), lr=gin_config['learning_rate'], weight_decay=gin_config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
 
-        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=10 if TARGET_TYPE == "class" else 10, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()
@@ -198,4 +198,7 @@ if __name__ == "__main__":
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, num_classes)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_gin.csv'))
-
+    
+    from utils.reports_scraper import process_all_experiments
+    process_all_experiments(EXPERIMENT_FOLDER)
+    print("All experiments processed.")

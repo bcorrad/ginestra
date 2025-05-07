@@ -29,8 +29,8 @@ def encode(x, permitted_list: List=None, encoding: Union[Literal['hot'], Literal
         return [permitted_list.index(x)+1]
 
 def get_atom_features(atom, 
-                      use_chirality = True, 
-                      hydrogens_implicit = True):
+                      use_chirality = False, 
+                      hydrogens_implicit = False):
     """
     Takes an RDKit atom object as input and gives a 1d-numpy array of atom features as output.
     """
