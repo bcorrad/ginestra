@@ -43,15 +43,15 @@ class GIN(torch.nn.Module):
                                         ReLU(),
                                         Linear(dim_h, dim_h), 
                                         ReLU()))
-        # Self-Attention Layer (Multi-Head)
-        # self.attention = MultiheadAttention(embed_dim=dim_h, num_heads=num_heads, batch_first=True)
 
         # Dropout
-        if "drop_out" in kwargs and kwargs["dropout"] is not None:
-            self.dropout = kwargs["dropout"]
+        if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
+            self.dropout = kwargs["drop_rate"]
         else:
             self.dropout = 0.5
 
+        print(f"[DROPOUT SET] Dropout: {self.dropout}")
+        
         # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
             self.lin1 = torch.nn.Linear(3*dim_h, 3*dim_h)  
@@ -60,11 +60,8 @@ class GIN(torch.nn.Module):
             self.lin1 = torch.nn.Linear(4*dim_h, 4*dim_h)
             self.lin2 = torch.nn.Linear(4*dim_h, num_classes)
 
-        # self.lin1 = Linear(dim_h, dim_h)
-        # self.lin2 = Linear(dim_h, num_classes)
 
-
-    def forward(self, x, edge_index, batch, p=0.2, **kwargs):
+    def forward(self, x, edge_index, batch, **kwargs):
         
         if "fingerprint" in kwargs:
             fingerprint = kwargs["fingerprint"]
@@ -80,12 +77,10 @@ class GIN(torch.nn.Module):
         h2 = F.dropout(h2, p=self.dropout, training=self.training)
         h3 = self.conv3(h2, edge_index)
 
-        # Graph-level readout
-        #The authors make two important points about graph-level readout:
-
+        # === Graph-level readout ===
+        # The authors make two important points about graph-level readout:
         # To consider all structural information, it is necessary to keep embeddings from previous layers;
         # The sum operator is surprisingly more expressive than the mean and the max.
-
         h1_pool = global_add_pool(h1, batch)
         h2_pool = global_add_pool(h2, batch)
         h3_pool = global_add_pool(h3, batch)
@@ -96,17 +91,9 @@ class GIN(torch.nn.Module):
         else:
             h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
 
-
-        # Stack embeddings per livello, codifica posizionale, A+H=D, e MLP sui token (output=3 token, dim_h)
-        #H = torch.stack([h1, h2, h3], dim=1)  # (batch_size, 3, dim_h)
-        # Apply Self-Attention tra i livelli
-        #A, _ = self.attention(H, H, H)  # (batch_size, 3, dim_h)
-
-
         # Classifier
         h = self.lin1(h)
         h = h.relu()
-        # h = F.dropout(h, p=0.5, training=self.training)
         h = self.lin2(h)
         
         return h

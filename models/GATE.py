@@ -32,7 +32,15 @@ class GATE(torch.nn.Module):
         self.conv2 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
         self.conv3 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
         
-         # Classificatore finale
+        # Dropout
+        if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
+            self.dropout = kwargs["drop_rate"]
+        else:
+            self.dropout = 0.5
+
+        print(f"[DROPOUT SET] Dropout: {self.dropout}")
+        
+        # Classifier
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
             self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
             self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
@@ -55,9 +63,9 @@ class GATE(torch.nn.Module):
 
         # Strati GINEConv
         h1 = self.conv1(x, edge_index, edge_attr)
-        h1 = F.dropout(h1, p=p, training=self.training)
+        h1 = F.dropout(h1, p=self.dropout, training=self.training)
         h2 = self.conv2(h1, edge_index, edge_attr)
-        h2 = F.dropout(h2, p=p, training=self.training)
+        h2 = F.dropout(h2, p=self.dropout, training=self.training)
         h3 = self.conv3(h2, edge_index, edge_attr)
 
         # Global pooling on node features

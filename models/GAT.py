@@ -30,6 +30,14 @@ class GAT(torch.nn.Module):
         self.conv2 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
         self.conv3 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
         
+        # Dropout
+        if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
+            self.dropout = kwargs["drop_rate"]
+        else:
+            self.dropout = 0.5
+
+        print(f"[DROPOUT SET] Dropout: {self.dropout}")
+        
          # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
             self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
@@ -46,16 +54,12 @@ class GAT(torch.nn.Module):
             fingerprint_emb = self.fingerprint_processor(torch.Tensor(fingerprint))
         else:
             fingerprint = None
-            
-        # # Primo livello: GAT
-        # x = self.conv1(x, edge_index)  # Output (batch_size, hidden_channels * heads)
-        # x = F.dropout(x, p=0.5, training=self.training)
 
         # Strati GINEConv
         h1 = self.conv1(x, edge_index)
-        h1 = F.dropout(h1, p=p, training=self.training)
+        h1 = F.dropout(h1, p=self.dropout, training=self.training)
         h2 = self.conv2(h1, edge_index)
-        h2 = F.dropout(h2, p=p, training=self.training)
+        h2 = F.dropout(h2, p=self.dropout, training=self.training)
         h3 = self.conv3(h2, edge_index)
 
         # Global pooling on node features
@@ -108,10 +112,9 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
                     out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
                 else:
                     out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
-                #out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
             elif model.__class__.__name__ == "GAT":
                 out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
-            # out = model(batch.x, batch.edge_index, batch.batch)  # Forward pass
+
             # Determine targets
             targets = batch.y
 
@@ -139,8 +142,6 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
     top_k_accuracy_dict["top_5"] = top_k_accuracy(torch.tensor(np.array(all_outs)), torch.tensor(np.array(all_targets)), k=5)
     try:
         conf_matrix = confusion_matrix(np.argmax(all_targets, axis=1), np.argmax(all_preds, axis=1))
-        # print("Validation Confusion Matrix")
-        # print(conf_matrix)
     except:
         conf_matrix = None
         
@@ -188,7 +189,6 @@ def train_epoch(model, dataloader, optimizer, criterion, device, epoch_n, verbos
         # Forward pass
         out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
 
-        # out = model(x=batch.x, edge_index=batch.edge_index, batch=batch.batch)     # (batch_dim, features_dim) = (128, 653)
         # Targets
         targets = batch.y
 

@@ -65,6 +65,8 @@ class GINE(torch.nn.Module):
         else:
             self.dropout = 0.5
             
+        print(f"[DROPOUT SET] Dropout: {self.dropout}")
+            
         # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
             self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  

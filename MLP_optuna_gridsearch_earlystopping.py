@@ -85,7 +85,7 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
         optimizer = optim.Adam(model.parameters(), lr=mlp_config['learning_rate'], weight_decay=mlp_config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
 
-        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=10 if TARGET_TYPE == "class" else 10, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time_train = time.time()

@@ -54,7 +54,8 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_d
             out_channels=out_channels,
             edge_dim=edge_dim,
             n_heads=config['n_heads'],
-            fingerprint_length=fingerprint_length
+            fingerprint_length=fingerprint_length,
+            drop_rate=config['drop_rate'],
         ).to(device)
 
         # Reset the model weights
@@ -79,7 +80,7 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_d
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
-        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=10 if TARGET_TYPE == "class" else 10, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()
