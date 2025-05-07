@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,18 +9,18 @@ from gridsearch_dataset_builder import prepare_dataloaders
 from models.GIN import *
 
 from utils.earlystop import EarlyStopping
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, PARAM_GRID
 
 from utils.seed import set_seed
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gin")
 
-PARAM_GRID = {
-    'dim_h': [16, 64, 128],
-    'drop_rate': [0.1, 0.3, 0.5],
-    'learning_rate': [1e-4],
-    'l2_rate': [5e-4],
-}
+# PARAM_GRID = {
+#     'dim_h': [16, 64, 128],
+#     'drop_rate': [0.1, 0.3, 0.5],
+#     'learning_rate': [1e-4],
+#     'l2_rate': [5e-4],
+# }
 
 from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment("gin", TARGET_TYPE, BASEDIR)

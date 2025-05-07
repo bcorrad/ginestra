@@ -1,20 +1,39 @@
-import os, torch
+import os, torch, pickle
 import numpy as np
 
 REPRODUCIBLE = True
+
+## === FILESYSTEM PARAMETERS === ##
 
 # Set the base directory and data directory
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(BASEDIR, "data")
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-N_EPOCHS = 10   # Number of epochs for training
-GRID_N_EPOCHS = 100 # Number of epochs for grid search
+## === END FILESYSTEM PARAMETERS === ##
+
+## === TRAINING EXPERIMENTAL PARAMETERS === ##
+
+N_EPOCHS = 1            # Number of epochs for training
+GRID_N_EPOCHS = 100     # Number of epochs for grid search
+PARAM_GRID = {
+    'dim_h': [16, 64, 128],
+    'drop_rate': [0.1, 0.3, 0.5],
+    'learning_rate': [1e-4],
+    'l2_rate': [5e-4],
+    'n_heads': [2, 4],
+}
 N_RUNS = 3  # Number of runs for the model
+
+## === END TRAINING EXPERIMENTAL PARAMETERS === ##
+
+## === DATASET PARAMETERS === ##
+
 ## DATASET PARAMETERS
 USE_AVAILABLE_DATASET = None # If True, use the dataset already downloaded and preprocessed
-FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
+FORCE_DATASET_GENERATION = True # If True, force the generation of the dataset
 N_SAMPLES = None  # Number of samples to pick from the training set. If set to None, all samples are used
+
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
 MULTILABEL2MULTICLASS = False
@@ -27,14 +46,41 @@ TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
 USE_FINGERPRINT = False
 
+## ATOM FEATURES
+USE_CHIRALITY = False
+USE_HYDROGENS_IMPLICIT = False
+USE_TOPOLOGICAL_FEATURES = True
+USE_CHARGE_PROPERTIES = True
+USE_HYBRIDIZATION = True
+USE_RING_INFO = True
+USE_ATOMIC_PROPERTIES = True
+
+# Write a dictionary of atom features to a file
+ATOM_FEATURES_DICT = {
+    "chirality": USE_CHIRALITY,
+    "hydrogens_implicit": USE_HYDROGENS_IMPLICIT,
+    "topological_features": USE_TOPOLOGICAL_FEATURES,
+    "charge_properties": USE_CHARGE_PROPERTIES,
+    "hybridization": USE_HYBRIDIZATION,
+    "ring_info": USE_RING_INFO,
+    "atomic_properties": USE_ATOMIC_PROPERTIES
+}
+
+## === END DATASET PARAMETERS === ##
+
+## === NETWORK PARAMETERS === ##
+
 ## NETWORK CONFIG
 H_DIM = 16
 # MODELS = ["gine", "gin", "gat", "gate", "mlp"] # Options: "gin", "gine", "mlp", "gat", "gate"
 # OR
-MODELS = ["mlp"] 
+MODELS = ["mlp"] # Only for non-grid search setup
 MODELS.sort()  # Minimize the dataset exchanges between models during training
 
-import pickle
+## === END NETWORK PARAMETERS === ##
+
+## === EXPERIMENT PARAMETERS === ##
+
 # Build dictionaries of classes, superclasses and pathways based on the target type
 if TARGET_TYPE == "pathway":
     with open(f'{DATADIR}/char2idx_path_V1.pkl','rb') as f:
@@ -59,6 +105,8 @@ if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
     LABELS_CODES[7] = np.array([0,1,0,0,1,0,0])
     LABELS_CODES[8] = np.array([1,0,0,0,0,0,1])
     LABELS_CODES[9] = np.array([0,0,0,0,1,0,1])
+    
+## === END EXPERIMENT PARAMETERS === ##
     
 # # Initialize experiment folder 
 # import datetime

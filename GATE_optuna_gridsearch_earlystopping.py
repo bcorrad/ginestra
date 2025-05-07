@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -11,19 +10,19 @@ from models.GATE import *
 from gridsearch_dataset_builder import prepare_dataloaders
 
 from utils.earlystop import EarlyStopping
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, PARAM_GRID
 
 from utils.seed import set_seed
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gate")
 
-PARAM_GRID = {
-    'hidden_channels': [16, 32, 64, 128],
-    'drop_rate': [0.1, 0.2, 0.5],
-    'learning_rate': [1e-3, 1e-4],
-    'l2_rate': [1e-2, 1e-3],
-    'n_heads': [2, 4],
-}
+# PARAM_GRID = {
+#     'hidden_channels': [16, 32, 64, 128],
+#     'drop_rate': [0.1, 0.2, 0.5],
+#     'learning_rate': [1e-3, 1e-4],
+#     'l2_rate': [1e-2, 1e-3],
+#     'n_heads': [2, 4],
+# }
 
 from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment("gate", TARGET_TYPE, BASEDIR)

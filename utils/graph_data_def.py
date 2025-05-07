@@ -7,6 +7,8 @@ from rdkit.Chem.rdmolops import GetAdjacencyMatrix
 import torch
 from torch_geometric.data import Data
 from typing import List, Union, Literal
+from config import USE_CHIRALITY, USE_HYDROGENS_IMPLICIT, USE_TOPOLOGICAL_FEATURES, USE_CHARGE_PROPERTIES, USE_HYBRIDIZATION, USE_RING_INFO, USE_ATOMIC_PROPERTIES
+
 
 def encode(x, permitted_list: List=None, encoding: Union[Literal['hot'], Literal['label']]='hot'):
     """
@@ -28,44 +30,76 @@ def encode(x, permitted_list: List=None, encoding: Union[Literal['hot'], Literal
     elif "label" in encoding.lower():
         return [permitted_list.index(x)+1]
 
+
 def get_atom_features(atom, 
                       use_chirality = False, 
-                      hydrogens_implicit = False):
+                      use_hydrogens_implicit = False,
+                      use_topological_features = True,
+                      use_charge_properties = True,
+                      use_hybridization = True,
+                      use_ring_info = True,
+                      use_atomic_properties = True):
     """
-    Takes an RDKit atom object as input and gives a 1d-numpy array of atom features as output.
+        Takes an RDKit atom object as input and gives a 1d-numpy array of atom features as output.
     """
-    permitted_list_of_atoms = ['S', 'Sn', 'In', 'Br', 'F', 'Cl', 'B', 'N', 'O', 'I', 'C', 'Co', 'P'] #TODO: aggiungere Unkwown
+    
+    use_chirality = USE_CHIRALITY
+    use_hydrogens_implicit = USE_HYDROGENS_IMPLICIT
+    use_topological_features = USE_TOPOLOGICAL_FEATURES
+    use_charge_properties = USE_CHARGE_PROPERTIES
+    use_hybridization = USE_HYBRIDIZATION
+    use_ring_info = USE_RING_INFO
+    use_atomic_properties = USE_ATOMIC_PROPERTIES
+    
+    permitted_list_of_atoms = ['S', 'Sn', 'In', 'Br', 'F', 'Cl', 'B', 'N', 'O', 'I', 'C', 'Co', 'P'] # TODO: aggiungere Unkwown
     permitted_list_of_atoms_old =  ['C','N','O','S','F','Si','P','Cl','Br','Mg','Na','Ca','Fe','As','Al','I', 'B','V','K','Tl','Yb','Sb','Sn','Ag','Pd','Co','Se','Ti','Zn', 'Li','Ge','Cu','Au','Ni','Cd','In','Mn','Zr','Cr','Pt','Hg','Pb','Unknown']
     
-    if hydrogens_implicit == False:
+    if use_hydrogens_implicit is False:
         permitted_list_of_atoms = ['H'] + permitted_list_of_atoms
     
-    atom_type_enc = encode(str(atom.GetSymbol()), permitted_list_of_atoms)
-
-    n_heavy_neighbors_enc = encode(int(atom.GetDegree()), [0, 1, 2, 3, 4, "MoreThanFour"])
-    # formal_charge_enc = encode(int(atom.GetFormalCharge()), [-3, -2, -1, 0, 1, 2, 3, "Extreme"])
-    formal_charge_enc = [int(atom.GetFormalCharge())]
-    hybridisation_type_enc = encode(str(atom.GetHybridization()), ["S", "SP", "SP2", "SP3", "SP3D", "SP3D2", "OTHER"])
-    is_in_a_ring_enc = [int(atom.IsInRing())]
-    is_aromatic_enc = [int(atom.GetIsAromatic())]
-    atomic_mass_scaled = [float((atom.GetMass() - 10.812)/116.092)]
-    vdw_radius_scaled = [float((Chem.GetPeriodicTable().GetRvdw(atom.GetAtomicNum()) - 1.5)/0.6)]
-    covalent_radius_scaled = [float((Chem.GetPeriodicTable().GetRcovalent(atom.GetAtomicNum()) - 0.64)/0.76)]
-    atom_feature_vector = atom_type_enc
-    # print('Atom features vector ',len(atom_feature_vector))
-    # + n_heavy_neighbors_enc + formal_charge_enc + hybridisation_type_enc + is_in_a_ring_enc + is_aromatic_enc + atomic_mass_scaled + vdw_radius_scaled + covalent_radius_scaled
-
-    if use_chirality == True:
-        chirality_type_enc = encode(str(atom.GetChiralTag()), ["CHI_UNSPECIFIED", "CHI_TETRAHEDRAL_CW", "CHI_TETRAHEDRAL_CCW", "CHI_OTHER"])
-        atom_feature_vector += chirality_type_enc
+    atom_type_enc = encode(str(atom.GetSymbol()), permitted_list_of_atoms, encoding="label")  # shape 1
     
-    if hydrogens_implicit == True:
-        n_hydrogens_enc = encode(int(atom.GetTotalNumHs()), [0, 1, 2, 3, 4, "MoreThanFour"])
-        atom_feature_vector += n_hydrogens_enc
+    # Initialize the atom feature vector with the atom type encoding
+    atom_feature_vector = atom_type_enc
+    
+    # === Topological / Structural Features
+    if use_topological_features:
+        n_heavy_neighbors_enc = encode(int(atom.GetDegree()), [0, 1, 2, 3, 4, "MoreThanFour"], encoding="hot")
+        atom_feature_vector += n_heavy_neighbors_enc
+        if use_hydrogens_implicit is True:
+            n_hydrogens_enc = encode(int(atom.GetTotalNumHs()), [0, 1, 2, 3, 4, "MoreThanFour"], encoding="hot")
+            atom_feature_vector += n_hydrogens_enc
+        
+    # === Electronic / Charge Properties
+    if use_charge_properties:
+        # formal_charge_enc = encode(int(atom.GetFormalCharge()), [-3, -2, -1, 0, 1, 2, 3, "Extreme"], encoding="label")
+        formal_charge_enc = [int(atom.GetFormalCharge())]
+        atom_feature_vector += formal_charge_enc
+    
+    # === Hybridization / Bonding State
+    if use_hybridization:
+        hybridisation_type_enc = encode(str(atom.GetHybridization()), ["S", "SP", "SP2", "SP3", "SP3D", "SP3D2", "OTHER"], encoding="hot")
+        atom_feature_vector += hybridisation_type_enc
+    
+    # === Ring and Aromaticity Information
+    if use_ring_info:
+        is_in_a_ring_enc = [int(atom.IsInRing())]
+        is_aromatic_enc = [int(atom.GetIsAromatic())]
+        atom_feature_vector += is_in_a_ring_enc + is_aromatic_enc
+    
+    # === Atomic Properties (Scaled)
+    if use_atomic_properties:
+        atomic_mass_scaled = [float((atom.GetMass() - 10.812)/116.092)] # Sometimes omitted if atom type is already encoded
+        vdw_radius_scaled = [float((Chem.GetPeriodicTable().GetRvdw(atom.GetAtomicNum()) - 1.5)/0.6)] # Useful but may introduce redundancy
+        covalent_radius_scaled = [float((Chem.GetPeriodicTable().GetRcovalent(atom.GetAtomicNum()) - 0.64)/0.76)] # Useful but may introduce redundancy
+        atom_feature_vector += atomic_mass_scaled + vdw_radius_scaled + covalent_radius_scaled
+    
+    # === Chirality / Stereochemistry
+    if use_chirality:
+        chirality_type_enc = encode(str(atom.GetChiralTag()), ["CHI_UNSPECIFIED", "CHI_TETRAHEDRAL_CW", "CHI_TETRAHEDRAL_CCW", "CHI_OTHER"], encoding="hot")
+        atom_feature_vector += chirality_type_enc
 
     return np.array(atom_feature_vector)
-    # return a random vector with the same shape as atom_feature_vector. 
-    # return np.array([np.random.rand() for _ in range(len(atom_feature_vector))])
 
 def get_bond_features(bond, 
                       use_stereochemistry=True):
@@ -77,6 +111,7 @@ def get_bond_features(bond,
     bond_type_enc = encode(bond.GetBondType(), permitted_list=permitted_list_of_bond_types, encoding="hot")  # shape 4, encoding="label"
     bond_is_conj_enc = [int(bond.GetIsConjugated())]                                    # shape 1
     bond_is_in_ring_enc = [int(bond.IsInRing())]                                        # shape 1
+    
     # TODO: ATTENZIONE QUI
     bond_feature_vector = \
         bond_type_enc + \
@@ -88,8 +123,6 @@ def get_bond_features(bond,
         bond_feature_vector += stereo_type_enc  # if one hot encoding: shape 6 + 4 = 10
     
     return np.array(bond_feature_vector)
-    # Return a random vector with the same shape as bond_feature_vector.
-    # return np.array([np.random.rand() for _ in range(len(bond_feature_vector))])
 
 
 def convert_pathway_labels(_labels):
@@ -221,14 +254,3 @@ def create_pytorch_geometric_graph_data_list_from_smiles_and_labels(df, mode:Uni
         data_list.append(data)
 
     return data_list
-
-
-
-
-
-
-
-
-
-
-

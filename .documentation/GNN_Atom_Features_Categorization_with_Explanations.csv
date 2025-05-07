@@ -1,0 +1,12 @@
+Feature Name,Category,Recommended,Explanation,Notes
+atom_type_enc,Atomic Identity,✅ Yes,"Encodes the atomic number or type of the atom (e.g., C, O, N), which is fundamental to all molecular representations.",Fundamental
+n_heavy_neighbors_enc,Topology / Local Structure,✅ Yes,"Counts the number of non-hydrogen atoms directly bonded to the atom, indicating its connectivity in the graph.",Local graph structure
+formal_charge_enc,Electronic / Chemical,✅ Yes,"Represents the formal charge on the atom, which can influence electrostatic interactions and reactivity.",Consider normalizing
+hybridisation_type_enc,Chemical Bonding / Hybridization,✅ Yes,"Specifies the hybridization state of the atom (e.g., SP2, SP3), which affects molecular geometry and bonding.",Encodes bonding geometry
+is_in_a_ring_enc,Structural Motif,✅ Yes,"Indicates whether the atom is part of a ring structure, which can affect strain and reactivity.","Affects stability, reactivity"
+is_aromatic_enc,Aromaticity,✅ Yes,"Flags if the atom is aromatic, influencing delocalized electron systems and chemical stability.",Important in many molecules
+atomic_mass_scaled,Physical Property,⚠️ Optional,Scaled atomic mass provides a physical property often correlated with atomic type; may be redundant.,Sometimes redundant
+vdw_radius_scaled,Physical Property,⚠️ Optional,Van der Waals radius is a measure of atomic size relevant to steric effects and nonbonded interactions.,Use if needed for size/shape
+covalent_radius_scaled,Physical Property,⚠️ Optional,Covalent radius helps approximate bond lengths; useful in 3D representations or distance-based features.,Similar to VDW radius
+chirality_type_enc,Stereochemistry,✅ Yes,"Encodes stereochemistry or chirality, important in tasks sensitive to 3D configuration, such as drug activity.",Crucial in 3D-sensitive tasks
+n_hydrogens_enc,Local Structure,✅ Yes (if implicit Hs),"Counts the number of hydrogen atoms (if not explicitly represented), impacting atom valency and molecular mass.",Varies by dataset format

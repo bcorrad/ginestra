@@ -11,7 +11,7 @@ from gridsearch_dataset_builder import prepare_dataloaders
 
 from utils.earlystop import EarlyStopping
 from utils.seed import set_seed
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, PARAM_GRID
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gine")
 
@@ -21,13 +21,6 @@ mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloa
 #     'learning_rate': [1e-3, 1e-4],
 #     'l2_rate': [1e-2, 1e-3],
 # }
-
-PARAM_GRID = {
-    'dim_h': [16],
-    'drop_rate': [0.1],
-    'learning_rate': [1e-4],
-    'l2_rate': [5e-4],
-}
 
 from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment("gine", TARGET_TYPE, BASEDIR)

@@ -1,7 +1,7 @@
-from config import DATADIR, TARGET_TYPE, N_SAMPLES, FORCE_DATASET_GENERATION
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, FORCE_DATASET_GENERATION, ATOM_FEATURES_DICT
 from typing import Union, Literal
 import pickle
-import os
+import os, json
 from fingerprint_handler import calculate_fingerprint
 import numpy as np
 import pandas as pd
@@ -298,8 +298,30 @@ def create_pytorch_geometric_graph_data_list_from_smiles_and_labels(df,
         # Creare l'oggetto Data dinamicamente
         data = Data(**data_args)
         data_list.append(data)
-
-    return data_list
+        
+        # Save dataset info to a dictionary
+        dataset_info = {
+            "SMILES": smiles,
+            "Num Nodes": n_nodes,
+            "Num Edges": len(rows),
+            "Num Node Features": n_node_features,
+            "Num Edge Features": n_edge_features,
+            "Num Classes": len(y_tensor[0]),
+        }
+        # Append ATOM_FEATURES_DICT to dataset_info
+        dataset_info.update(ATOM_FEATURES_DICT)
+        
+        # Print dataset info as ASCII table
+        print(f"\n=== Dataset Info ===")
+        print(f"{'Num Nodes':<20} {n_nodes}")
+        print(f"{'Num Edges':<20} {len(rows)}")
+        print(f"{'Num Node Features':<20} {n_node_features}")
+        print(f"{'Num Edge Features':<20} {n_edge_features}")
+        print(f"{'Num Classes':<20} {len(y_tensor[0])}")
+        print(f"{'ATOM_FEATURES_DICT':<20} {ATOM_FEATURES_DICT}")
+        print("-" * 50)
+        
+    return data_list, dataset_info
 
 
 def load_pickle(filepath):
@@ -310,21 +332,22 @@ def load_pickle(filepath):
 def save_pickle(data, filepath):
     with open(filepath, 'wb') as f:
         pickle.dump(data, f)
-        
-if N_SAMPLES is not None:
-    suffix = f'_{N_SAMPLES}'
-else:
-    suffix = ''
+
     
 def prepare_dataloaders(model_name: str):
+    
     gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader, mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader = None, None, None, None, None, None
+        
+    suffix = ""
+    if N_SAMPLES is not None:
+        suffix = f'_{N_SAMPLES}'
 
     if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
         if (os.path.exists(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
             os.path.exists(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl') and \
                 os.path.exists(f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')) and FORCE_DATASET_GENERATION is False:
             USE_AVAILABLE_DATASET = True
-                    
+
             print("Dataset already exists for GNN. Loading from pickle files.")
             gnn_train_dataloader = load_pickle(f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
             gnn_val_dataloader = load_pickle(f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
@@ -332,6 +355,7 @@ def prepare_dataloaders(model_name: str):
         else:
             USE_AVAILABLE_DATASET = False
             print("Dataset does not exist for GNN.")
+            
     elif "mlp" in model_name:
         if (os.path.exists(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
             os.path.exists(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl') and \
@@ -386,16 +410,31 @@ def prepare_dataloaders(model_name: str):
             save_pickle(mlp_test_dataloader, f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
 
         if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
-            train_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
-            val_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
-            test_datalist = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df, target=TARGET_TYPE.capitalize())
-
+            train_datalist, train_dataset_info = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
+            val_datalist, val_dataset_info = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
+            test_datalist, test_dataset_info = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df, target=TARGET_TYPE.capitalize())
+            
+            # Save dataset to a pickle file
             gnn_train_dataloader = GeoDataLoader(train_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
             gnn_val_dataloader = GeoDataLoader(val_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
             gnn_test_dataloader = GeoDataLoader(test_datalist, batch_size=BATCH_SIZE, drop_last=True, shuffle=False)
 
+            suffix += f"_nodeft-{train_dataset_info['Num Node Features']}_edgeft-{train_dataset_info['Num Edge Features']}"
             save_pickle(gnn_train_dataloader, f'{DATADIR}/train_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            # Save dataset info to a json file
+            with open(f'{DATADIR}/train_dataset_info_{TARGET_TYPE}{suffix}.json', 'w') as f:
+                json.dump(train_dataset_info, f, indent=4)
+                
+            suffix += f"_nodeft-{train_dataset_info['Num Node Features']}_edgeft-{train_dataset_info['Num Edge Features']}"
             save_pickle(gnn_val_dataloader, f'{DATADIR}/val_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            # Save dataset info to a json file
+            with open(f'{DATADIR}/val_dataset_info_{TARGET_TYPE}{suffix}.json', 'w') as f:
+                json.dump(val_dataset_info, f, indent=4)
+                
+            suffix += f"_nodeft-{train_dataset_info['Num Node Features']}_edgeft-{train_dataset_info['Num Edge Features']}"
             save_pickle(gnn_test_dataloader, f'{DATADIR}/test_geodataloader_{TARGET_TYPE}{suffix}.pkl')
+            # Save dataset info to a json file
+            with open(f'{DATADIR}/test_dataset_info_{TARGET_TYPE}{suffix}.json', 'w') as f:
+                json.dump(test_dataset_info, f, indent=4)
 
     return mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader

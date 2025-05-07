@@ -2,6 +2,6 @@ __pycache__
 *.pkl
 *.log
 *.pt
-experiments
+experiments*
 logs
 .untracked/reports
