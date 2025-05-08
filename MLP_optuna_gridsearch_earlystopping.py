@@ -10,12 +10,14 @@ from gridsearch_dataset_builder import prepare_dataloaders
 import time
 from utils.earlystop import EarlyStopping
 from utils.seed import set_seed
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, DATASET_ID
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR
 
-mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("mlp")
 
+mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("mlp", batch_size=128)
+
+import config
 from utils.experiment_init import initialize_experiment
-EXPERIMENT_FOLDER = initialize_experiment(f"mlp_{DATASET_ID}", TARGET_TYPE, BASEDIR)
+EXPERIMENT_FOLDER = initialize_experiment(f"mlp_{config.DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 # Define the model
 class MLP_GRID(nn.Module):
@@ -31,6 +33,7 @@ class MLP_GRID(nn.Module):
         self.bn3 = nn.BatchNorm1d(unit2)
         
         self.fc4 = nn.Linear(unit2, unit3)
+        self.bn4 = nn.BatchNorm1d(unit3)
         self.dropout = nn.Dropout(drop_rate)
         
         self.output = nn.Linear(unit3, num_classes)
@@ -57,12 +60,12 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     mlp_config = {
-        'unit1': trial.suggest_categorical("unit1", [3072, 4608, 6144]),
-        'unit2': trial.suggest_categorical("unit2", [1536, 2304, 3072]),
-        'unit3': trial.suggest_categorical("unit3", [768, 1152, 1536]),
-        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.3, 0.5]),
-        'learning_rate': trial.suggest_categorical("learning_rate", [1e-4]),
-        'l2_rate': trial.suggest_categorical("l2_rate", [5e-4]),
+        'unit1': trial.suggest_categorical("unit1", [3072]),
+        'unit2': trial.suggest_categorical("unit2", [2304]),
+        'unit3': trial.suggest_categorical("unit3", [1152]),
+        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2]),
+        'learning_rate': trial.suggest_categorical("learning_rate", [1e-5]),
+        'l2_rate': trial.suggest_categorical("l2_rate", [1e-6]),
     }
 
     report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_MLP_{config_idx}.txt")
@@ -108,7 +111,7 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
         optimizer = optim.Adam(model.parameters(), lr=mlp_config['learning_rate'], weight_decay=mlp_config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
 
-        early_stopper = EarlyStopping(patience=10 if TARGET_TYPE == "class" else 10, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 5, min_delta=0.001)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time_train = time.time()

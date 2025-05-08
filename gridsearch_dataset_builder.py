@@ -334,13 +334,16 @@ def save_pickle(data, filepath):
         pickle.dump(data, f)
 
 
-def prepare_dataloaders(model_name: str):
+def prepare_dataloaders(model_name: str, batch_size: int=32):
     
     import config
     if config.N_SAMPLES is not None:
         suffix = f"_{N_SAMPLES}"
     else:
         suffix = ""
+        
+    if model_name.lower() == "mlp":
+        suffix = f"_{batch_size}"
     
     gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader, mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader = None, None, None, None, None, None
     
