@@ -48,14 +48,14 @@ TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
 USE_FINGERPRINT = False
 
-## ATOM FEATURES
-USE_CHIRALITY = False           # (4 bits) A
-USE_HYDROGENS_IMPLICIT = False  # (6 bits) B
-USE_TOPOLOGICAL_FEATURES = True # (6 bits) C
-USE_CHARGE_PROPERTIES = False    # (1 int) D
-USE_HYBRIDIZATION = False        # (7 ints) E 
-USE_RING_INFO = True            # (2 ints) F 
-USE_ATOMIC_PROPERTIES = False    # (3 ints) G 
+## ATOM FEATURES (Atom symbols always present in "label" format)
+USE_CHIRALITY = False               # (4 bits) A
+USE_HYDROGENS_IMPLICIT = False      # (6 bits) B
+USE_TOPOLOGICAL_FEATURES = True     # (6 bits) C
+USE_CHARGE_PROPERTIES = False       # (1 int) D
+USE_HYBRIDIZATION = False           # (7 ints) E 
+USE_RING_INFO = True                # (2 ints) F 
+USE_ATOMIC_PROPERTIES = False       # (3 ints) G 
 
 DATASET_ID = ""
 

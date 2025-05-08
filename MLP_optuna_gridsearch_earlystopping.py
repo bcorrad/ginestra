@@ -19,6 +19,15 @@ import config
 from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment(f"mlp_{config.DATASET_ID}", TARGET_TYPE, BASEDIR)
 
+PARAM_GRID = {
+    'unit1': [3072],
+    'unit2': [2304],
+    'unit3': [1152],
+    'drop_rate': [0.1, 0.2],
+    'learning_rate': [1e-5],
+    'l2_rate': [1e-6],
+}
+
 # Define the model
 class MLP_GRID(nn.Module):
     def __init__(self, unit1, unit2, unit3, drop_rate, num_classes):
@@ -51,6 +60,7 @@ class MLP_GRID(nn.Module):
         x = self.bn3(x)
         
         x = F.relu(self.fc4(x))
+        x = self.bn4(x)
         x = self.dropout(x)
         
         x = torch.sigmoid(self.output(x))  # Binary multi-label classification
@@ -60,12 +70,12 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     mlp_config = {
-        'unit1': trial.suggest_categorical("unit1", [3072]),
-        'unit2': trial.suggest_categorical("unit2", [2304]),
-        'unit3': trial.suggest_categorical("unit3", [1152]),
-        'drop_rate': trial.suggest_categorical("drop_rate", [0.1, 0.2]),
-        'learning_rate': trial.suggest_categorical("learning_rate", [1e-5]),
-        'l2_rate': trial.suggest_categorical("l2_rate", [1e-6]),
+        'unit1': trial.suggest_categorical("unit1", PARAM_GRID['unit1']),
+        'unit2': trial.suggest_categorical("unit2", PARAM_GRID['unit2']),
+        'unit3': trial.suggest_categorical("unit3", PARAM_GRID['unit3']),
+        'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
+        'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
+        'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
     }
 
     report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_MLP_{config_idx}.txt")
@@ -203,14 +213,7 @@ def export_results_to_csv(study, filename="optuna_results_mlp.csv"):
 
 def optuna_grid_search(train_loader, val_loader, test_loader, num_features, num_classes):
     # Hyperparameter grid
-    param_grid = {
-        'unit1': [3072, 4608, 6144],
-        'unit2': [1536, 2304, 3072],
-        'unit3': [768, 1152, 1536],
-        'drop_rate': [0.1, 0.2, 0.3],
-        'learning_rate': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
-        'l2_rate': [1e-2, 1e-3],
-    }
+    param_grid = PARAM_GRID
     search_space = {key: list(values) for key, values in param_grid.items()}
     sampler = GridSampler(search_space)
     study = optuna.create_study(direction="minimize", sampler=sampler)
