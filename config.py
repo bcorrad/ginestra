@@ -1,8 +1,6 @@
 import os, torch, pickle
 import numpy as np
 
-REPRODUCIBLE = True
-
 ## === FILESYSTEM PARAMETERS === ##
 
 # Set the base directory and data directory
@@ -34,20 +32,16 @@ N_RUNS = 3  # Number of runs for the model
 ## === DATASET PARAMETERS === ##
 
 ## DATASET PARAMETERS
-USE_AVAILABLE_DATASET = None # If True, use the dataset already downloaded and preprocessed
 FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
 N_SAMPLES = None  # Number of samples to pick from the training set. If set to None, all samples are used
-
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
 MULTILABEL2MULTICLASS = False
-
 TRAINING_SPLIT = 0.6  # Percentage of samples to use for training
 VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
 # TEST_SPLIT = 0.2  # Percentage of samples to use for testing (automaticlly calculated)
 
-# CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
-CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE),
+CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE) otherwise CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
@@ -58,10 +52,10 @@ USE_FINGERPRINT = False
 USE_CHIRALITY = False           # (4 bits) A
 USE_HYDROGENS_IMPLICIT = False  # (6 bits) B
 USE_TOPOLOGICAL_FEATURES = True # (6 bits) C
-USE_CHARGE_PROPERTIES = True    # (1 int) D
-USE_HYBRIDIZATION = True        # (7 ints) E 
+USE_CHARGE_PROPERTIES = False    # (1 int) D
+USE_HYBRIDIZATION = False        # (7 ints) E 
 USE_RING_INFO = True            # (2 ints) F 
-USE_ATOMIC_PROPERTIES = True    # (3 ints) G 
+USE_ATOMIC_PROPERTIES = False    # (3 ints) G 
 
 DATASET_ID = ""
 
@@ -128,36 +122,3 @@ if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
     
 ## === END EXPERIMENT PARAMETERS === ##
     
-# # Initialize experiment folder 
-# import datetime
-# EXPERIMENT_FOLDER = os.path.join(BASEDIR, "experiments", "-".join(MODELS) + "_" + TARGET_TYPE.lower() + "_" +datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-# os.makedirs(EXPERIMENT_FOLDER, exist_ok=True)
-
-# # Create a models folder
-# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "models"), exist_ok=True)
-# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "utils"), exist_ok=True)
-# # Create the weights folder
-# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "pt"), exist_ok=True)
-# # Create the reports folder
-# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "reports"), exist_ok=True)
-# # Create plots folder
-# os.makedirs(os.path.join(EXPERIMENT_FOLDER, "plots"), exist_ok=True)
-
-# # Save the configuration file
-# import shutil
-# shutil.copy(__file__, os.path.join(EXPERIMENT_FOLDER, "config.py"))
-
-# # Save the models file from the directory
-# for model_file in os.listdir(os.path.join(BASEDIR, "models")):
-#     if model_file.endswith(".py"):
-#         shutil.copy(os.path.join(BASEDIR, "models", model_file), os.path.join(EXPERIMENT_FOLDER, "models", model_file))
-        
-# # Copy all the py files in the utils folder
-# for file in os.listdir(os.path.join(BASEDIR, "utils")):
-#     if file.endswith(".py"):
-#         shutil.copy(os.path.join(BASEDIR, "utils", file), os.path.join(EXPERIMENT_FOLDER, "utils", file))
-        
-# # Copy all the py files in the folder 
-# for file in os.listdir(BASEDIR):
-#     if file.endswith(".py") and file != "config.py":
-#         shutil.copy(os.path.join(BASEDIR, file), os.path.join(EXPERIMENT_FOLDER, file))

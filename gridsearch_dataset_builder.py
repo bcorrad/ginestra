@@ -3,7 +3,7 @@ from config import DATASET_ID
 from typing import Union, Literal
 import pickle
 import os, json
-from fingerprint_handler import calculate_fingerprint
+from utils.fingerprint_handler import calculate_fingerprint
 import numpy as np
 import pandas as pd
 from rdkit import Chem
@@ -336,15 +336,50 @@ def save_pickle(data, filepath):
 
 def prepare_dataloaders(model_name: str):
     
-    from config import N_SAMPLES
-    if N_SAMPLES is not None:
+    import config
+    if config.N_SAMPLES is not None:
         suffix = f"_{N_SAMPLES}"
     else:
         suffix = ""
     
     gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader, mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader = None, None, None, None, None, None
+    
+    if not config.FORCE_DATASET_GENERATION:
+        print("Loading existing dataset.")
+        if "mlp" in model_name:
+            try:
+                mlp_train_dataloader = load_pickle(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
+                mlp_val_dataloader = load_pickle(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
+                mlp_test_dataloader = load_pickle(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
+            except FileNotFoundError:
+                print(f"File not found. Generating new dataset.")
+                config.FORCE_DATASET_GENERATION = True
 
-    if FORCE_DATASET_GENERATION:
+        if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
+            try:
+                gnn_train_dataloader_object = load_pickle(f'{DATADIR}/train_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
+                gnn_val_dataloader_object = load_pickle(f'{DATADIR}/val_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
+                gnn_test_dataloader_object = load_pickle(f'{DATADIR}/test_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
+                # Unpack the dataloader
+                gnn_train_dataloader = gnn_train_dataloader_object["dataloader"]
+                gnn_val_dataloader = gnn_val_dataloader_object["dataloader"]
+                gnn_test_dataloader = gnn_test_dataloader_object["dataloader"]
+                # Unpack the dataset info
+                train_dataset_info = gnn_train_dataloader_object["dataset_info"]
+                val_dataset_info = gnn_val_dataloader_object["dataset_info"]
+                test_dataset_info = gnn_test_dataloader_object["dataset_info"]
+                # Print dataset info
+                print(f"\n=== Dataset Info ===")
+                print(f"{'Num Node Features':<20} {train_dataset_info['Num Node Features']}")
+                print(f"{'Num Edge Features':<20} {train_dataset_info['Num Edge Features']}")
+                print(f"{'Num Classes':<20} {train_dataset_info['Num Classes']}")
+                print(f"{'ATOM_FEATURES_DICT':<20} {ATOM_FEATURES_DICT}")
+                print("-" * 50)
+            except FileNotFoundError:
+                print(f"File not found. Generating new dataset.")
+                config.FORCE_DATASET_GENERATION = True
+            
+    if config.FORCE_DATASET_GENERATION:
         print("Generating new dataset.")
         with open(f'{DATADIR}/char2idx_class_V1.pkl','rb') as f:
             class_  = pickle.load(f)
@@ -411,33 +446,6 @@ def prepare_dataloaders(model_name: str):
                     "dataloader": gnn_test_dataloader,
                     "dataset_info": test_dataset_info
                 }, f)
-
-    else:
-        print("Loading existing dataset.")
-        if "mlp" in model_name:
-            mlp_train_dataloader = load_pickle(f'{DATADIR}/train_dataloader_{TARGET_TYPE}{suffix}.pkl')
-            mlp_val_dataloader = load_pickle(f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
-            mlp_test_dataloader = load_pickle(f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
-
-        if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
-            gnn_train_dataloader_object = load_pickle(f'{DATADIR}/train_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
-            gnn_val_dataloader_object = load_pickle(f'{DATADIR}/val_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
-            gnn_test_dataloader_object = load_pickle(f'{DATADIR}/test_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
-            # Unpack the dataloader
-            gnn_train_dataloader = gnn_train_dataloader_object["dataloader"]
-            gnn_val_dataloader = gnn_val_dataloader_object["dataloader"]
-            gnn_test_dataloader = gnn_test_dataloader_object["dataloader"]
-            # Unpack the dataset info
-            train_dataset_info = gnn_train_dataloader_object["dataset_info"]
-            val_dataset_info = gnn_val_dataloader_object["dataset_info"]
-            test_dataset_info = gnn_test_dataloader_object["dataset_info"]
-            # Print dataset info
-            print(f"\n=== Dataset Info ===")
-            print(f"{'Num Node Features':<20} {train_dataset_info['Num Node Features']}")
-            print(f"{'Num Edge Features':<20} {train_dataset_info['Num Edge Features']}")
-            print(f"{'Num Classes':<20} {train_dataset_info['Num Classes']}")
-            print(f"{'ATOM_FEATURES_DICT':<20} {ATOM_FEATURES_DICT}")
-            print("-" * 50)
             
     # Return the dataloaders
     return mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader

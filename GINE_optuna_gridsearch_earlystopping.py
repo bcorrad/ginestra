@@ -11,7 +11,7 @@ from gridsearch_dataset_builder import prepare_dataloaders
 
 from utils.earlystop import EarlyStopping
 from utils.seed import set_seed
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, PARAM_GRID
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, PARAM_GRID, DATASET_ID
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gine")
 
@@ -23,7 +23,7 @@ mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloa
 # }
 
 from utils.experiment_init import initialize_experiment
-EXPERIMENT_FOLDER = initialize_experiment("gine", TARGET_TYPE, BASEDIR)
+EXPERIMENT_FOLDER = initialize_experiment(f"gine_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, edge_dim, num_classes, fingerprint_length, config_idx, n_config):

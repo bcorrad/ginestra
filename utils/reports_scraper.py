@@ -112,5 +112,5 @@ def process_all_experiments(root_path):
 
 if __name__ == "__main__":
     # Run it
-    root = '/repo/corradini/ginestra/.untracked/'
+    root = '/repo/corradini/ginestra/experiments/'
     process_all_experiments(root)

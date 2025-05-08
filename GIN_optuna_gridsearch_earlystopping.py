@@ -9,7 +9,7 @@ from gridsearch_dataset_builder import prepare_dataloaders
 from models.GIN import *
 
 from utils.earlystop import EarlyStopping
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, PARAM_GRID
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, PARAM_GRID, DATASET_ID
 
 from utils.seed import set_seed
 
@@ -23,7 +23,7 @@ mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloa
 # }
 
 from utils.experiment_init import initialize_experiment
-EXPERIMENT_FOLDER = initialize_experiment("gin", TARGET_TYPE, BASEDIR)
+EXPERIMENT_FOLDER = initialize_experiment(f"gin_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):

@@ -2,7 +2,7 @@ import numpy as np
 from config import MODELS, DATADIR
 from typing import Union, Literal
 import pickle
-from fingerprint_handler import calculate_fingerprint
+from utils.fingerprint_handler import calculate_fingerprint
 
 def data_generation(idx, data, 
                     spec_mol_smile=None, 

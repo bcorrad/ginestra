@@ -10,7 +10,7 @@ from models.GATE import *
 from gridsearch_dataset_builder import prepare_dataloaders
 
 from utils.earlystop import EarlyStopping
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, PARAM_GRID
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, PARAM_GRID, DATASET_ID
 
 from utils.seed import set_seed
 
@@ -25,7 +25,7 @@ mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloa
 # }
 
 from utils.experiment_init import initialize_experiment
-EXPERIMENT_FOLDER = initialize_experiment("gate", TARGET_TYPE, BASEDIR)
+EXPERIMENT_FOLDER = initialize_experiment(f"gate_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 def objective(trial, train_loader, val_loader, in_channels, out_channels, edge_dim, fingerprint_length, config_idx, n_config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

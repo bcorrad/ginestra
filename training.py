@@ -1,6 +1,6 @@
 import torch, os, datetime
 from config import N_EPOCHS, DEVICE, MODELS, LABELS_CODES, TARGET_MODE, H_DIM, USE_FINGERPRINT, N_RUNS, TARGET_TYPE, BASEDIR
-from alternative_dataset_builder import mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader
+from gridsearch_dataset_builder import mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader
 
 GIN_TRAIN_PREC_LIST = []
 GIN_TRAIN_REC_LIST = []
@@ -38,7 +38,7 @@ GATE_VAL_REC_LIST = []
 GATE_VAL_F1_LIST = []
 
 # Initialize a report to save the log of the training
-from config import N_SAMPLES, RANDOMIZE_SAMPLES, USE_AVAILABLE_DATASET, BATCH_SIZE, CLS_LIST, PATHWAYS, LABELS_CODES, MULTILABEL2MULTICLASS, USE_FINGERPRINT
+from config import N_SAMPLES, RANDOMIZE_SAMPLES, BATCH_SIZE, CLS_LIST, PATHWAYS, LABELS_CODES, MULTILABEL2MULTICLASS, USE_FINGERPRINT
 
 from utils.experiment_init import init_experiment
 
@@ -58,7 +58,6 @@ for MODEL in MODELS:
     f.write(f"Batch size: {BATCH_SIZE}\n")
     f.write(f"Number of samples: {N_SAMPLES}\n")
     f.write(f"Randomize samples: {RANDOMIZE_SAMPLES}\n")
-    f.write(f"Use available dataset: {USE_AVAILABLE_DATASET}\n")
     f.write(f"Use fingerprint: {USE_FINGERPRINT}\n")
     f.write(f"Use multi-label to multi-class: {MULTILABEL2MULTICLASS}\n")
     f.write(f"Target classes: {CLS_LIST}\n")

@@ -10,12 +10,12 @@ from gridsearch_dataset_builder import prepare_dataloaders
 import time
 from utils.earlystop import EarlyStopping
 from utils.seed import set_seed
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, USE_FINGERPRINT, DATASET_ID
 
 mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("mlp")
 
 from utils.experiment_init import initialize_experiment
-EXPERIMENT_FOLDER = initialize_experiment("mlp", TARGET_TYPE, BASEDIR)
+EXPERIMENT_FOLDER = initialize_experiment(f"mlp_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 # Define the model
 class MLP_GRID(nn.Module):
