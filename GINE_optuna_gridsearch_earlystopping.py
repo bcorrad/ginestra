@@ -77,7 +77,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
 
-        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 10, min_delta=0.0001)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()

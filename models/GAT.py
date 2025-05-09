@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 import os
-from torch_geometric.nn import GATConv, global_add_pool
+from torch_geometric.nn import GATConv, global_add_pool, global_mean_pool, global_max_pool
 from sklearn.metrics import classification_report
 from config import PATHWAYS, TARGET_MODE
 from utils.topk import top_k_accuracy
@@ -40,11 +40,11 @@ class GAT(torch.nn.Module):
         
          # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
-            self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
+            self.fc1 = torch.nn.Linear(hidden_channels, hidden_channels)  
+            self.fc2 = torch.nn.Linear(hidden_channels, out_channels)
         else:
-            self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
-            self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
+            self.fc1 = torch.nn.Linear(hidden_channels, hidden_channels)
+            self.fc2 = torch.nn.Linear(hidden_channels, out_channels)
 
 
     def forward(self, x, edge_index, batch, p=0.2, **kwargs):
@@ -62,16 +62,17 @@ class GAT(torch.nn.Module):
         h2 = F.dropout(h2, p=self.dropout, training=self.training)
         h3 = self.conv3(h2, edge_index)
 
-        # Global pooling on node features
-        h1_pool = global_add_pool(h1, batch)
-        h2_pool = global_add_pool(h2, batch)
-        h3_pool = global_add_pool(h3, batch)
+        # # Global pooling on node features
+        # h1_pool = global_add_pool(h1, batch)
+        # h2_pool = global_add_pool(h2, batch)
+        # h3_pool = global_add_pool(h3, batch)
+        h = global_max_pool(h3, batch)
         
-        # Concatenate the embeddings and the fingerprint if not None
-        if fingerprint is not None:
-            h = torch.cat([h1_pool, h2_pool, h3_pool, fingerprint_emb], dim=1)
-        else:
-            h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
+        # # Concatenate the embeddings and the fingerprint if not None
+        # if fingerprint is not None:
+        #     h = torch.cat([h1_pool, h2_pool, h3_pool, fingerprint_emb], dim=1)
+        # else:
+        #     h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
 
         # Classificatore
         h = self.fc1(h).relu()

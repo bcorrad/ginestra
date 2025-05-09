@@ -19,8 +19,8 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 N_EPOCHS = 100            # Number of epochs for training
 GRID_N_EPOCHS = 100     # Number of epochs for grid search
 PARAM_GRID = {
-    'dim_h': [16, 64, 128],
-    'drop_rate': [0.1, 0.3, 0.5],
+    'dim_h': [128],
+    'drop_rate': [0.1, 0.2],
     'learning_rate': [1e-4],
     'l2_rate': [5e-4],
     'n_heads': [2, 4],
@@ -42,7 +42,7 @@ VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
 # TEST_SPLIT = 0.2  # Percentage of samples to use for testing (automaticlly calculated)
 
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE) otherwise CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
-TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
@@ -51,10 +51,10 @@ USE_FINGERPRINT = False
 ## ATOM FEATURES (Atom symbols always present in "label" format)
 USE_CHIRALITY = False               # (4 bits) A
 USE_HYDROGENS_IMPLICIT = False      # (6 bits) B
-USE_TOPOLOGICAL_FEATURES = True     # (6 bits) C
-USE_CHARGE_PROPERTIES = False       # (1 int) D
+USE_TOPOLOGICAL_FEATURES = False     # (6 bits) C
+USE_CHARGE_PROPERTIES = False        # (1 int)  D
 USE_HYBRIDIZATION = False           # (7 ints) E 
-USE_RING_INFO = True                # (2 ints) F 
+USE_RING_INFO = False                # (2 ints) F 
 USE_ATOMIC_PROPERTIES = False       # (3 ints) G 
 
 DATASET_ID = ""

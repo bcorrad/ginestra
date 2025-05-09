@@ -58,7 +58,7 @@ def get_atom_features(atom,
         permitted_list_of_atoms = ['H'] + permitted_list_of_atoms
     
     atom_type_enc = encode(str(atom.GetSymbol()), permitted_list_of_atoms, encoding="label")  # shape 1
-    
+    atom_type_enc = [a/len(permitted_list_of_atoms) for a in atom_type_enc] # Normalization of the atom type encoding
     # Initialize the atom feature vector with the atom type encoding
     atom_feature_vector = atom_type_enc
     
@@ -78,6 +78,7 @@ def get_atom_features(atom,
     
     # === Hybridization / Bonding State (7 bits)
     if use_hybridization:
+        # Geometria del legame
         hybridisation_type_enc = encode(str(atom.GetHybridization()), ["S", "SP", "SP2", "SP3", "SP3D", "SP3D2", "OTHER"], encoding="hot")
         atom_feature_vector += hybridisation_type_enc
     

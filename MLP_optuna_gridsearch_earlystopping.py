@@ -20,10 +20,10 @@ from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment(f"mlp_{config.DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 PARAM_GRID = {
-    'unit1': [3072],
-    'unit2': [2304],
-    'unit3': [1152],
-    'drop_rate': [0.1, 0.2],
+    'unit1': [3072, 4608],
+    'unit2': [2304, 1536],
+    'unit3': [1152, 768],
+    'drop_rate': [0.1],
     'learning_rate': [1e-5],
     'l2_rate': [1e-6],
 }
@@ -121,7 +121,7 @@ def objective(trial, train_loader, val_loader, num_features, num_classes, config
         optimizer = optim.Adam(model.parameters(), lr=mlp_config['learning_rate'], weight_decay=mlp_config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
 
-        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 5, min_delta=0.001)
+        early_stopper = EarlyStopping(patience=5 if TARGET_TYPE == "class" else 5, min_delta=0.0001)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time_train = time.time()
