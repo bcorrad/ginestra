@@ -20,7 +20,7 @@ N_EPOCHS = 100            # Number of epochs for training
 GRID_N_EPOCHS = 100     # Number of epochs for grid search
 PARAM_GRID = {
     'dim_h': [128],
-    'drop_rate': [0.1, 0.2],
+    'drop_rate': [0.1, 0.5],
     'learning_rate': [1e-4],
     'l2_rate': [5e-4],
     'n_heads': [2, 4],
@@ -50,11 +50,11 @@ USE_FINGERPRINT = False
 
 ## ATOM FEATURES (Atom symbols always present in "label" format)
 USE_CHIRALITY = False               # (4 bits) A
-USE_HYDROGENS_IMPLICIT = False      # (6 bits) B
-USE_TOPOLOGICAL_FEATURES = False     # (6 bits) C
-USE_CHARGE_PROPERTIES = False        # (1 int)  D
-USE_HYBRIDIZATION = False           # (7 ints) E 
-USE_RING_INFO = False                # (2 ints) F 
+USE_HYDROGENS_IMPLICIT = True      # (6 bits) B
+USE_TOPOLOGICAL_FEATURES = True     # (6 bits) C
+USE_CHARGE_PROPERTIES = True        # (1 int)  D Electronic / Charge Properties
+USE_HYBRIDIZATION = True           # (7 ints) E 
+USE_RING_INFO = True                # (2 ints) F Ring and Aromaticity Information
 USE_ATOMIC_PROPERTIES = False       # (3 ints) G 
 
 DATASET_ID = ""

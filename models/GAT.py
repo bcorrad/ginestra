@@ -63,16 +63,15 @@ class GAT(torch.nn.Module):
         h3 = self.conv3(h2, edge_index)
 
         # # Global pooling on node features
-        # h1_pool = global_add_pool(h1, batch)
-        # h2_pool = global_add_pool(h2, batch)
-        # h3_pool = global_add_pool(h3, batch)
-        h = global_max_pool(h3, batch)
+        h1_pool = global_add_pool(h1, batch)
+        h2_pool = global_add_pool(h2, batch)
+        h3_pool = global_add_pool(h3, batch)
         
-        # # Concatenate the embeddings and the fingerprint if not None
-        # if fingerprint is not None:
-        #     h = torch.cat([h1_pool, h2_pool, h3_pool, fingerprint_emb], dim=1)
-        # else:
-        #     h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
+        # Concatenate the embeddings and the fingerprint if not None
+        if fingerprint is not None:
+            h = torch.cat([h1_pool, h2_pool, h3_pool, fingerprint_emb], dim=1)
+        else:
+            h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
 
         # Classificatore
         h = self.fc1(h).relu()
