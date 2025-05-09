@@ -40,8 +40,8 @@ class GAT(torch.nn.Module):
         
          # Classificatore finale
         if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.fc1 = torch.nn.Linear(hidden_channels, hidden_channels)  
-            self.fc2 = torch.nn.Linear(hidden_channels, out_channels)
+            self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
+            self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
         else:
             self.fc1 = torch.nn.Linear(hidden_channels, hidden_channels)
             self.fc2 = torch.nn.Linear(hidden_channels, out_channels)
