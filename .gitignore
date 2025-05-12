@@ -6,3 +6,4 @@ experiments*
 logs
 .untracked/reports
 *.txt
+MLP_super*
