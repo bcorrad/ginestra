@@ -105,7 +105,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
-        early_stopper = EarlyStopping(patience=10 if TARGET_TYPE == "class" else 10, min_delta=0.0001)
+        early_stopper = EarlyStopping(min_delta=0.0)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()
@@ -135,55 +135,80 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
                 f.write(log_train + "\n")
                 f.write(log_val + "\n")
 
-            # Check if the current model is the best one based on the performance on the validation set. Do not use early stopping here.
-            if val_loss < best_val_performance["loss"][run]:
-                best_val_performance["loss"][run] = val_loss
-                best_val_performance["precision"][run] = val_precision
-                best_val_performance["recall"][run] = val_recall
-                best_val_performance["f1"][run] = val_f1
-                best_val_performance["top_1"][run] = val_topk_accuracy["top_1"]
-                best_val_performance["top_3"][run] = val_topk_accuracy["top_3"]
-                best_val_performance["top_5"][run] = val_topk_accuracy["top_5"]
-                best_val_performance["config_idx"].append(config_idx)
-                best_val_performance["epoch"][run] = epoch
-                best_val_performance["model"][run] = val_model
-                print(f"[BEST MODEL FOUND] Best model so far at epoch {epoch+1} with loss {val_loss:.4f}")
+            # # Check if the current model is the best one based on the performance on the validation set. Do not use early stopping here.
+            # if val_loss < best_val_performance["loss"][run]:
+            #     best_val_performance["loss"][run] = val_loss
+            #     best_val_performance["precision"][run] = val_precision
+            #     best_val_performance["recall"][run] = val_recall
+            #     best_val_performance["f1"][run] = val_f1
+            #     best_val_performance["top_1"][run] = val_topk_accuracy["top_1"]
+            #     best_val_performance["top_3"][run] = val_topk_accuracy["top_3"]
+            #     best_val_performance["top_5"][run] = val_topk_accuracy["top_5"]
+            #     best_val_performance["config_idx"].append(config_idx)
+            #     best_val_performance["epoch"][run] = epoch
+            #     best_val_performance["model"][run] = val_model
+            #     print(f"[BEST MODEL FOUND] Best model so far at epoch {epoch+1} with loss {val_loss:.4f}")
+            
 
-            if early_stopper(val_loss):
-                print(f"[EARLY STOPPING at epoch {epoch+1}] No improvement in {early_stopper.patience} epochs.")
-                # Save the early stopping model
-                try:
-                    torch.save(train_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_train_early_stopping_model.pth"))
-                    torch.save(val_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_val_early_stopping_model.pth"))
-                except Exception as e:
-                    print(f"Error saving model: {e}")
-                with open(report_file, "a") as f:
-                    f.write(f"[EARLY STOPPING at epoch {epoch+1}]\n")
+            # Save the current model
+            torch.save(val_model, os.path.join(EXPERIMENT_FOLDER, "pt", f"R-{run}_C-{config_idx}_E-{epoch}_val_model.pt"))
+            
+            should_stop = early_stopper(epoch, train_loss, val_loss)
+            if should_stop:
+                print("Early stopping triggered.")
+                print(early_stopper.get_patience_start_epochs())
+                test_model = torch.load(os.path.join(EXPERIMENT_FOLDER, "pt", f"R-{run}_C-{config_idx}_E-{early_stopper.get_patience_start_epochs()}_val_model.pt"))
+                test_loss, test_precision, test_recall, test_f1, _, _, test_topk_accuracy = evaluate(test_model, test_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
+                runs_test_performance["loss"][run] = test_loss
+                runs_test_performance["precision"][run] = test_precision
+                runs_test_performance["recall"][run] = test_recall
+                runs_test_performance["f1"][run] = test_f1
+                runs_test_performance["top_1"][run] = test_topk_accuracy["top_1"]
+                runs_test_performance["top_3"][run] = test_topk_accuracy["top_3"]
+                runs_test_performance["top_5"][run] = test_topk_accuracy["top_5"]
+                runs_test_performance["model"][run] = val_model
+                runs_test_performance["epoch"][run] = epoch
+                runs_test_performance["config_idx"].append(config_idx)
+                test_log = f"[CONFIG {config_idx}][GAT TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1: {test_topk_accuracy['top_1']:.4f}, Top-3: {test_topk_accuracy['top_3']:.4f}, Top-5: {test_topk_accuracy['top_5']:.4f}"
+                print(test_log)
+                
                 break
             
-        # Save the best model
-        try:
-            config_idx = best_val_performance["config_idx"][run]
-            epoch = best_val_performance["epoch"][run]
-            torch.save(best_val_performance["model"][run].state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_best_model.pth"))
-            # Call the test function to evaluate the model on the test set
-            test_loss, test_precision, test_recall, test_f1, _, _, test_topk_accuracy = evaluate(val_model, test_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
-            runs_test_performance["loss"][run] = test_loss
-            runs_test_performance["precision"][run] = test_precision
-            runs_test_performance["recall"][run] = test_recall
-            runs_test_performance["f1"][run] = test_f1
-            runs_test_performance["top_1"][run] = test_topk_accuracy["top_1"]
-            runs_test_performance["top_3"][run] = test_topk_accuracy["top_3"]
-            runs_test_performance["top_5"][run] = test_topk_accuracy["top_5"]
-            runs_test_performance["model"][run] = val_model
-            runs_test_performance["epoch"][run] = epoch
-            runs_test_performance["config_idx"].append(config_idx)
-            test_log = f"[CONFIG {config_idx}][GAT TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1: {test_topk_accuracy['top_1']:.4f}, Top-3: {test_topk_accuracy['top_3']:.4f}, Top-5: {test_topk_accuracy['top_5']:.4f}"
-            print(test_log)
-        except Exception as e:
-            print(f"Error saving model: {e}")
-            with open(report_file, "a") as f:
-                f.write(f"[ERROR SAVING MODEL] {e}\n")
+            # if early_stopper(val_loss):
+            #     print(f"[EARLY STOPPING at epoch {epoch+1}] No improvement in {early_stopper.patience} epochs.")
+            #     # Save the early stopping model
+            #     try:
+            #         torch.save(train_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_train_early_stopping_model.pth"))
+            #         torch.save(val_model.state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_val_early_stopping_model.pth"))
+            #     except Exception as e:
+            #         print(f"Error saving model: {e}")
+            #     with open(report_file, "a") as f:
+            #         f.write(f"[EARLY STOPPING at epoch {epoch+1}]\n")
+            #     break
+            
+        # # Save the best model
+        # try:
+        #     config_idx = best_val_performance["config_idx"][run]
+        #     epoch = best_val_performance["epoch"][run]
+        #     torch.save(best_val_performance["model"][run].state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_best_model.pth"))
+        #     # Call the test function to evaluate the model on the test set
+        #     test_loss, test_precision, test_recall, test_f1, _, _, test_topk_accuracy = evaluate(val_model, test_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
+        #     runs_test_performance["loss"][run] = test_loss
+        #     runs_test_performance["precision"][run] = test_precision
+        #     runs_test_performance["recall"][run] = test_recall
+        #     runs_test_performance["f1"][run] = test_f1
+        #     runs_test_performance["top_1"][run] = test_topk_accuracy["top_1"]
+        #     runs_test_performance["top_3"][run] = test_topk_accuracy["top_3"]
+        #     runs_test_performance["top_5"][run] = test_topk_accuracy["top_5"]
+        #     runs_test_performance["model"][run] = val_model
+        #     runs_test_performance["epoch"][run] = epoch
+        #     runs_test_performance["config_idx"].append(config_idx)
+        #     test_log = f"[CONFIG {config_idx}][GAT TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1: {test_topk_accuracy['top_1']:.4f}, Top-3: {test_topk_accuracy['top_3']:.4f}, Top-5: {test_topk_accuracy['top_5']:.4f}"
+        #     print(test_log)
+        # except Exception as e:
+        #     print(f"Error saving model: {e}")
+        #     with open(report_file, "a") as f:
+        #         f.write(f"[ERROR SAVING MODEL] {e}\n")
       
     # Final summary stats
     avg_train_loss = sum(GRID_TRAIN_LOSS) / len(GRID_TRAIN_LOSS)
