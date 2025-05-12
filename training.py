@@ -81,7 +81,7 @@ for MODEL in MODELS:
             model = GIN(num_node_features=N_FEATURES, 
                         dim_h=H_DIM, 
                         num_classes=len(LABELS_CODES.keys())).to(DEVICE) #, num_heads=4
-            optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=5e-4)
             loss_criterion = torch.nn.CrossEntropyLoss() if "hot" in TARGET_MODE or TARGET_MODE == "binary" else torch.nn.BCEWithLogitsLoss()  
             from models.GIN import train_epoch
             from models.GIN import evaluate   

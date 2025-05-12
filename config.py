@@ -5,7 +5,7 @@ import numpy as np
 
 # Set the base directory and data directory
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
-DATADIR = os.path.join(BASEDIR, "data")
+DATADIR = os.path.join(BASEDIR, "data/data")
 
 # Dataset information file
 DATASET_INFO_FILE = os.path.join(DATADIR, "dataset_info.csv")
@@ -19,11 +19,11 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 N_EPOCHS = 100            # Number of epochs for training
 GRID_N_EPOCHS = 100     # Number of epochs for grid search
 PARAM_GRID = {
-    'dim_h': [128],
-    'drop_rate': [0.1, 0.5],
+    'dim_h': [216],
+    'drop_rate': [0.3],
     'learning_rate': [1e-4],
-    'l2_rate': [5e-4],
-    'n_heads': [2, 4],
+    'l2_rate': [1e-5], #5e-4
+    'n_heads': [2],
 }
 N_RUNS = 3  # Number of runs for the model
 
@@ -42,7 +42,7 @@ VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
 # TEST_SPLIT = 0.2  # Percentage of samples to use for testing (automaticlly calculated)
 
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE) otherwise CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
-TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
@@ -85,10 +85,10 @@ ATOM_FEATURES_DICT = {
 ## === NETWORK PARAMETERS === ##
 
 ## NETWORK CONFIG
-H_DIM = 16
+H_DIM = 128
 # MODELS = ["gine", "gin", "gat", "gate", "mlp"] # Options: "gin", "gine", "mlp", "gat", "gate"
 # OR
-MODELS = ["mlp"] # Only for non-grid search setup
+MODELS = ["gat"] # Only for non-grid search setup
 MODELS.sort()  # Minimize the dataset exchanges between models during training
 
 ## === END NETWORK PARAMETERS === ##

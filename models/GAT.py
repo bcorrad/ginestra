@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 import os
+from torch.nn import BatchNorm1d
 from torch_geometric.nn import GATConv, global_add_pool, global_mean_pool, global_max_pool
 from sklearn.metrics import classification_report
 from config import PATHWAYS, TARGET_MODE
@@ -27,9 +28,12 @@ class GAT(torch.nn.Module):
             self.fingerprint_processor = None
         
         self.conv1 = GATConv(in_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
+        self.bn1 = BatchNorm1d(hidden_channels)
         self.conv2 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
-        self.conv3 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
-        
+        self.bn2 = BatchNorm1d(hidden_channels)
+        self.conv3 = GATConv(hidden_channels, 512, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
+        self.bn3 = BatchNorm1d(512)
+
         # Dropout
         if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
             self.dropout = kwargs["drop_rate"]
@@ -38,13 +42,31 @@ class GAT(torch.nn.Module):
 
         print(f"[DROPOUT SET] Dropout: {self.dropout}")
         
+
+        # Final classifier
+        readout_dim = hidden_channels + hidden_channels + 512
+        if self.fingerprint_processor is not None:
+            readout_dim += hidden_channels
+
+        # self.classifier = torch.nn.Sequential(
+        # torch.nn.Linear(readout_dim, 512),
+        # torch.nn.BatchNorm1d(512),
+        # torch.nn.ReLU(),
+        # torch.nn.Dropout(p=0.5),
+        # torch.nn.Linear(512, out_channels)
+        # )
+
+        self.fc1 = torch.nn.Linear(readout_dim, 1024)
+        self.fc2 = torch.nn.Linear(1024, out_channels)
+
+
          # Classificatore finale
-        if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
-            self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
-        else:
-            self.fc1 = torch.nn.Linear(hidden_channels, hidden_channels)
-            self.fc2 = torch.nn.Linear(hidden_channels, out_channels)
+        # if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
+        #     self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
+        #     self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
+        # else:
+        #     self.fc1 = torch.nn.Linear(hidden_channels, hidden_channels)
+        #     self.fc2 = torch.nn.Linear(hidden_channels, out_channels)
 
 
     def forward(self, x, edge_index, batch, p=0.2, **kwargs):
@@ -56,13 +78,22 @@ class GAT(torch.nn.Module):
             fingerprint = None
 
         # Strati GINEConv
+        # GAT + BatchNorm + ReLU + Dropout
         h1 = self.conv1(x, edge_index)
+        h1 = self.bn1(h1)
+        h1 = F.relu(h1)
         h1 = F.dropout(h1, p=self.dropout, training=self.training)
-        h2 = self.conv2(h1, edge_index)
-        h2 = F.dropout(h2, p=self.dropout, training=self.training)
-        h3 = self.conv3(h2, edge_index)
 
-        # # Global pooling on node features
+        h2 = self.conv2(h1, edge_index)
+        h2 = self.bn2(h2)
+        h2 = F.relu(h2)
+        h2 = F.dropout(h2, p=self.dropout, training=self.training)
+
+        h3 = self.conv3(h2, edge_index)
+        h3 = self.bn3(h3)
+        h3 = F.relu(h3)
+
+        # Global pooling
         h1_pool = global_add_pool(h1, batch)
         h2_pool = global_add_pool(h2, batch)
         h3_pool = global_add_pool(h3, batch)
@@ -75,7 +106,10 @@ class GAT(torch.nn.Module):
 
         # Classificatore
         h = self.fc1(h).relu()
+        h = F.dropout(h, p=self.dropout, training=self.training)
         h = self.fc2(h)
+        #h = self.classifier(h)
+
 
         return h   
     

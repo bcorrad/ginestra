@@ -4,7 +4,7 @@ import numpy as np
 from config import PATHWAYS, TARGET_MODE
 import os
 from torch_geometric.nn import GINConv, global_add_pool
-from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
+from torch.nn import Linear, Sequential, BatchNorm1d, ReLU, Dropout
 from sklearn.metrics import classification_report
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 from utils.topk import top_k_accuracy
@@ -12,6 +12,7 @@ from utils.topk import top_k_accuracy
 metrics_average_mode = "two_classes" if TARGET_MODE == "two_classes" else "micro"
 
 BCE_THRESHOLD = 0.5
+
 class GIN(torch.nn.Module):
     """GIN"""
     def __init__(self, num_node_features, dim_h, num_classes, **kwargs):   #, num_heads=4
@@ -27,38 +28,52 @@ class GIN(torch.nn.Module):
             
         self.conv1 = GINConv(
             Sequential(Linear(num_node_features, dim_h),
-                       BatchNorm1d(dim_h), 
+                       #BatchNorm1d(dim_h), 
                        ReLU(),
                        Linear(dim_h, dim_h), 
-                       ReLU()))
+                       #ReLU()
+                       ))
   
+        self.bn1 = BatchNorm1d(dim_h)
+
         self.conv2 = GINConv(Sequential(Linear(dim_h, dim_h), 
-                       BatchNorm1d(dim_h), 
+                       #BatchNorm1d(dim_h), 
                        ReLU(),
                        Linear(dim_h, dim_h), 
-                       ReLU()))
-        
-        self.conv3 = GINConv(Sequential(Linear(dim_h, dim_h), 
-                                        BatchNorm1d(dim_h), 
-                                        ReLU(),
-                                        Linear(dim_h, dim_h), 
-                                        ReLU()))
+                       #ReLU(
+                       ))
+        self.bn2 = BatchNorm1d(dim_h)
 
+        # self.conv3 = GINConv(Sequential(Linear(dim_h, dim_h), 
+        #                                 BatchNorm1d(dim_h), 
+        #                                 ReLU(),
+        #                                 Linear(dim_h, dim_h), 
+        #                                 ReLU()))
+        self.conv3 = GINConv(Sequential(Linear(dim_h, 512), 
+                                        #BatchNorm1d(512), 
+                                        ReLU(),
+                                        Linear(512, 512), 
+                                        #ReLU()
+                                        ))
+        self.bn3 = BatchNorm1d(512)
         # Dropout
         if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
             self.dropout = kwargs["drop_rate"]
         else:
-            self.dropout = 0.5
+            self.dropout = 0.1
 
         print(f"[DROPOUT SET] Dropout: {self.dropout}")
+        readout_dim = dim_h + dim_h + 512  # h1 + h2 + h3
+        self.lin1 = torch.nn.Linear(readout_dim, 1024)
+        self.lin2 = torch.nn.Linear(1024, num_classes)
         
         # Classificatore finale
-        if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.lin1 = torch.nn.Linear(3*dim_h, 3*dim_h)  
-            self.lin2 = torch.nn.Linear(3*dim_h, num_classes)
-        else:
-            self.lin1 = torch.nn.Linear(4*dim_h, 4*dim_h)
-            self.lin2 = torch.nn.Linear(4*dim_h, num_classes)
+        # if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
+        #     self.lin1 = torch.nn.Linear(3*dim_h, 3*dim_h)  
+        #     self.lin2 = torch.nn.Linear(3*dim_h, num_classes)
+        # else:
+        #     self.lin1 = torch.nn.Linear(4*dim_h, 4*dim_h)
+        #     self.lin2 = torch.nn.Linear(4*dim_h, num_classes)
 
 
     def forward(self, x, edge_index, batch, **kwargs):
@@ -71,11 +86,19 @@ class GIN(torch.nn.Module):
 
         # Node embeddings 
         h1 = self.conv1(x, edge_index)
+        h1 = self.bn1(h1)
+        h1 = F.relu(h1)
         # Dropout 
         h1 = F.dropout(h1, p=self.dropout, training=self.training)
+
         h2 = self.conv2(h1, edge_index)
+        h2 = self.bn2(h2)
+        h2 = F.relu(h2)
         h2 = F.dropout(h2, p=self.dropout, training=self.training)
+        
         h3 = self.conv3(h2, edge_index)
+        h3 = self.bn3(h3)
+        h3 = F.relu(h3)
 
         # === Graph-level readout ===
         # The authors make two important points about graph-level readout:
