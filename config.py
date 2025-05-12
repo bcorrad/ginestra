@@ -17,12 +17,12 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ## === TRAINING EXPERIMENTAL PARAMETERS === ##
 
 N_EPOCHS = 100            # Number of epochs for training
-GRID_N_EPOCHS = 1     # Number of epochs for grid search
+GRID_N_EPOCHS = 100     # Number of epochs for grid search
 PARAM_GRID = {
     'dim_h': [216],
     'drop_rate': [0.3],
     'learning_rate': [1e-4],
-    'l2_rate': [1e-5], #5e-4
+    'l2_rate': [1e-5], # 5e-4
     'n_heads': [2],
 }
 N_RUNS = 3  # Number of runs for the model
@@ -30,6 +30,12 @@ N_RUNS = 3  # Number of runs for the model
 ## === END TRAINING EXPERIMENTAL PARAMETERS === ##
 
 ## === DATASET PARAMETERS === ##
+# Target type for the dataset
+# Options: "pathway", "superclass", "class"
+# "pathway" = 7 classes
+# "superclass" = 70 classes
+# "class" = 652 classes
+TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
 FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
@@ -42,7 +48,6 @@ VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
 # TEST_SPLIT = 0.2  # Percentage of samples to use for testing (automaticlly calculated)
 
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE) otherwise CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
-TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET ENCODING
 TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
