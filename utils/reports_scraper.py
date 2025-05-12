@@ -104,13 +104,17 @@ def process_experiment(folder_path):
         df.to_csv(output_csv, index=False)
         print(f"Saved CSV for {experiment_name} at {output_csv}")
 
-def process_all_experiments(root_path):
+def process_all_experiments_parent(root_path):
     for entry in os.listdir(root_path):
         experiment_path = os.path.join(root_path, entry)
         if os.path.isdir(experiment_path):
             process_experiment(experiment_path)
+            
+def process_all_experiments(root_path):
+    if os.path.isdir(root_path):
+        process_experiment(root_path)
 
 if __name__ == "__main__":
     # Run it
     root = '/repo/corradini/ginestra/experiments/'
-    process_all_experiments(root)
+    process_all_experiments_parent(root)

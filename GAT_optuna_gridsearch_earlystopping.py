@@ -28,7 +28,7 @@ from utils.experiment_init import initialize_experiment
 EXPERIMENT_FOLDER = initialize_experiment(f"gat_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 
-def objective(trial, train_loader, val_loader, in_channels, out_channels, config_idx, n_config):
+def objective(trial, train_loader, val_loader, test_loader, in_channels, out_channels, config_idx, n_config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     config = {
@@ -45,6 +45,31 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
     GRID_VAL_LOSS, GRID_VAL_PRECISION, GRID_VAL_RECALL, GRID_VAL_F1 = [], [], [], []
     GRID_TOPK_ACCURACY_1, GRID_TOPK_ACCURACY_3, GRID_TOPK_ACCURACY_5 = [], [], []
     EPOCH_TIMES = []
+    
+    best_val_performance = {}
+    best_val_performance["loss"] = [float("inf")] * N_RUNS
+    best_val_performance["precision"] = [0.0] * N_RUNS
+    best_val_performance["recall"] = [0.0] * N_RUNS
+    best_val_performance["f1"] = [0.0] * N_RUNS
+    best_val_performance["top_1"] = [0.0] * N_RUNS
+    best_val_performance["top_3"] = [0.0] * N_RUNS
+    best_val_performance["top_5"] = [0.0] * N_RUNS
+    best_val_performance["config_idx"] = []
+    best_val_performance["epoch"] = [None] * N_RUNS
+    best_val_performance["model"] = [None] * N_RUNS
+    
+    # Test set evaluation performance
+    runs_test_performance = {}
+    runs_test_performance["loss"] = [float("inf")] * N_RUNS
+    runs_test_performance["precision"] = [0.0] * N_RUNS
+    runs_test_performance["recall"] = [0.0] * N_RUNS
+    runs_test_performance["f1"] = [0.0] * N_RUNS
+    runs_test_performance["top_1"] = [0.0] * N_RUNS
+    runs_test_performance["top_3"] = [0.0] * N_RUNS
+    runs_test_performance["top_5"] = [0.0] * N_RUNS
+    runs_test_performance["model"] = [None] * N_RUNS
+    runs_test_performance["epoch"] = [None] * N_RUNS
+    runs_test_performance["config_idx"] = []
 
     for run in range(N_RUNS):
         set_seed(run + 42)
@@ -79,7 +104,7 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
         early_stopper = EarlyStopping(patience=GRID_N_EPOCHS if TARGET_TYPE == "class" else GRID_N_EPOCHS, min_delta=0.0001)
-
+        
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()
             train_loss, precision, recall, f1, _, train_model = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
@@ -108,8 +133,22 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
             with open(report_file, "a") as f:
                 f.write(log_train + "\n")
                 f.write(log_val + "\n")
+                
+            # Check if the current model is the best one based on the performance on the validation set. Do not use early stopping here.
+            if val_loss < best_val_performance["loss"][run]:
+                best_val_performance["loss"][run] = val_loss
+                best_val_performance["precision"][run] = val_precision
+                best_val_performance["recall"][run] = val_recall
+                best_val_performance["f1"][run] = val_f1
+                best_val_performance["top_1"][run] = val_topk_accuracy["top_1"]
+                best_val_performance["top_3"][run] = val_topk_accuracy["top_3"]
+                best_val_performance["top_5"][run] = val_topk_accuracy["top_5"]
+                best_val_performance["config_idx"].append(config_idx)
+                best_val_performance["epoch"][run] = epoch
+                best_val_performance["model"][run] = val_model
+                print(f"[BEST MODEL FOUND] Best model so far at epoch {epoch+1} with loss {val_loss:.4f}")
 
-            if early_stopper(val_loss) or (val_precision < 0.15 and epoch > 10 and epoch % 5 == 0):
+            if early_stopper(val_loss):
                 print(f"[EARLY STOPPING at epoch {epoch+1}] No improvement in {early_stopper.patience} epochs.")
                 # Save the early stopping model
                 try:
@@ -120,7 +159,31 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
                 with open(report_file, "a") as f:
                     f.write(f"[EARLY STOPPING at epoch {epoch+1}]\n")
                 break
-
+            
+        # Save the best model
+        try:
+            config_idx = best_val_performance["config_idx"][run]
+            epoch = best_val_performance["epoch"][run]
+            torch.save(best_val_performance["model"][run].state_dict(), os.path.join(EXPERIMENT_FOLDER, "pt", f"C-{config_idx}_E-{epoch}_best_model.pth"))
+            # Call the test function to evaluate the model on the test set
+            test_loss, test_precision, test_recall, test_f1, _, _, test_topk_accuracy = evaluate(val_model, test_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
+            runs_test_performance["loss"][run] = test_loss
+            runs_test_performance["precision"][run] = test_precision
+            runs_test_performance["recall"][run] = test_recall
+            runs_test_performance["f1"][run] = test_f1
+            runs_test_performance["top_1"][run] = test_topk_accuracy["top_1"]
+            runs_test_performance["top_3"][run] = test_topk_accuracy["top_3"]
+            runs_test_performance["top_5"][run] = test_topk_accuracy["top_5"]
+            runs_test_performance["model"][run] = val_model
+            runs_test_performance["epoch"][run] = epoch
+            runs_test_performance["config_idx"].append(config_idx)
+            test_log = f"[CONFIG {config_idx}][GAT TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1: {test_topk_accuracy['top_1']:.4f}, Top-3: {test_topk_accuracy['top_3']:.4f}, Top-5: {test_topk_accuracy['top_5']:.4f}"
+            print(test_log)
+        except Exception as e:
+            print(f"Error saving model: {e}")
+            with open(report_file, "a") as f:
+                f.write(f"[ERROR SAVING MODEL] {e}\n")
+            
     # Final summary stats
     avg_train_loss = sum(GRID_TRAIN_LOSS) / len(GRID_TRAIN_LOSS)
     avg_train_precision = sum(GRID_TRAIN_PRECISION) / len(GRID_TRAIN_PRECISION)
@@ -158,6 +221,29 @@ def objective(trial, train_loader, val_loader, in_channels, out_channels, config
     with open(report_file, "a") as f:
         f.write("\n" + final_log_train + "\n")
         f.write(final_log_val + "\n")
+    
+    # Final test summary
+    avg_test_loss = sum(runs_test_performance["loss"]) / len(runs_test_performance["loss"])
+    avg_test_precision = sum(runs_test_performance["precision"]) / len(runs_test_performance["precision"])
+    avg_test_recall = sum(runs_test_performance["recall"]) / len(runs_test_performance["recall"])
+    avg_test_f1 = sum(runs_test_performance["f1"]) / len(runs_test_performance["f1"])
+    avg_test_top_k_accuracy_1 = sum(runs_test_performance["top_1"]) / len(runs_test_performance["top_1"])
+    avg_test_top_k_accuracy_3 = sum(runs_test_performance["top_3"]) / len(runs_test_performance["top_3"])
+    avg_test_top_k_accuracy_5 = sum(runs_test_performance["top_5"]) / len(runs_test_performance["top_5"])
+    std_test_loss = torch.std(torch.tensor(runs_test_performance["loss"]))
+    std_test_precision = torch.std(torch.tensor(runs_test_performance["precision"]))
+    std_test_recall = torch.std(torch.tensor(runs_test_performance["recall"]))
+    std_test_f1 = torch.std(torch.tensor(runs_test_performance["f1"]))
+    std_test_top_k_accuracy_1 = torch.std(torch.tensor(runs_test_performance["top_1"]))
+    std_test_top_k_accuracy_3 = torch.std(torch.tensor(runs_test_performance["top_3"]))
+    std_test_top_k_accuracy_5 = torch.std(torch.tensor(runs_test_performance["top_5"]))
+    
+    final_log_test = f"[TEST SUMMARY] Test Loss: {avg_test_loss:.4f} ± {std_test_loss:.4f}, Precision: {avg_test_precision:.4f} ± {std_test_precision:.4f}, Recall: {avg_test_recall:.4f} ± {std_test_recall:.4f}, F1: {avg_test_f1:.4f} ± {std_test_f1:.4f}"
+    final_log_test += f", Top-1: {avg_test_top_k_accuracy_1:.4f} ± {std_test_top_k_accuracy_1:.4f}, Top-3: {avg_test_top_k_accuracy_3:.4f} ± {std_test_top_k_accuracy_3:.4f}, Top-5: {avg_test_top_k_accuracy_5:.4f} ± {std_test_top_k_accuracy_5:.4f}"
+    print("Final Test Summary:", final_log_test)
+    with open(report_file, "a") as f:
+        f.write("\n" + final_log_test + "\n")
+        
     return avg_val_loss
 
 
@@ -178,7 +264,7 @@ def optuna_grid_search(train_loader, val_loader, test_loader, in_channels, out_c
         print(f"Testing configuration {config_idx+1}/{len(sampler._all_grids)}")
         with open(os.path.join(EXPERIMENT_FOLDER, "log.txt"), "a") as f:
             f.write(f"Testing configuration {config_idx}/{len(sampler._all_grids)}\n")
-        return objective(trial, train_loader, val_loader, in_channels, out_channels, config_idx, n_config)
+        return objective(trial, train_loader, val_loader, test_loader, in_channels, out_channels, config_idx, n_config)
 
     study.optimize(wrapped_objective, n_trials=len(sampler._all_grids))
 
