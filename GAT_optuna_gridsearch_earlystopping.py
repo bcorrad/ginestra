@@ -103,7 +103,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
-        early_stopper = EarlyStopping(min_delta=0.0)
+        early_stopper = EarlyStopping(min_delta=1e-4)
         
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()
@@ -155,7 +155,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
             if should_stop:
                 print("Early stopping triggered.")
                 print(early_stopper.get_patience_start_epochs())
-                test_model = torch.load(os.path.join(EXPERIMENT_FOLDER, "pt", f"R-{run}_C-{config_idx}_E-{early_stopper.get_patience_start_epochs()}_val_model.pt"))
+                test_model = torch.load(os.path.join(EXPERIMENT_FOLDER, "pt", f"R-{run}_C-{config_idx}_E-{early_stopper.get_patience_start_epochs()}_val_model.pt"), weights_only=False)
                 test_loss, test_precision, test_recall, test_f1, _, _, test_topk_accuracy = evaluate(test_model, test_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
                 runs_test_performance["loss"][run] = test_loss
                 runs_test_performance["precision"][run] = test_precision

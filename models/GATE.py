@@ -29,9 +29,11 @@ class GATE(torch.nn.Module):
             self.fingerprint_processor = None
         
         self.conv1 = GATConv(in_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
+        self.bn1 = BatchNorm1d(hidden_channels)
         self.conv2 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
-        self.conv3 = GATConv(hidden_channels, hidden_channels, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
-        
+        self.bn2 = BatchNorm1d(hidden_channels)
+        self.conv3 = GATConv(hidden_channels, 512, heads=n_heads, concat=False, edge_dim=edge_dim)   # Output (batch_size, hidden_channels * heads)
+        self.bn3 = BatchNorm1d(512)
         # Dropout
         if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
             self.dropout = kwargs["drop_rate"]
@@ -40,13 +42,20 @@ class GATE(torch.nn.Module):
 
         print(f"[DROPOUT SET] Dropout: {self.dropout}")
         
-        # Classifier
-        if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
-            self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
-        else:
-            self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
-            self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
+        # Final classifier
+        readout_dim = hidden_channels + hidden_channels + 512
+        if self.fingerprint_processor is not None:
+            readout_dim += hidden_channels
+
+        # # Classifier
+        # if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
+        #     self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
+        #     self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
+        # else:
+        #     self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
+        #     self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
+        self.fc1 = torch.nn.Linear(readout_dim, 1024)
+        self.fc2 = torch.nn.Linear(1024, out_channels)
 
 
     def forward(self, x, edge_index, edge_attr, batch, p=0.2, **kwargs):
@@ -63,10 +72,18 @@ class GATE(torch.nn.Module):
 
         # Strati GINEConv
         h1 = self.conv1(x, edge_index, edge_attr)
+        h1 = self.bn1(h1)
+        h1 = F.relu(h1)
         h1 = F.dropout(h1, p=self.dropout, training=self.training)
+
         h2 = self.conv2(h1, edge_index, edge_attr)
+        h2 = self.bn2(h2)
+        h2 = F.relu(h2)
         h2 = F.dropout(h2, p=self.dropout, training=self.training)
+
         h3 = self.conv3(h2, edge_index, edge_attr)
+        h3 = self.bn3(h3)
+        h3 = F.relu(h3)
 
         # Global pooling on node features
         h1_pool = global_add_pool(h1, batch)
@@ -81,8 +98,8 @@ class GATE(torch.nn.Module):
 
         # Classificatore
         h = self.fc1(h).relu()
+        h = F.dropout(h, p=self.dropout, training=self.training)
         h = self.fc2(h)
-
         return h    
     
 

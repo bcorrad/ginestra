@@ -31,7 +31,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     config = {
-        'hidden_channels': trial.suggest_categorical("hidden_channels", PARAM_GRID['hidden_channels']),
+        'dim_h': trial.suggest_categorical("dim_h", PARAM_GRID['dim_h']),
         'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
         'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
         'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
@@ -75,7 +75,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
     for run in range(N_RUNS):
         model = GATE(
             in_channels=in_channels,
-            hidden_channels=config['hidden_channels'],
+            hidden_channels=config['dim_h'],
             out_channels=out_channels,
             edge_dim=edge_dim,
             n_heads=config['n_heads'],
@@ -105,7 +105,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
         criterion = nn.BCEWithLogitsLoss()
-        early_stopper = EarlyStopping(min_delta=0.0)
+        early_stopper = EarlyStopping(min_delta=1e-4)
 
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()
@@ -157,7 +157,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
             if should_stop:
                 print("Early stopping triggered.")
                 print(early_stopper.get_patience_start_epochs())
-                test_model = torch.load(os.path.join(EXPERIMENT_FOLDER, "pt", f"R-{run}_C-{config_idx}_E-{early_stopper.get_patience_start_epochs()}_val_model.pt"))
+                test_model = torch.load(os.path.join(EXPERIMENT_FOLDER, "pt", f"R-{run}_C-{config_idx}_E-{early_stopper.get_patience_start_epochs()}_val_model.pt"), weights_only=False)
                 test_loss, test_precision, test_recall, test_f1, _, _, test_topk_accuracy = evaluate(test_model, test_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
                 runs_test_performance["loss"][run] = test_loss
                 runs_test_performance["precision"][run] = test_precision

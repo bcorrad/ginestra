@@ -34,53 +34,72 @@ class GINE(torch.nn.Module):
         # GIN layer
         self.conv1 = GINEConv(
             Sequential(Linear(in_channels, hidden_channels), 
-                            BatchNorm1d(hidden_channels), 
+                            #BatchNorm1d(hidden_channels), 
                             ReLU(),
                             Linear(hidden_channels, hidden_channels), 
-                            ReLU()),
+                            #ReLU() 
+                            ),
             edge_dim=edge_dim
         )
+        self.bn1 = BatchNorm1d(hidden_channels)
 
         self.conv2 = GINEConv(
             Sequential(Linear(hidden_channels, hidden_channels), 
-                            BatchNorm1d(hidden_channels), 
+                            #BatchNorm1d(hidden_channels), 
                             ReLU(),
                             Linear(hidden_channels, hidden_channels), 
-                            ReLU()),
+                            #ReLU()
+                            ),
             edge_dim=edge_dim
         )
 
+        self.bn2 = BatchNorm1d(hidden_channels)
+
+        # self.conv3 = GINEConv(
+        #      Sequential(Linear(hidden_channels, hidden_channels), 
+        #                     BatchNorm1d(hidden_channels), 
+        #                     ReLU(),
+        #                     Linear(hidden_channels, hidden_channels), 
+        #                     ReLU()),
+        #     edge_dim=edge_dim
+        # )
         self.conv3 = GINEConv(
-             Sequential(Linear(hidden_channels, hidden_channels), 
-                            BatchNorm1d(hidden_channels), 
+             Sequential(Linear(hidden_channels, 512), 
+                            #BatchNorm1d(hidden_channels), 
                             ReLU(),
-                            Linear(hidden_channels, hidden_channels), 
-                            ReLU()),
+                            Linear(512, 512), 
+                            #ReLU()
+                            ),
             edge_dim=edge_dim
         )
+        self.bn3 = BatchNorm1d(512)
 
         # Dropout
         if "drop_rate" in kwargs and kwargs["drop_rate"] is not None:
             self.dropout = kwargs["drop_rate"]
         else:
-            self.dropout = 0.5
+            self.dropout = 0.1
             
         print(f"[DROPOUT SET] Dropout: {self.dropout}")
+
+        readout_dim = hidden_channels + hidden_channels + 512  # h1 + h2 + h3
+        self.lin1 = torch.nn.Linear(readout_dim, 1024)
+        self.lin2 = torch.nn.Linear(1024, out_channels)
             
-        # Classificatore finale
-        if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
-            self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
-            self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
-        else:
-            self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
-            self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
+        # # Classificatore finale
+        # if "fingerprint_length" not in kwargs or kwargs["fingerprint_length"] is None:
+        #     self.fc1 = torch.nn.Linear(3*hidden_channels, 3*hidden_channels)  
+        #     self.fc2 = torch.nn.Linear(3*hidden_channels, out_channels)
+        # else:
+        #     self.fc1 = torch.nn.Linear(4*hidden_channels, 4*hidden_channels)
+        #     self.fc2 = torch.nn.Linear(4*hidden_channels, out_channels)
 
         # Self Attention Layer
         # self.attention = MultiheadAttention(embed_dim=hidden_channels, num_heads=4, batch_first=True)
         # Put to cuda
         self.to(device)
 
-    def forward(self, x, edge_index, edge_attr, batch, p=0.2, nonlinear=False, **kwargs):
+    def forward(self, x, edge_index, edge_attr, batch, **kwargs):   #p=0.2, nonlinear=False,
 
         if "fingerprint" in kwargs:
             fingerprint = kwargs["fingerprint"]
@@ -91,16 +110,22 @@ class GINE(torch.nn.Module):
         # Forward of a GINE layer, with dropout, batchnorm, and ReLU. 
         # Apply global pooling after each layer.
         h1 = self.conv1(x, edge_index, edge_attr)  # Usa x, non h1
+        h1 = self.bn1(h1)
+        h1 = F.relu(h1)
         h1 = F.dropout(h1, p=self.dropout, training=self.training)
-        if nonlinear:
-            h1 = F.relu(h1)
+        # if nonlinear:
+        #     h1 = F.relu(h1)
 
         h2 = self.conv2(h1, edge_index, edge_attr)
+        h2 = self.bn2(h2)
+        h2 = F.relu(h2)
         h2 = F.dropout(h2, p=self.dropout, training=self.training)
-        if nonlinear:
-            h2 = F.relu(h2)
+        # if nonlinear:
+        #     h2 = F.relu(h2)
 
         h3 = self.conv3(h2, edge_index, edge_attr)
+        h3 = self.bn3(h3)
+        h3 = F.relu(h3)
         # h3 = F.dropout(h3, p=0.5, training=self.training)
         # if nonlinear:
         #     h3 = F.relu(h3)
@@ -124,9 +149,9 @@ class GINE(torch.nn.Module):
         # h = H.mean(dim=1)  # (batch_size, dim_h)    
 
         # Classifier
-        h = self.fc1(h)
+        h = self.lin1(h)
         h = h.relu()
-        h = self.fc2(h)
+        h = self.lin2(h)
 
         return h
 
