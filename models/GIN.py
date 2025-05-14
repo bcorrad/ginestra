@@ -148,15 +148,7 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
             batch = batch.to(device)
             if model.__class__.__name__ == "GIN":
                 out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch)
-            elif model.__class__.__name__ == "GINWithEdgeFeatures" or model.__class__.__name__ == "NewGINE":
-                from config import USE_FINGERPRINT
-                if USE_FINGERPRINT:
-                    out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
-                else:
-                    out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
-                #out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch, fingerprint=batch.fingerprint)
-            elif model.__class__.__name__ == "GATWithEdgeFeatures":
-                out = model(x=batch.x, edge_index=batch.edge_index, edge_attr=batch.edge_attr, batch=batch.batch)
+
             # out = model(batch.x, batch.edge_index, batch.batch)  # Forward pass
             # Determine targets
             targets = batch.y

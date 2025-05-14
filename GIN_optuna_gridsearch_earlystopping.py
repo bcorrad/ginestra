@@ -98,8 +98,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             f.write(f"Model configuration: {gin_config}\n")
 
         optimizer = optim.Adam(model.parameters(), lr=gin_config['learning_rate'], weight_decay=gin_config['l2_rate'])
-        criterion = nn.BCEWithLogitsLoss()
-
+        #criterion = nn.BCEWithLogitsLoss()
+        criterion = nn.CrossEntropyLoss()
         early_stopper = EarlyStopping(min_delta=1e-4)
 
         for epoch in range(GRID_N_EPOCHS):

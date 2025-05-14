@@ -111,11 +111,16 @@ def dataset_split(matrix, n_samples=N_SAMPLES):
     if matrix.ndim != 2:
         raise ValueError("Input must be a 2D matrix.")
     
+    multilabel = False
+
     # Search the multi-label samples (if any row has more than one 1)
-    sum_rows = np.sum(matrix, axis=1)
-    single_label_rows = np.where(sum_rows == 1)[0]
-    matrix_single_label = matrix[single_label_rows]
-    
+    if multilabel == True:
+        matrix_single_label = matrix
+    else:
+        sum_rows = np.sum(matrix, axis=1)
+        single_label_rows = np.where(sum_rows == 1)[0]
+        matrix_single_label = matrix[single_label_rows]
+        
     # Find the unique rows
     unique_rows = np.unique(matrix_single_label, axis=0)
     

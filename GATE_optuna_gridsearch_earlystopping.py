@@ -104,7 +104,8 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
             f.write(f"Model configuration: {config}\n")
 
         optimizer = optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['l2_rate'])
-        criterion = nn.BCEWithLogitsLoss()
+        # criterion = nn.BCEWithLogitsLoss()
+        criterion = nn.CrossEntropyLoss()
         early_stopper = EarlyStopping(min_delta=1e-4)
 
         for epoch in range(GRID_N_EPOCHS):
@@ -169,7 +170,7 @@ def objective(trial, train_loader, val_loader, test_loader, in_channels, out_cha
                 runs_test_performance["model"][run] = val_model
                 runs_test_performance["epoch"][run] = epoch
                 runs_test_performance["config_idx"].append(config_idx)
-                test_log = f"[CONFIG {config_idx}][GAT TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1: {test_topk_accuracy['top_1']:.4f}, Top-3: {test_topk_accuracy['top_3']:.4f}, Top-5: {test_topk_accuracy['top_5']:.4f}"
+                test_log = f"[CONFIG {config_idx}][GATE TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1: {test_topk_accuracy['top_1']:.4f}, Top-3: {test_topk_accuracy['top_3']:.4f}, Top-5: {test_topk_accuracy['top_5']:.4f}"
                 print(test_log)
                 
                 break

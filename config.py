@@ -19,8 +19,8 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 N_EPOCHS = 100            # Number of epochs for training
 GRID_N_EPOCHS = 100     # Number of epochs for grid search
 PARAM_GRID = {
-    'dim_h': [64, 128, 216, 512], #
-    'drop_rate': [0.1, 0.3, 0.5], #
+    'dim_h': [512], #64, 128, 216 
+    'drop_rate': [0.3], # 0.1, 0.5
     'learning_rate': [1e-4],
     'l2_rate': [1e-5], # 5e-4
     'n_heads': [2],

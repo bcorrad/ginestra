@@ -146,8 +146,9 @@ def evaluate(model, dataloader, device, criterion, epoch_n, return_model=False, 
             loss = criterion(out, targets)
             total_loss += loss.item()
             
-            # Apply threshold for binary classification
-            max_idx = torch.argmax(F.softmax(out, dim=1), dim=1, keepdim=True)
+            out = F.softmax(out, dim=1)
+            max_idx = torch.argmax(out, dim=1, keepdim=True)
+
             preds = torch.zeros_like(out)
             for row_idx, col_idx in enumerate(max_idx):
                 preds[row_idx, col_idx] = 1
