@@ -48,4 +48,8 @@ pip install numpy==1.26.4 pandas==2.2.2 scipy==1.13.1 matplotlib==3.8.4 tqdm==4.
 # === Install additional libraries ===
 pip install rdkit-pypi
 
+# === Install Wandb === 
+pip install wandb
+pip install optuna-integration[wandb]
+
 echo "✅ Environment 'ginestra' successfully created with CUDA $CUDA_VERSION!"

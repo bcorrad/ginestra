@@ -21,12 +21,6 @@ import optuna.samplers as samplers
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
-# Check in 'corradini' is in the path
-if 'corradini' in os.getcwd():
-    wandb.login(key="f904ed1462c53edef7fef2f82b6c04e99ea34339")
-elif 'giulio' in os.getcwd():
-    wandb.login(key="")
-
 from gridsearch_dataset_builder import prepare_dataloaders
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, DATASET_ID
 
@@ -133,8 +127,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss()
         
         early_stopping = EarlyStopping(
-            patience=7,
-            min_delta=0.01,
+            patience=EARLY_PATIENCE,
+            min_delta=EARLY_MIN_DELTA,
             verbose=True,
             path=os.path.join(EXPERIMENT_FOLDER, "models", f"best_model_config_{config_idx}_run_{run+1}.pt")
         )

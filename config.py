@@ -1,6 +1,13 @@
 import os, torch, pickle
 import numpy as np
 import shutil
+import wandb
+
+# Check in 'corradini' is in the path
+if 'corradini' in os.getcwd():
+    wandb.login(key="f904ed1462c53edef7fef2f82b6c04e99ea34339")
+elif 'giulio' in os.getcwd():
+    wandb.login(key="03c8065e56dc0abe77944c0bcfbc88b313878717")
 
 # Remove __pycache__ folder if it exists
 if os.path.exists(os.path.join(os.path.dirname(__file__), "__pycache__")):
@@ -42,7 +49,7 @@ N_RUNS = 5  # Number of runs for the model
 # "pathway" = 7 classes
 # "superclass" = 70 classes
 # "class" = 652 classes
-TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
 FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
@@ -105,6 +112,11 @@ MODELS = ["gat"] # Only for non-grid search setup
 MODELS.sort()  # Minimize the dataset exchanges between models during training
 
 ## === END NETWORK PARAMETERS === ##
+
+## === EARLY STOPPING PARAMETERS == ##
+EARLY_PATIENCE = 7
+EARLY_MIN_DELTA = 0.01
+## === END EARLY STOPPING PARAMETERS == ##
 
 ## === EXPERIMENT PARAMETERS === ##
 
