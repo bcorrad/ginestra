@@ -1,4 +1,4 @@
-import os, time, requests
+import os, time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,31 +8,25 @@ from utils.earlystop import EarlyStopping
 from utils.experiment_init import initialize_experiment
 from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
-from utils.epoch_functions import training_epoch, evaluation_epoch
-            
-from config import TOKEN, CHAT_ID, USE_MULTILABEL
-from utils.send_telegram_message import send_telegram_message
 
-from models.MLP import *
+from models.GIN import *
 
 import optuna, wandb
 import optuna.samplers as samplers
+from optuna.integration.wandb import WeightsAndBiasesCallback
+import optuna.visualization as vis
+
+wandb.login(key="f904ed1462c53edef7fef2f82b6c04e99ea34339")
+
+from gridsearch_dataset_builder import prepare_dataloaders
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, PARAM_GRID, DATASET_ID
+
+mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader = prepare_dataloaders("gin")
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
-# Check in 'corradini' is in the path
-if 'corradini' in os.getcwd():
-    wandb.login(key="f904ed1462c53edef7fef2f82b6c04e99ea34339")
-elif 'giulio' in os.getcwd():
-    wandb.login(key="")
-
-from gridsearch_dataset_builder import prepare_dataloaders
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, DATASET_ID
-
-train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders("mlp")
-
-EXPERIMENT_FOLDER = initialize_experiment(f"mlp_{DATASET_ID}", TARGET_TYPE, BASEDIR)
+EXPERIMENT_FOLDER = initialize_experiment(f"gin_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 wandb_kwargs = {"project": EXPERIMENT_FOLDER.split('/')[-1],
                 "notes": f"{EXPERIMENT_FOLDER.split('/')[-1].split('_')[0].upper()} model for {TARGET_TYPE} classification on {DATASET_ID} dataset",
@@ -40,28 +34,15 @@ wandb_kwargs = {"project": EXPERIMENT_FOLDER.split('/')[-1],
 wandb.init(**wandb_kwargs)
 wandb.run._redirect = False
 
-PARAM_GRID = {
-    'unit1': [3072, 4608],
-    'unit2': [2304, 1536],
-    'unit3': [1152, 768],
-    'drop_rate': [0.1],
-    'learning_rate': [1e-5],
-    'l2_rate': [1e-6],
-}
-
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    grid_config = {
-        'unit1': trial.suggest_categorical("unit1", PARAM_GRID['unit1']),
-        'unit2': trial.suggest_categorical("unit2", PARAM_GRID['unit2']),
-        'unit3': trial.suggest_categorical("unit3", PARAM_GRID['unit3']),
+    gin_config = {
+        'dim_h': trial.suggest_categorical("dim_h", PARAM_GRID['dim_h']),
         'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
         'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
         'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
     }
-    
-    curr_config_report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_MLP_{config_idx}.txt")
+    curr_config_report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_GIN_{config_idx}.txt")
     grid_statistics = {
         'train_loss': [],
         'train_precision': [],
@@ -83,10 +64,10 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         )
 
         wandb_config = {
-            'dim_h': grid_config['dim_h'],
-            'drop_rate': grid_config['drop_rate'],
-            'learning_rate': grid_config['learning_rate'],
-            'l2_rate': grid_config['l2_rate'],
+            'dim_h': gin_config['dim_h'],
+            'drop_rate': gin_config['drop_rate'],
+            'learning_rate': gin_config['learning_rate'],
+            'l2_rate': gin_config['l2_rate'],
             'n_heads': 2,
             'batch_size': 32,
             'n_epochs': GRID_N_EPOCHS,
@@ -101,14 +82,12 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         wandb_run.log(wandb_config)
 
         set_seed(run + 42)
-        model = MLP(
-            unit1=grid_config['unit1'],
-            unit2=grid_config['unit2'],
-            unit3=grid_config['unit3'],
-            drop_rate=grid_config['drop_rate'],
-            num_classes=num_classes
+        model = GIN(
+            num_node_features=num_node_features,
+            dim_h=gin_config['dim_h'],
+            num_classes=num_classes,
+            drop_rate=gin_config['drop_rate']
         ).to(device)
-        
         # Reset the model weights
         for layer in model.children():
             if hasattr(layer, 'reset_parameters'):
@@ -121,39 +100,37 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         # Print the model summary
         print(f"Model summary: {model}")
         # Print the model configuration
-        print(f"Model initialized with config: {grid_config}")
+        print(f"Model initialized with config: {gin_config}")
         # Save all to text file
         with open(curr_config_report_file, "a") as f:
             f.write(f"Configuration {config_idx}/{n_config} - Run {run+1}/{N_RUNS}\n")
             f.write(f"Number of parameters: {num_params}\n")
             f.write(f"Model summary: {model}\n")
-            f.write(f"Model configuration: {grid_config}\n")
+            f.write(f"Model configuration: {gin_config}\n")
 
-        optimizer = optim.Adam(model.parameters(), lr=grid_config['learning_rate'], weight_decay=grid_config['l2_rate'])
-        criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss()
+        optimizer = optim.Adam(model.parameters(), lr=gin_config['learning_rate'], weight_decay=gin_config['l2_rate'])
+        criterion = nn.CrossEntropyLoss()
         
         early_stopping = EarlyStopping(
             patience=7,
             min_delta=0.01,
             verbose=True,
-            path=os.path.join(EXPERIMENT_FOLDER, "models", f"best_model_config_{config_idx}_run_{run+1}.pt")
+            path='best_model.pt'
         )
 
         for epoch in range(GRID_N_EPOCHS):
             start_time = time.time()
-            train_loss, train_precision, train_recall, train_f1 = training_epoch(model, train_loader, optimizer, criterion, device)
+            train_loss, train_precision, train_recall, train_f1 = train_epoch(model, train_loader, optimizer, criterion, device, str(epoch), return_model=True, save_all_models=False)
             end_time = time.time()
 
-            val_loss, val_precision, val_recall, val_f1 = evaluation_epoch(model, val_loader, criterion, device)
+            val_loss, val_precision, val_recall, val_f1, val_topk_accuracy = evaluate(model, val_loader, device, criterion, str(epoch), return_model=True, save_all_models=False)
 
-            log_train = f"[CONFIG {config_idx}/{n_config}][MLP TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
-            log_val = f"[CONFIG {config_idx}/{n_config}][MLP VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}"
+            log_train = f"[CONFIG {config_idx}/{n_config}][GIN TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
+            log_val = f"[CONFIG {config_idx}/{n_config}][GIN VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}"
             
-            print(grid_config)
+            print(gin_config)
             print(log_train)
             print(log_val)
-            
-            send_telegram_message(EXPERIMENT_FOLDER.split('/')[0] + '_' + log_train + '\n' + log_val, TOKEN, CHAT_ID)
             
             # Write to current config report file
             with open(curr_config_report_file, "a") as f:
@@ -221,15 +198,15 @@ def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features,
 
 
 if __name__ == "__main__":
-    train_dataloader = train_dataloader
-    val_dataloader = val_dataloader
-    test_dataloader = test_dataloader
+    train_dataloader = gnn_train_dataloader
+    val_dataloader = gnn_val_dataloader
+    test_dataloader = gnn_test_dataloader
     sample = next(iter(train_dataloader))
     num_node_features = sample.x.size(-1)
     num_classes = len(LABELS_CODES)
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, num_classes)
-    export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_mlp.csv'))
+    export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_gin.csv'))
     
     from utils.reports_scraper import process_all_experiments
     process_all_experiments(EXPERIMENT_FOLDER)

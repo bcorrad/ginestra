@@ -1,4 +1,4 @@
-from config import DATADIR, TARGET_TYPE, N_SAMPLES, FORCE_DATASET_GENERATION, ATOM_FEATURES_DICT, BATCH_SIZE, TRAINING_SPLIT, VALIDATION_SPLIT
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, FORCE_DATASET_GENERATION, ATOM_FEATURES_DICT, BATCH_SIZE, TRAINING_SPLIT, VALIDATION_SPLIT, USE_MULTILABEL
 from config import DATASET_ID
 from typing import Union, Literal
 import pickle
@@ -111,7 +111,7 @@ def dataset_split(matrix, n_samples=N_SAMPLES):
     if matrix.ndim != 2:
         raise ValueError("Input must be a 2D matrix.")
     
-    multilabel = False
+    from config import USE_MULTILABEL as multilabel
 
     # Search the multi-label samples (if any row has more than one 1)
     if multilabel == True:
@@ -398,8 +398,9 @@ def prepare_dataloaders(model_name: str, batch_size: int=32):
         with open(f'{DATADIR}/datset_class_all_V1.pkl','rb') as r:
             dataset = pickle.load(r)
             dataset = {k: {k2.replace("_", ""): v2 for k2, v2 in v.items()} for k, v in dataset.items()}
-
-        dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE.capitalize()]) == 1}
+        
+        if not USE_MULTILABEL:
+            dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE.capitalize()]) == 1}
         smiles_df = [dataset[i]['SMILES'] for i in dataset.keys()]
         fingerprint_list = [np.concatenate(calculate_fingerprint(i, 2), axis=1) for i in smiles_df]
         labels_list = [dataset[i][TARGET_TYPE.capitalize()] for i in dataset.keys()]
@@ -456,4 +457,7 @@ def prepare_dataloaders(model_name: str, batch_size: int=32):
                 }, f)
             
     # Return the dataloaders
-    return mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader, gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader
+    if "mlp" in model_name:
+        return mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader
+    if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
+        return gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader

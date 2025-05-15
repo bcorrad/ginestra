@@ -1,5 +1,12 @@
 import os, torch, pickle
 import numpy as np
+import shutil
+
+# Remove __pycache__ folder if it exists
+if os.path.exists(os.path.join(os.path.dirname(__file__), "__pycache__")):
+    shutil.rmtree(os.path.join(os.path.dirname(__file__), "__pycache__"))
+if os.path.exists(os.path.join(os.path.dirname(__file__), "models/__pycache__")):
+    shutil.rmtree(os.path.join(os.path.dirname(__file__), "models/__pycache__"))
 
 ## === FILESYSTEM PARAMETERS === ##
 
@@ -17,15 +24,15 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ## === TRAINING EXPERIMENTAL PARAMETERS === ##
 
 N_EPOCHS = 100            # Number of epochs for training
-GRID_N_EPOCHS = 100     # Number of epochs for grid search
+GRID_N_EPOCHS = 500     # Number of epochs for grid search
 PARAM_GRID = {
-    'dim_h': [512], #64, 128, 216 
-    'drop_rate': [0.3], # 0.1, 0.5
+    'dim_h': [128, 256, 512, 64], 
+    'drop_rate': [0.3, 0.1, 0.5],
     'learning_rate': [1e-4],
-    'l2_rate': [1e-5], # 5e-4
+    'l2_rate': [1e-5], 
     'n_heads': [2],
 }
-N_RUNS = 1  # Number of runs for the model
+N_RUNS = 5  # Number of runs for the model
 
 ## === END TRAINING EXPERIMENTAL PARAMETERS === ##
 
@@ -35,13 +42,14 @@ N_RUNS = 1  # Number of runs for the model
 # "pathway" = 7 classes
 # "superclass" = 70 classes
 # "class" = 652 classes
-TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
 FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
 N_SAMPLES = None  # Number of samples to pick from the training set. If set to None, all samples are used
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
+USE_MULTILABEL = True # If True, use multilabel classification
 MULTILABEL2MULTICLASS = False
 TRAINING_SPLIT = 0.6  # Percentage of samples to use for training
 VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
@@ -55,14 +63,14 @@ USE_FINGERPRINT = False
 
 ## ATOM FEATURES (Atom symbols always present in "label" format)
 USE_CHIRALITY = False               # (4 bits) A
-USE_HYDROGENS_IMPLICIT = True      # (6 bits) B  T
+USE_HYDROGENS_IMPLICIT = True       # (6 bits) B  T
 USE_TOPOLOGICAL_FEATURES = True     # (6 bits) C  T
 USE_CHARGE_PROPERTIES = True        # (1 int)  D Electronic / Charge Properties   T
-USE_HYBRIDIZATION = True           # (7 ints) E  T
+USE_HYBRIDIZATION = True            # (7 ints) E  T
 USE_RING_INFO = True                # (2 ints) F Ring and Aromaticity Information T
 USE_ATOMIC_PROPERTIES = False       # (3 ints) G 
 
-DATASET_ID = ""
+DATASET_ID = "" 
 
 DATASET_ID += "A" if USE_CHIRALITY else ""
 DATASET_ID += "B" if USE_HYDROGENS_IMPLICIT else ""
@@ -72,7 +80,7 @@ DATASET_ID += "E" if USE_HYBRIDIZATION else ""
 DATASET_ID += "F" if USE_RING_INFO else ""
 DATASET_ID += "G" if USE_ATOMIC_PROPERTIES else "" 
 # Sort the dataset ID
-DATASET_ID = "".join(sorted(DATASET_ID))
+DATASET_ID = "" if not USE_MULTILABEL else "MULTILABEL_" + "".join(sorted(DATASET_ID))
 
 # Write a dictionary of atom features to a file
 ATOM_FEATURES_DICT = {
@@ -117,6 +125,7 @@ PATHWAYS = {k: v for k, v in class_.items()}
 # LABELS_CODES in one-hot encoding
 LABELS_CODES = {i: np.array([1 if i == j else 0 for j in range(len(class_))]) for i in range(len(class_))}
 
+## === MULTILABEL === ##
 if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
     PATHWAYS["Amino acids and Peptides Polyketides"] = 7
     PATHWAYS["Alkaloids Terpenoids"] = 8
@@ -126,4 +135,8 @@ if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
     LABELS_CODES[9] = np.array([0,0,0,0,1,0,1])
     
 ## === END EXPERIMENT PARAMETERS === ##
+
+## === TELEGRAM PARAMETERS === ##
+TOKEN = "7544529562:AAHiLMgvUXanJDWHm0xFOsIfbasBgEqOaQw"
+CHAT_ID = "252746684"
     
