@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.metrics import classification_report
+from utils.topk import top_k_accuracy
 
 
 def training_epoch(model, dataloader, optimizer, criterion, device):
@@ -62,6 +63,7 @@ def evaluation_epoch(model, dataloader, criterion, device):
     model.eval()
     total_loss = 0.0
     all_preds, all_targets = [], []
+    topk_accuracy = {}
 
     with torch.no_grad():
         for b, batch in enumerate(dataloader):
@@ -81,6 +83,9 @@ def evaluation_epoch(model, dataloader, criterion, device):
         precision = precision_score(all_targets, all_preds, average='macro', zero_division=0)
         recall = recall_score(all_targets, all_preds, average='macro', zero_division=0)
         f1 = f1_score(all_targets, all_preds, average='macro', zero_division=0)
+        topk_accuracy['1'] = top_k_accuracy(out, targets, k=1)
+        topk_accuracy['2'] = top_k_accuracy(out, targets, k=3)
+        topk_accuracy['3'] = top_k_accuracy(out, targets, k=5)
 
-    return avg_loss, precision, recall, f1
+    return avg_loss, precision, recall, f1, topk_accuracy
 
