@@ -10,7 +10,7 @@ from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
             
-from config import TOKEN, CHAT_ID, USE_MULTILABEL
+from config import TOKEN, CHAT_ID, USE_MULTILABEL, DEVICE as device
 from utils.send_telegram_message import send_telegram_message
 
 from models.MLP import *
@@ -22,11 +22,13 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 from gridsearch_dataset_builder import prepare_dataloaders
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, DATASET_ID
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, DATASET_ID, EARLY_PATIENCE, EARLY_MIN_DELTA
+
+MODEL_NAME = "mlp"
 
 train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders("mlp")
 
-EXPERIMENT_FOLDER = initialize_experiment(f"mlp_{DATASET_ID}", TARGET_TYPE, BASEDIR)
+EXPERIMENT_FOLDER = initialize_experiment(f"{MODEL_NAME.upper()}_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 wandb_kwargs = {"project": EXPERIMENT_FOLDER.split('/')[-1],
                 "notes": f"{EXPERIMENT_FOLDER.split('/')[-1].split('_')[0].upper()} model for {TARGET_TYPE} classification on {DATASET_ID} dataset",
@@ -44,7 +46,6 @@ PARAM_GRID = {
 }
 
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     grid_config = {
         'unit1': trial.suggest_categorical("unit1", PARAM_GRID['unit1']),
@@ -55,7 +56,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
     }
     
-    curr_config_report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_MLP_{config_idx}.txt")
+    curr_config_report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_{MODEL_NAME}_{config_idx}.txt")
     grid_statistics = {
         'train_loss': [],
         'train_precision': [],
@@ -140,14 +141,14 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
 
             val_loss, val_precision, val_recall, val_f1 = evaluation_epoch(model, val_loader, criterion, device)
 
-            log_train = f"[CONFIG {config_idx}/{n_config}][MLP TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
-            log_val = f"[CONFIG {config_idx}/{n_config}][MLP VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}"
+            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
+            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}"
             
             print(grid_config)
             print(log_train)
             print(log_val)
             
-            send_telegram_message(EXPERIMENT_FOLDER.split('/')[0] + '_' + log_train + '\n' + log_val, TOKEN, CHAT_ID)
+            send_telegram_message(str(EXPERIMENT_FOLDER.split('/')[0]) + '_' + log_train + '\n' + log_val, TOKEN, CHAT_ID)
             
             # Write to current config report file
             with open(curr_config_report_file, "a") as f:
@@ -180,6 +181,20 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             early_stopping(val_loss, model)
             if early_stopping.early_stop:
                 print(f"Stopped early at epoch {epoch}")
+                # Load the best model and test it
+                model.load_state_dict(torch.load(early_stopping.path))
+                test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
+                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
+                print(log_test)
+                with open(curr_config_report_file, "a") as f:
+                    f.write(log_test + "\n")
+                wandb_run.log({
+                    'test_loss': test_loss,
+                    'test_precision': test_precision,
+                    'test_recall': test_recall,
+                    'test_f1': test_f1
+                })
+                wandb_run.finish()
                 break
             
         # Print statistics
@@ -223,7 +238,7 @@ if __name__ == "__main__":
     num_classes = len(LABELS_CODES)
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, num_classes)
-    export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_mlp.csv'))
+    export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_{MODEL_NAME}.csv'))
     
     from utils.reports_scraper import process_all_experiments
     process_all_experiments(EXPERIMENT_FOLDER)

@@ -21,9 +21,6 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), "models/__pycache__"))
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(BASEDIR, "data/data")
 
-# Dataset information file
-DATASET_INFO_FILE = os.path.join(DATADIR, "dataset_info.csv")
-
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 ## === END FILESYSTEM PARAMETERS === ##
@@ -33,7 +30,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 N_EPOCHS = 100            # Number of epochs for training
 GRID_N_EPOCHS = 500     # Number of epochs for grid search
 PARAM_GRID = {
-    'dim_h': [128, 256, 512, 64], 
+    'dim_h': [64, 128, 256, 512], 
     'drop_rate': [0.3, 0.1, 0.5],
     'learning_rate': [1e-4],
     'l2_rate': [1e-5], 
@@ -49,7 +46,7 @@ N_RUNS = 5  # Number of runs for the model
 # "pathway" = 7 classes
 # "superclass" = 70 classes
 # "class" = 652 classes
-TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
 FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
@@ -57,7 +54,6 @@ N_SAMPLES = None  # Number of samples to pick from the training set. If set to N
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
 USE_MULTILABEL = True # If True, use multilabel classification
-MULTILABEL2MULTICLASS = False
 TRAINING_SPLIT = 0.6  # Percentage of samples to use for training
 VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
 # TEST_SPLIT = 0.2  # Percentage of samples to use for testing (automaticlly calculated)
@@ -102,20 +98,9 @@ ATOM_FEATURES_DICT = {
 
 ## === END DATASET PARAMETERS === ##
 
-## === NETWORK PARAMETERS === ##
-
-## NETWORK CONFIG
-H_DIM = 128
-# MODELS = ["gine", "gin", "gat", "gate", "mlp"] # Options: "gin", "gine", "mlp", "gat", "gate"
-# OR
-MODELS = ["gat"] # Only for non-grid search setup
-MODELS.sort()  # Minimize the dataset exchanges between models during training
-
-## === END NETWORK PARAMETERS === ##
-
 ## === EARLY STOPPING PARAMETERS == ##
 EARLY_PATIENCE = 7
-EARLY_MIN_DELTA = 0.01
+EARLY_MIN_DELTA = 0.001
 ## === END EARLY STOPPING PARAMETERS == ##
 
 ## === EXPERIMENT PARAMETERS === ##
@@ -134,21 +119,11 @@ else:
     raise ValueError("TARGET_TYPE must be one of 'pathway', 'superclass' or 'class'")
 
 PATHWAYS = {k: v for k, v in class_.items()}
+
 # LABELS_CODES in one-hot encoding
 LABELS_CODES = {i: np.array([1 if i == j else 0 for j in range(len(class_))]) for i in range(len(class_))}
-
-## === MULTILABEL === ##
-if MULTILABEL2MULTICLASS and TARGET_TYPE == "pathway":
-    PATHWAYS["Amino acids and Peptides Polyketides"] = 7
-    PATHWAYS["Alkaloids Terpenoids"] = 8
-    PATHWAYS["Polyketides Terpenoids"] = 9
-    LABELS_CODES[7] = np.array([0,1,0,0,1,0,0])
-    LABELS_CODES[8] = np.array([1,0,0,0,0,0,1])
-    LABELS_CODES[9] = np.array([0,0,0,0,1,0,1])
-    
-## === END EXPERIMENT PARAMETERS === ##
 
 ## === TELEGRAM PARAMETERS === ##
 TOKEN = "7544529562:AAHiLMgvUXanJDWHm0xFOsIfbasBgEqOaQw"
 CHAT_ID = "252746684"
-    
+## === END TELEGRAM PARAMETERS === ##

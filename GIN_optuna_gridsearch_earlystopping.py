@@ -10,7 +10,7 @@ from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
             
-from config import TOKEN, CHAT_ID, USE_MULTILABEL
+from config import TOKEN, CHAT_ID, USE_MULTILABEL, DEVICE as device
 from utils.send_telegram_message import send_telegram_message
 
 from models.GIN import *
@@ -24,9 +24,11 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 from gridsearch_dataset_builder import prepare_dataloaders
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, PARAM_GRID, DATASET_ID, EARLY_PATIENCE, EARLY_MIN_DELTA
 
-train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders("gin")
+MODEL_NAME = "gin"
 
-EXPERIMENT_FOLDER = initialize_experiment(f"gin_{DATASET_ID}", TARGET_TYPE, BASEDIR)
+train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders(MODEL_NAME)
+
+EXPERIMENT_FOLDER = initialize_experiment(f"{MODEL_NAME}_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
 wandb_kwargs = {"project": EXPERIMENT_FOLDER.split('/')[-1],
                 "notes": f"{EXPERIMENT_FOLDER.split('/')[-1].split('_')[0].upper()} model for {TARGET_TYPE} classification on {DATASET_ID} dataset",
@@ -35,14 +37,14 @@ wandb.init(**wandb_kwargs)
 wandb.run._redirect = False
 
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    gin_config = {
+
+    grid_config = {
         'dim_h': trial.suggest_categorical("dim_h", PARAM_GRID['dim_h']),
         'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
         'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
         'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
     }
-    curr_config_report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_GIN_{config_idx}.txt")
+    curr_config_report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_{MODEL_NAME}_{config_idx}.txt")
     grid_statistics = {
         'train_loss': [],
         'train_precision': [],
@@ -64,10 +66,10 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         )
 
         wandb_config = {
-            'dim_h': gin_config['dim_h'],
-            'drop_rate': gin_config['drop_rate'],
-            'learning_rate': gin_config['learning_rate'],
-            'l2_rate': gin_config['l2_rate'],
+            'dim_h': grid_config['dim_h'],
+            'drop_rate': grid_config['drop_rate'],
+            'learning_rate': grid_config['learning_rate'],
+            'l2_rate': grid_config['l2_rate'],
             'n_heads': 2,
             'batch_size': 32,
             'n_epochs': GRID_N_EPOCHS,
@@ -84,9 +86,9 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         set_seed(run + 42)
         model = GIN(
             num_node_features=num_node_features,
-            dim_h=gin_config['dim_h'],
+            dim_h=grid_config['dim_h'],
             num_classes=num_classes,
-            drop_rate=gin_config['drop_rate']
+            drop_rate=grid_config['drop_rate']
         ).to(device)
         # Reset the model weights
         for layer in model.children():
@@ -100,15 +102,15 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         # Print the model summary
         print(f"Model summary: {model}")
         # Print the model configuration
-        print(f"Model initialized with config: {gin_config}")
+        print(f"Model initialized with config: {grid_config}")
         # Save all to text file
         with open(curr_config_report_file, "a") as f:
             f.write(f"Configuration {config_idx}/{n_config} - Run {run+1}/{N_RUNS}\n")
             f.write(f"Number of parameters: {num_params}\n")
             f.write(f"Model summary: {model}\n")
-            f.write(f"Model configuration: {gin_config}\n")
+            f.write(f"Model configuration: {grid_config}\n")
 
-        optimizer = optim.Adam(model.parameters(), lr=gin_config['learning_rate'], weight_decay=gin_config['l2_rate'])
+        optimizer = optim.Adam(model.parameters(), lr=grid_config['learning_rate'], weight_decay=grid_config['l2_rate'])
         criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss()
         
         early_stopping = EarlyStopping(
@@ -125,14 +127,14 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
 
             val_loss, val_precision, val_recall, val_f1 = evaluation_epoch(model, val_loader, criterion, device)
 
-            log_train = f"[CONFIG {config_idx}/{n_config}][GIN TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
-            log_val = f"[CONFIG {config_idx}/{n_config}][GIN VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}"
+            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
+            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}"
             
-            print(gin_config)
+            print(grid_config)
             print(log_train)
             print(log_val)
             
-            send_telegram_message(EXPERIMENT_FOLDER.split('/')[0] + '_' + log_train + '\n' + log_val, TOKEN, CHAT_ID)
+            send_telegram_message(str(EXPERIMENT_FOLDER.split('/')[0]) + '_' + log_train + '\n' + log_val, TOKEN, CHAT_ID)
             
             # Write to current config report file
             with open(curr_config_report_file, "a") as f:
@@ -165,6 +167,20 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             early_stopping(val_loss, model)
             if early_stopping.early_stop:
                 print(f"Stopped early at epoch {epoch}")
+                # Load the best model and test it
+                model.load_state_dict(torch.load(early_stopping.path))
+                test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
+                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
+                print(log_test)
+                with open(curr_config_report_file, "a") as f:
+                    f.write(log_test + "\n")
+                wandb_run.log({
+                    'test_loss': test_loss,
+                    'test_precision': test_precision,
+                    'test_recall': test_recall,
+                    'test_f1': test_f1
+                })
+                wandb_run.finish()
                 break
             
         # Print statistics
@@ -208,7 +224,7 @@ if __name__ == "__main__":
     num_classes = len(LABELS_CODES)
 
     best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, num_classes)
-    export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_gin.csv'))
+    export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_{MODEL_NAME}.csv'))
     
     from utils.reports_scraper import process_all_experiments
     process_all_experiments(EXPERIMENT_FOLDER)
