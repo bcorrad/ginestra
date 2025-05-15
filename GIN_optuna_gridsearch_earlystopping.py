@@ -169,8 +169,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
                 print(f"Stopped early at epoch {epoch}")
                 # Load the best model and test it
                 model.load_state_dict(torch.load(early_stopping.path))
-                test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
-                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
+                test_loss, test_precision, test_recall, test_f1, test_top_k_accuracy = evaluation_epoch(model, test_loader, criterion, device)
+                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1 Accuracy: {test_top_k_accuracy['1']:.4f}, Top-3 Accuracy: {test_top_k_accuracy['2']:.4f}, Top-5 Accuracy: {test_top_k_accuracy['3']:.4f}"
                 print(log_test)
                 with open(curr_config_report_file, "a") as f:
                     f.write(log_test + "\n")
