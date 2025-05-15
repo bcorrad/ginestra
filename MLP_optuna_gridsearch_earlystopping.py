@@ -45,7 +45,7 @@ PARAM_GRID = {
     'l2_rate': [1e-6],
 }
 
-def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):
+def objective(trial, train_loader, val_loader, test_loader, num_classes, config_idx, n_config):
     
     grid_config = {
         'unit1': trial.suggest_categorical("unit1", PARAM_GRID['unit1']),
@@ -141,8 +141,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
 
             val_loss, val_precision, val_recall, val_f1, top_k_accuracy = evaluation_epoch(model, val_loader, criterion, device)
 
-            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
-            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {top_k_accuracy['1']:.4f}, Top-3 Accuracy: {top_k_accuracy['2']:.4f}, Top-5 Accuracy: {top_k_accuracy['3']:.4f}"
+            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
+            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {top_k_accuracy['1']:.4f}, Top-3 Accuracy: {top_k_accuracy['2']:.4f}, Top-5 Accuracy: {top_k_accuracy['3']:.4f}"
             
             print(grid_config)
             print(log_train)
@@ -184,7 +184,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
                 # Load the best model and test it
                 model.load_state_dict(torch.load(early_stopping.path))
                 test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
-                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
+                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
                 print(log_test)
                 with open(curr_config_report_file, "a") as f:
                     f.write(log_test + "\n")
@@ -209,7 +209,7 @@ def export_results_to_csv(study, filename='optuna_results.csv'):
     print(f"Risultati esportati in {filename}")
 
 
-def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features, num_classes):
+def optuna_grid_search(train_loader, val_loader, test_loader, num_classes):
     param_grid = PARAM_GRID
     search_space = {key: list(values) for key, values in param_grid.items()}
     sampler = samplers.GridSampler(search_space)
@@ -218,7 +218,7 @@ def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features,
     def wrapped_objective(trial):
         config_idx = len(study.trials)
         n_config = len(sampler._all_grids)
-        return objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config)
+        return objective(trial, train_loader, val_loader, test_loader, num_classes, config_idx, n_config)
 
     study.optimize(wrapped_objective, n_trials=len(sampler._all_grids))
     
@@ -234,10 +234,9 @@ if __name__ == "__main__":
     val_dataloader = val_dataloader
     test_dataloader = test_dataloader
     sample = next(iter(train_dataloader))
-    num_node_features = sample.x.size(-1)
     num_classes = len(LABELS_CODES)
 
-    best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, num_classes)
+    best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_classes)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_{MODEL_NAME}.csv'))
     
     from utils.reports_scraper import process_all_experiments

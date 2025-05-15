@@ -1,12 +1,11 @@
-from config import DATADIR, TARGET_TYPE, N_SAMPLES, FORCE_DATASET_GENERATION, ATOM_FEATURES_DICT, BATCH_SIZE, TRAINING_SPLIT, VALIDATION_SPLIT, USE_MULTILABEL
+from config import DATADIR, TARGET_TYPE, N_SAMPLES, ATOM_FEATURES_DICT, BATCH_SIZE, TRAINING_SPLIT, VALIDATION_SPLIT, USE_MULTILABEL
 from config import DATASET_ID
 from typing import Union, Literal
 import pickle
-import os, json
 from utils.fingerprint_handler import calculate_fingerprint
 import numpy as np
 import pandas as pd
-from rdkit import Chem
+from rdkit import Chem, RDLogger
 from rdkit.Chem.rdmolops import GetAdjacencyMatrix
 import torch, pickle
 from torch_geometric.data import Data
@@ -14,7 +13,7 @@ from utils.graph_data_def import get_atom_features, get_bond_features
 from torch.utils.data import Dataset, DataLoader
 from torch_geometric.loader import DataLoader as GeoDataLoader
 from tqdm import tqdm
-import torch.nn.functional as F
+RDLogger.DisableLog('rdApp.*') # Disable RDKit warnings
 
 
 class CustomDataset(Dataset):
@@ -135,7 +134,7 @@ def dataset_split(matrix, n_samples=N_SAMPLES):
         indices = np.where(np.all(matrix_single_label == row, axis=1))[0]
         if len(indices) > 1:
             classwise_indices.append(indices)
-            print(f"Row {i} corresponding to class {np.argmax(row)} occurs {len(indices)} times in the original matrix.")
+            print(f"Row {i} corresponding to class {[m for m in np.where(row==1)[0]]} occurs {len(indices)} times in the original matrix.")
     
     # Equally distribute the samples of each class using the classwise indices
     training_indices = []
@@ -402,7 +401,7 @@ def prepare_dataloaders(model_name: str, batch_size: int=32):
         if not USE_MULTILABEL:
             dataset = {k: v for k, v in dataset.items() if np.sum(v[TARGET_TYPE.capitalize()]) == 1}
         smiles_df = [dataset[i]['SMILES'] for i in dataset.keys()]
-        fingerprint_list = [np.concatenate(calculate_fingerprint(i, 2), axis=1) for i in smiles_df]
+        fingerprint_list = [np.concatenate(calculate_fingerprint(i, 2), axis=1) for i in tqdm(smiles_df)]
         labels_list = [dataset[i][TARGET_TYPE.capitalize()] for i in dataset.keys()]
 
         df = pd.DataFrame({'SMILES': smiles_df, 'fingerprint': fingerprint_list, TARGET_TYPE.capitalize(): labels_list})

@@ -127,8 +127,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
 
             val_loss, val_precision, val_recall, val_f1, top_k_accuracy = evaluation_epoch(model, val_loader, criterion, device)
 
-            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
-            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {top_k_accuracy['1']:.4f}, Top-3 Accuracy: {top_k_accuracy['2']:.4f}, Top-5 Accuracy: {top_k_accuracy['3']:.4f}"
+            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
+            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {top_k_accuracy['1']:.4f}, Top-3 Accuracy: {top_k_accuracy['2']:.4f}, Top-5 Accuracy: {top_k_accuracy['3']:.4f}"
             
             print(grid_config)
             print(log_train)
@@ -170,7 +170,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
                 # Load the best model and test it
                 model.load_state_dict(torch.load(early_stopping.path))
                 test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
-                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
+                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
                 print(log_test)
                 with open(curr_config_report_file, "a") as f:
                     f.write(log_test + "\n")

@@ -34,6 +34,7 @@ class GIN(torch.nn.Module):
         # === HIDDEN LAYER #2 ===
         self.conv3 = GINConv(Sequential(Linear(self.dim_h, self.dim_h_last), 
                                         ReLU(),
+                                        Linear(self.dim_h_last, self.dim_h_last),
                                         ))
         self.bn3 = BatchNorm1d(self.dim_h_last)
 
