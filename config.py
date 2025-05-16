@@ -48,7 +48,7 @@ N_RUNS = 5  # Number of runs for the model
 # "pathway" = 7 classes
 # "superclass" = 70 classes
 # "class" = 652 classes
-TARGET_TYPE = "pathway"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
 FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
@@ -63,7 +63,6 @@ VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE) otherwise CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 
 ## DATASET ENCODING
-TARGET_MODE = "hot" # if CLS_LIST is not None and len(CLS_LIST) > 2 else "binary" # Options: "binary" or "ohe" (one-hot encoding)
 USE_FINGERPRINT = False
 
 ## ATOM FEATURES (Atom symbols always present in "label" format)
@@ -102,7 +101,7 @@ ATOM_FEATURES_DICT = {
 
 ## === EARLY STOPPING PARAMETERS == ##
 EARLY_PATIENCE = 7
-EARLY_MIN_DELTA = 0.001
+EARLY_MIN_DELTA = 0.0001
 ## === END EARLY STOPPING PARAMETERS == ##
 
 ## === EXPERIMENT PARAMETERS === ##

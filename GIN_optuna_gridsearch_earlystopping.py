@@ -1,4 +1,4 @@
-import os, time, requests
+import os, time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -124,24 +124,20 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             start_time = time.time()
             train_loss, train_precision, train_recall, train_f1 = training_epoch(model, train_loader, optimizer, criterion, device)
             end_time = time.time()
-
-            val_loss, val_precision, val_recall, val_f1, top_k_accuracy = evaluation_epoch(model, val_loader, criterion, device)
-
-            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
-            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {top_k_accuracy['1']:.4f}, Top-3 Accuracy: {top_k_accuracy['2']:.4f}, Top-5 Accuracy: {top_k_accuracy['3']:.4f}"
-            
             print(grid_config)
-            print(log_train)
-            print(log_val)
             
+            log_train = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TRAINING RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Train Loss: {train_loss:.4f}, Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1: {train_f1:.4f}, Epoch Time: {end_time - start_time:.2f} seconds"
+            print(log_train)
+            
+            val_loss, val_precision, val_recall, val_f1, topk = evaluation_epoch(model, val_loader, criterion, device)
+            log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {topk['1']:.4f}, Top-3 Accuracy: {topk['3']:.4f}, Top-5 Accuracy: {topk['5']:.4f}, Top-1 Coverage: {topk['1_coverage']:.4f}, Top-3 Coverage: {topk['3_coverage']:.4f}, Top-5 Coverage: {topk['5_coverage']:.4f}"
+            print(log_val)
             telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + '\n <b>Training</b>\n' + log_train + '\n <b>Validation</b>\n' + log_val
             send_telegram_message(telegram_log, TOKEN, CHAT_ID) if epoch % 10 == 0 else None
-            
             # Write to current config report file
             with open(curr_config_report_file, "a") as f:
                 f.write(log_train + "\n")
                 f.write(log_val + "\n")
-            
             wandb_run.log({
                 'train_loss': train_loss,
                 'train_precision': train_precision,
@@ -153,7 +149,6 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
                 'val_f1': val_f1,
                 'epoch_time': end_time - start_time
             })
-            
             grid_statistics['train_loss'].append(train_loss)
             grid_statistics['train_precision'].append(train_precision)
             grid_statistics['train_recall'].append(train_recall)
@@ -163,16 +158,14 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             grid_statistics['val_recall'].append(val_recall)
             grid_statistics['val_f1'].append(val_f1)
             grid_statistics['epoch_time'].append(end_time - start_time)
-            
             # EarlyStopping step
             early_stopping(val_loss, model)
             if early_stopping.early_stop:
                 # Load the best model and test it
                 print(f"Stopped early at epoch {epoch}. Loading best model from {early_stopping.path}")
                 model.load_state_dict(torch.load(early_stopping.path))
-                test_loss, test_precision, test_recall, test_f1, test_top_k_accuracy = evaluation_epoch(model, test_loader, criterion, device)
-                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1 Accuracy: {test_top_k_accuracy['1']:.4f}, Top-3 Accuracy: {test_top_k_accuracy['2']:.4f}, Top-5 Accuracy: {test_top_k_accuracy['3']:.4f}"
-                test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
+                test_loss, test_precision, test_recall, test_f1, test_topk = evaluation_epoch(model, test_loader, criterion, device)
+                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1 Accuracy: {test_topk['1']:.4f}, Top-3 Accuracy: {test_topk['3']:.4f}, Top-5 Accuracy: {test_topk['5']:.4f}, Top-1 Coverage: {test_topk['1_coverage']:.4f}, Top-3 Coverage: {test_topk['3_coverage']:.4f}, Top-5 Coverage: {test_topk['5_coverage']:.4f}"
                 telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + '\n <b>Test</b>\n' + log_test
                 send_telegram_message(telegram_log, TOKEN, CHAT_ID)
                 print(log_test)
@@ -186,12 +179,12 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
                 })
                 wandb_run.finish()
                 break
-            
         # Print statistics
         final_stats(grid_statistics, config_idx, n_config)
         wandb_run.finish()
 
     return torch.mean(torch.tensor(grid_statistics['val_loss'])), torch.mean(torch.tensor(grid_statistics['val_f1']))
+
 
 def export_results_to_csv(study, filename='optuna_results.csv'):
     df = study.trials_dataframe()
@@ -211,9 +204,7 @@ def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features,
         return objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config)
 
     study.optimize(wrapped_objective, n_trials=len(sampler._all_grids))
-    
     optuna_plot(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_plot.png'))
-    
     best = study.best_trial
 
     return best.params, study

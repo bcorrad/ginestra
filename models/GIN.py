@@ -1,13 +1,7 @@
 import torch
 import torch.nn.functional as F
-import numpy as np
-from config import PATHWAYS, TARGET_MODE
-import os
 from torch_geometric.nn import GINConv, global_add_pool
-from torch.nn import Linear, Sequential, BatchNorm1d, ReLU, Dropout
-from sklearn.metrics import classification_report
-from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
-from utils.topk import top_k_accuracy
+from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 
 class GIN(torch.nn.Module):
     """GIN"""
@@ -53,12 +47,6 @@ class GIN(torch.nn.Module):
 
 
     def forward(self, x, edge_index, batch, **kwargs):
-        
-        if "fingerprint" in kwargs:
-            fingerprint = kwargs["fingerprint"]
-            fingerprint_emb = self.fingerprint_processor(torch.Tensor(fingerprint))
-        else:
-            fingerprint = None
 
         # Node embeddings 
         h1 = self.conv1(x, edge_index)
@@ -83,12 +71,7 @@ class GIN(torch.nn.Module):
         h1_pool = global_add_pool(h1, batch)
         h2_pool = global_add_pool(h2, batch)
         h3_pool = global_add_pool(h3, batch)
-
-        # Concatenate the embeddings and the fingerprint if not None
-        if fingerprint is not None:
-            h = torch.cat([h1_pool, h2_pool, h3_pool, fingerprint_emb], dim=1)
-        else:
-            h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
+        h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
 
         # Classifier
         h = self.lin1(h)

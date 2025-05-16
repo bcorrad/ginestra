@@ -36,5 +36,5 @@ class MLP(nn.Module):
         x = self.bn4(x)
         x = self.dropout(x)
         
-        x = torch.sigmoid(self.output(x))  # Binary multi-label classification
+        x = self.output(x)  
         return x

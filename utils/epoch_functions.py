@@ -1,8 +1,8 @@
-import torch
+import torch, numpy as np
 import torch.nn.functional as F
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.metrics import classification_report
-from utils.topk import top_k_accuracy
+from utils.topk import top_k_accuracy, top_k_coverage
 
 
 def training_epoch(model, dataloader, optimizer, criterion, device):
@@ -33,24 +33,20 @@ def training_epoch(model, dataloader, optimizer, criterion, device):
             optimizer.zero_grad()
             out = model(x)
         elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
-            # batch = batch.to(device)
-            x, y = batch.x.to(device).float(), batch.y.to(device).float()
+            x, y, edge_index, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.batch.to(device)
             optimizer.zero_grad()
-            out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch) # [batch, num_classes]
-            # y = batch.y
-        loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y.float())
+            out = model(x, edge_index=edge_index, batch=batch_) # [batch, num_classes]
+        loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-        preds_argmax = torch.argmax(out, dim=1)
-        targets_argmax = torch.argmax(y, dim=1)
-        all_preds.extend(preds_argmax.cpu().numpy())
-        all_targets.extend(targets_argmax.cpu().numpy())
+        all_preds.extend(out.detach().cpu().numpy())
+        all_targets.extend(y.detach().cpu().numpy())
         
     avg_loss = total_loss / len(dataloader)
-    precision = precision_score(all_targets, all_preds, average='macro', zero_division=0)
-    recall = recall_score(all_targets, all_preds, average='macro', zero_division=0)
-    f1 = f1_score(all_targets, all_preds, average='macro', zero_division=0)
+    precision = precision_score(all_targets, (F.sigmoid(torch.Tensor(np.array(all_preds)))>0.5), average='macro', zero_division=0)
+    recall = recall_score(all_targets, (F.sigmoid(torch.Tensor(np.array(all_preds)))>0.5), average='macro', zero_division=0)
+    f1 = f1_score(all_targets, (F.sigmoid(torch.Tensor(np.array(all_preds)))>0.5), average='macro', zero_division=0)
 
     return avg_loss, precision, recall, f1
 
@@ -71,7 +67,7 @@ def evaluation_epoch(model, dataloader, criterion, device):
     model.eval()
     total_loss = 0.0
     all_preds, all_targets = [], []
-    topk_accuracy = {}
+    topk = {}
 
     with torch.no_grad():
         for b, batch in enumerate(dataloader):
@@ -81,26 +77,22 @@ def evaluation_epoch(model, dataloader, criterion, device):
                 x = x.squeeze(1) if x.dim() == 3 else x  # [batch, feature_dim]
                 out = model(x)
             elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
-                batch = batch.to(device)
-                out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch) # [batch, num_classes]
-                y = batch.y
-                
-            loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y.float())
+                x, y, edge_index, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.batch.to(device)
+                out = model(x, edge_index=edge_index, batch=batch_) # [batch, num_classes]
+            loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y)
             total_loss += loss.item()
-            preds_argmax = torch.argmax(out, dim=1)
-            targets_argmax = torch.argmax(y, dim=1)
-            all_preds.extend(preds_argmax.cpu().numpy())
-            all_targets.extend(targets_argmax.cpu().numpy())
-            if b%100 == 0:
-                print(f"Batch {b}/{len(dataloader)}, Loss: {loss.item():.4f}, Precision: {precision_score(targets_argmax.cpu(), preds_argmax.cpu(), average='macro', zero_division=0):.4f}, Recall: {recall_score(targets_argmax.cpu(), preds_argmax.cpu(), average='macro', zero_division=0):.4f}, F1: {f1_score(targets_argmax.cpu(), preds_argmax.cpu(), average='macro', zero_division=0):.4f}")
+            all_preds.extend(out.cpu().numpy())
+            all_targets.extend(y.cpu().numpy())
 
         avg_loss = total_loss / len(dataloader)
-        precision = precision_score(all_targets, all_preds, average='macro', zero_division=0)
-        recall = recall_score(all_targets, all_preds, average='macro', zero_division=0)
-        f1 = f1_score(all_targets, all_preds, average='macro', zero_division=0)
-        topk_accuracy['1'] = top_k_accuracy(out, y, k=1)
-        topk_accuracy['2'] = top_k_accuracy(out, y, k=3)
-        topk_accuracy['3'] = top_k_accuracy(out, y, k=5)
+        precision = precision_score(all_targets, (F.sigmoid(torch.Tensor(np.array(all_preds))) > 0.5), average='macro', zero_division=0)
+        recall = recall_score(all_targets, (F.sigmoid(torch.Tensor(np.array(all_preds))) > 0.5), average='macro', zero_division=0)
+        f1 = f1_score(all_targets, (F.sigmoid(torch.Tensor(np.array(all_preds))) > 0.5), average='macro', zero_division=0)
+        topk['1'] = top_k_accuracy(out, y, k=1)
+        topk['3'] = top_k_accuracy(out, y, k=3)
+        topk['5'] = top_k_accuracy(out, y, k=5)
+        topk['1_coverage'] = top_k_coverage(out, y, k=1)
+        topk['3_coverage'] = top_k_coverage(out, y, k=3)
+        topk['5_coverage'] = top_k_coverage(out, y, k=5)
 
-    return avg_loss, precision, recall, f1, topk_accuracy
-
+    return avg_loss, precision, recall, f1, topk

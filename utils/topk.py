@@ -33,3 +33,24 @@ def top_k_accuracy(output, target, k=3):
                 correct[i] = True
 
         return correct.float().mean().item()
+
+
+def top_k_coverage(output, target, k=3):
+    """
+    Calcola la copertura media delle etichette vere nelle top-k predette.
+    """
+    with torch.no_grad():
+        topk_preds = output.topk(k, dim=1).indices
+        true_label_indices = target.nonzero(as_tuple=False)
+        true_dict = defaultdict(set)
+        for i, j in true_label_indices:
+            true_dict[i.item()].add(j.item())
+
+        coverage_scores = torch.zeros(output.size(0), device=output.device)
+        for i in range(output.size(0)):
+            pred_set = set(topk_preds[i].tolist())
+            true_set = true_dict[i]
+            if len(true_set) > 0:
+                coverage_scores[i] = len(pred_set & true_set) / len(true_set)
+
+        return coverage_scores.mean().item()
