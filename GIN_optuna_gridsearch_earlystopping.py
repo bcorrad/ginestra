@@ -173,7 +173,6 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
                 test_loss, test_precision, test_recall, test_f1, test_top_k_accuracy = evaluation_epoch(model, test_loader, criterion, device)
                 log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1 Accuracy: {test_top_k_accuracy['1']:.4f}, Top-3 Accuracy: {test_top_k_accuracy['2']:.4f}, Top-5 Accuracy: {test_top_k_accuracy['3']:.4f}"
                 test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
-                log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
                 telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + '\n <b>Test</b>\n' + log_test
                 send_telegram_message(telegram_log, TOKEN, CHAT_ID)
                 print(log_test)
