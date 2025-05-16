@@ -14,7 +14,7 @@ class GIN(torch.nn.Module):
         self.dim_h_last = dim_h_last
         
         # === INPUT LAYER === 
-        self.conv1 = GINConv(Sequential(Linear(num_node_features, self.dim_h), 
+        self.conv1 = GINConv(Sequential(Linear(self.num_node_features, self.dim_h), 
                                         ReLU(),
                                         Linear(self.dim_h, self.dim_h),
                                         ))
@@ -43,7 +43,7 @@ class GIN(torch.nn.Module):
         
         # === OUTPUT LAYER ===
         self.lin1 = torch.nn.Linear(self.readout_dim, 1024)
-        self.lin2 = torch.nn.Linear(1024, num_classes)
+        self.lin2 = torch.nn.Linear(1024, self.num_classes)
 
 
     def forward(self, x, edge_index, batch, **kwargs):
