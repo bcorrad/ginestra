@@ -26,16 +26,24 @@ def training_epoch(model, dataloader, optimizer, criterion, device):
     all_preds, all_targets = [], []
 
     for b, batch in enumerate(dataloader):
-        batch = batch.to(device)
-        optimizer.zero_grad()
-        out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch) # [batch, num_classes]
-        targets = batch.y                                                      
-        loss = criterion(out, targets.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, targets.float())
+        if "MLP" in model.__class__.__name__:
+            # Fingerprint at index 1 (shape [batch, 1, feature_dim]); target at index 2
+            x, y = batch[1].to(device).float(), batch[2].to(device).float()
+            x = x.squeeze(1) if x.dim() == 3 else x  # [batch, feature_dim]
+            optimizer.zero_grad()
+            out = model(x)
+        elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
+            # batch = batch.to(device)
+            x, y = batch.x.to(device).float(), batch.y.to(device).float()
+            optimizer.zero_grad()
+            out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch) # [batch, num_classes]
+            # y = batch.y
+        loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y.float())
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
         preds_argmax = torch.argmax(out, dim=1)
-        targets_argmax = torch.argmax(targets, dim=1)
+        targets_argmax = torch.argmax(y, dim=1)
         all_preds.extend(preds_argmax.cpu().numpy())
         all_targets.extend(targets_argmax.cpu().numpy())
         
@@ -67,13 +75,20 @@ def evaluation_epoch(model, dataloader, criterion, device):
 
     with torch.no_grad():
         for b, batch in enumerate(dataloader):
-            batch = batch.to(device)
-            out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch)
-            targets = batch.y
-            loss = criterion(out, targets.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, targets.float())
+            if "MLP" in model.__class__.__name__:
+                # Fingerprint at index 1; target at index 2
+                x, y = batch[1].to(device).float(), batch[2].to(device).float()
+                x = x.squeeze(1) if x.dim() == 3 else x  # [batch, feature_dim]
+                out = model(x)
+            elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
+                batch = batch.to(device)
+                out = model(batch.x, edge_index=batch.edge_index, batch=batch.batch) # [batch, num_classes]
+                y = batch.y
+                
+            loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y.float())
             total_loss += loss.item()
             preds_argmax = torch.argmax(out, dim=1)
-            targets_argmax = torch.argmax(targets, dim=1)
+            targets_argmax = torch.argmax(y, dim=1)
             all_preds.extend(preds_argmax.cpu().numpy())
             all_targets.extend(targets_argmax.cpu().numpy())
             if b%100 == 0:
@@ -83,9 +98,9 @@ def evaluation_epoch(model, dataloader, criterion, device):
         precision = precision_score(all_targets, all_preds, average='macro', zero_division=0)
         recall = recall_score(all_targets, all_preds, average='macro', zero_division=0)
         f1 = f1_score(all_targets, all_preds, average='macro', zero_division=0)
-        topk_accuracy['1'] = top_k_accuracy(out, targets, k=1)
-        topk_accuracy['2'] = top_k_accuracy(out, targets, k=3)
-        topk_accuracy['3'] = top_k_accuracy(out, targets, k=5)
+        topk_accuracy['1'] = top_k_accuracy(out, y, k=1)
+        topk_accuracy['2'] = top_k_accuracy(out, y, k=3)
+        topk_accuracy['3'] = top_k_accuracy(out, y, k=5)
 
     return avg_loss, precision, recall, f1, topk_accuracy
 

@@ -21,9 +21,8 @@ class MLP(nn.Module):
         
         self.output = nn.Linear(unit3, num_classes)
 
-    def forward(self, input):
+    def forward(self, x):
         # x = torch.cat((input_f, input_b), dim=1)
-        x = input
         x = F.relu(self.fc1(x))
         x = self.bn1(x)
         

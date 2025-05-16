@@ -78,12 +78,12 @@ def objective(trial, train_loader, val_loader, test_loader, num_classes, config_
         )
 
         wandb_config = {
-            'dim_h': grid_config['dim_h'],
+            'unit1': grid_config['unit1'],
+            'unit2': grid_config['unit2'],
+            'unit3': grid_config['unit3'],
             'drop_rate': grid_config['drop_rate'],
             'learning_rate': grid_config['learning_rate'],
             'l2_rate': grid_config['l2_rate'],
-            'n_heads': 2,
-            'batch_size': 32,
             'n_epochs': GRID_N_EPOCHS,
             'n_runs': N_RUNS,
             'target_type': TARGET_TYPE,
