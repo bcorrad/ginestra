@@ -10,7 +10,7 @@ from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
             
-from config import TOKEN, CHAT_ID, USE_MULTILABEL, DEVICE as device
+from config import TOKEN, CHAT_ID, USERNAME, DEVICE as device
 from utils.send_telegram_message import send_telegram_message
 
 from models.MLP import *
@@ -22,7 +22,7 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 from gridsearch_dataset_builder import prepare_dataloaders
-from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, DATASET_ID, EARLY_PATIENCE, EARLY_MIN_DELTA
+from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, DATASET_ID, EARLY_PATIENCE, EARLY_MIN_DELTA, USE_MULTILABEL
 
 MODEL_NAME = "mlp"
 
@@ -148,7 +148,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_classes, config_
             print(log_train)
             print(log_val)
             
-            send_telegram_message(str(EXPERIMENT_FOLDER.split('/')[0]) + '_' + log_train + '\n' + log_val, TOKEN, CHAT_ID)
+            telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + '\n <b>Training</b>\n' + log_train + '\n <b>Validation</b>\n' + log_val
+            send_telegram_message(telegram_log, TOKEN, CHAT_ID) if epoch % 10 == 0 else None
             
             # Write to current config report file
             with open(curr_config_report_file, "a") as f:
@@ -186,6 +187,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_classes, config_
                 test_loss, test_precision, test_recall, test_f1 = evaluation_epoch(model, test_loader, criterion, device)
                 log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}"
                 print(log_test)
+                telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + '\n <b>Testing</b>\n' + log_test
+                send_telegram_message(telegram_log, TOKEN, CHAT_ID)
                 with open(curr_config_report_file, "a") as f:
                     f.write(log_test + "\n")
                 wandb_run.log({

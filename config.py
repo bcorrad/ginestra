@@ -5,9 +5,11 @@ import wandb
 
 # Check in 'corradini' is in the path
 if 'corradini' in os.getcwd():
+    USERNAME = "Barbara"
     wandb.login(key="f904ed1462c53edef7fef2f82b6c04e99ea34339")
 elif 'giulio' in os.getcwd():
     wandb.login(key="03c8065e56dc0abe77944c0bcfbc88b313878717")
+    USERNAME = "Alessia"
 
 # Remove __pycache__ folder if it exists
 if os.path.exists(os.path.join(os.path.dirname(__file__), "__pycache__")):
