@@ -1,7 +1,7 @@
 import torch
 
 class EarlyStopping:
-    def __init__(self, curr_epoch, patience=5, min_delta=0.0, verbose=False, path='checkpoint.pt'):
+    def __init__(self, patience=5, min_delta=0.0, verbose=False, path='checkpoint.pt'):
         """
         Args:
             patience (int): quante epoche aspettare senza miglioramento
@@ -17,15 +17,16 @@ class EarlyStopping:
         self.counter = 0
         self.best_loss = None
         self.early_stop = False
-        self.curr_epoch = curr_epoch
+        self.last_checkpoint_epoch = None
 
-    def __call__(self, val_loss, model):
+    def __call__(self, val_loss, model, curr_epoch):
         if self.best_loss is None:
             self.best_loss = val_loss
             self._save_checkpoint(model)
         elif val_loss < self.best_loss - self.min_delta:
             self.best_loss = val_loss
             self.counter = 0
+            self.last_checkpoint_epoch = curr_epoch
             self._save_checkpoint(model)
         else:
             self.counter += 1
@@ -39,7 +40,6 @@ class EarlyStopping:
     def _save_checkpoint(self, model):
         if self.verbose:
             print(f"Saving model to {self.path} (val_loss: {self.best_loss:.4f})")
-        self.last_checkpoint_epoch = self.curr_epoch
         torch.save(model.state_dict(), self.path)
 
     def load_best(self, model):
