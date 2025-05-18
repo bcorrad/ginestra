@@ -58,7 +58,6 @@ class GIN(torch.nn.Module):
         h1 = self.conv1(x, edge_index)
         h1 = self.bn1(h1)
         h1 = F.relu(h1)
-        # Dropout 
         h1 = F.dropout(h1, p=self.dropout, training=self.training)
 
         h2 = self.conv2(h1, edge_index)
