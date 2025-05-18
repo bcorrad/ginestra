@@ -10,7 +10,7 @@ from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
             
-from config import TOKEN, CHAT_ID, USERNAME, DEVICE as device
+from config import TOKEN, CHAT_ID, USERNAME, DEVICE as device, ENTITY_NAME
 from utils.send_telegram_message import send_telegram_message
 
 from models.GAT import *
@@ -30,11 +30,12 @@ train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders(MODEL_NA
 
 EXPERIMENT_FOLDER = initialize_experiment(f"{MODEL_NAME}_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
-wandb_kwargs = {"project": EXPERIMENT_FOLDER.split('/')[-1],
-                "notes": f"{EXPERIMENT_FOLDER.split('/')[-1].split('_')[0].upper()} model for {TARGET_TYPE} classification on {DATASET_ID} dataset",
-                "dir": os.path.join(EXPERIMENT_FOLDER, "wandb")}
-wandb.init(**wandb_kwargs)
-wandb.run._redirect = False
+wandb_kwargs = {"entity": ENTITY_NAME,
+                "project": f"GINESTRA",
+                "name": EXPERIMENT_FOLDER.split('/')[-1],
+                "dir": os.path.join(EXPERIMENT_FOLDER, "wandb"),}
+# wandb.init(**wandb_kwargs)
+# wandb.run._redirect = False
 
 def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):
 
@@ -59,26 +60,35 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
     }
 
     for run in range(N_RUNS):
+        # === WandB run initialization ===
         wandb_run = wandb.init(
+            entity=ENTITY_NAME,
             project=wandb_kwargs["project"],
-            name=f"CONFIG_{config_idx}_RUN_{run+1}",
+            name=f"CONFIG_{config_idx}_RUN_{run + 1}",
+            tags=[
+                EXPERIMENT_FOLDER.split('/')[-1],
+                MODEL_NAME,
+                f"config{config_idx}",
+                f"run{run + 1}"
+            ],
             dir=wandb_kwargs["dir"],
             group=f"CONFIG_{config_idx}"
         )
 
         wandb_config = {
+            'model_name': MODEL_NAME,
+            'experiment_id': EXPERIMENT_FOLDER.split('/')[-1],
             'dim_h': grid_config['dim_h'],
             'drop_rate': grid_config['drop_rate'],
             'learning_rate': grid_config['learning_rate'],
             'l2_rate': grid_config['l2_rate'],
-            'n_heads': grid_config['n_heads'],
-            'batch_size': 32,
             'n_epochs': GRID_N_EPOCHS,
             'n_runs': N_RUNS,
             'target_type': TARGET_TYPE,
             'dataset_id': DATASET_ID,
-            'run': run + 1,
-            'config_idx': config_idx
+            'run': run+1,
+            'config_idx': config_idx,
+            'username': USERNAME,
         }
 
         wandb_run.config.update(wandb_config)
