@@ -1,6 +1,6 @@
 import torch
 
-def final_stats(statistics: dict, config_idx: int, n_config: int):
+def final_stats(statistics: dict, config_idx: int, n_config: int, last_checkpoint_epoch: int = None):
     """
     Print the final statistics of the training and validation process.
     
@@ -10,23 +10,26 @@ def final_stats(statistics: dict, config_idx: int, n_config: int):
         n_config (int): The total number of configurations.
     """
     
-    avg_train_loss = torch.mean(torch.tensor(statistics['train_loss']))
-    avg_train_precision = torch.mean(torch.tensor(statistics['train_precision']))
-    avg_train_recall = torch.mean(torch.tensor(statistics['train_recall']))
-    avg_train_f1 = torch.mean(torch.tensor(statistics['train_f1']))
-    std_train_loss = torch.std(torch.tensor(statistics['train_loss']))
-    std_train_precision = torch.std(torch.tensor(statistics['train_precision']))
-    std_train_recall = torch.std(torch.tensor(statistics['train_recall']))
-    std_train_f1 = torch.std(torch.tensor(statistics['train_f1']))
-    avg_val_loss = torch.mean(torch.tensor(statistics['val_loss']))
-    avg_val_precision = torch.mean(torch.tensor(statistics['val_precision']))
-    avg_val_recall = torch.mean(torch.tensor(statistics['val_recall']))
-    avg_val_f1 = torch.mean(torch.tensor(statistics['val_f1']))
-    std_val_loss = torch.std(torch.tensor(statistics['val_loss']))
-    std_val_precision = torch.std(torch.tensor(statistics['val_precision']))
-    std_val_recall = torch.std(torch.tensor(statistics['val_recall']))
-    std_val_f1 = torch.std(torch.tensor(statistics['val_f1']))
-    avg_epoch_time = torch.mean(torch.tensor(statistics['epoch_time']))
+    if last_checkpoint_epoch is None:
+        last_checkpoint_epoch = len(statistics['train_loss'])
+    
+    avg_train_loss = torch.mean(torch.tensor(statistics['train_loss'][:last_checkpoint_epoch]))
+    avg_train_precision = torch.mean(torch.tensor(statistics['train_precision'][:last_checkpoint_epoch]))
+    avg_train_recall = torch.mean(torch.tensor(statistics['train_recall'][:last_checkpoint_epoch]))
+    avg_train_f1 = torch.mean(torch.tensor(statistics['train_f1'][:last_checkpoint_epoch]))
+    std_train_loss = torch.std(torch.tensor(statistics['train_loss'][:last_checkpoint_epoch]))
+    std_train_precision = torch.std(torch.tensor(statistics['train_precision'][:last_checkpoint_epoch]))
+    std_train_recall = torch.std(torch.tensor(statistics['train_recall'][:last_checkpoint_epoch]))
+    std_train_f1 = torch.std(torch.tensor(statistics['train_f1'][:last_checkpoint_epoch]))
+    avg_val_loss = torch.mean(torch.tensor(statistics['val_loss'][:last_checkpoint_epoch]))
+    avg_val_precision = torch.mean(torch.tensor(statistics['val_precision'][:last_checkpoint_epoch]))
+    avg_val_recall = torch.mean(torch.tensor(statistics['val_recall'][:last_checkpoint_epoch]))
+    avg_val_f1 = torch.mean(torch.tensor(statistics['val_f1'][:last_checkpoint_epoch]))
+    std_val_loss = torch.std(torch.tensor(statistics['val_loss'][:last_checkpoint_epoch]))
+    std_val_precision = torch.std(torch.tensor(statistics['val_precision'][:last_checkpoint_epoch]))
+    std_val_recall = torch.std(torch.tensor(statistics['val_recall'][:last_checkpoint_epoch]))
+    std_val_f1 = torch.std(torch.tensor(statistics['val_f1'][:last_checkpoint_epoch]))
+    avg_epoch_time = torch.mean(torch.tensor(statistics['epoch_time'][:last_checkpoint_epoch]))
 
     final_log_train = f"[CONFIG {config_idx}/{n_config}] Train Loss: {avg_train_loss:.4f} ± {std_train_loss:.4f}, Precision: {avg_train_precision:.4f} ± {std_train_precision:.4f}, Recall: {avg_train_recall:.4f} ± {std_train_recall:.4f}, F1: {avg_train_f1:.4f} ± {std_train_f1:.4f}, Epoch Time: {avg_epoch_time:.2f} seconds"
     

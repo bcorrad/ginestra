@@ -198,7 +198,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_classes, config_
             grid_statistics['epoch_time'].append(end_time - start_time)
             
             # EarlyStopping step
-            early_stopping(val_loss, model)
+            early_stopping(val_loss, model, epoch)
             if early_stopping.early_stop:
                 print(f"Stopped early at epoch {epoch}")
                 # Load the best model and test it
@@ -220,7 +220,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_classes, config_
                 break
             
         # Print statistics
-        final_stats(grid_statistics, config_idx, n_config)
+        final_stats(grid_statistics, config_idx, n_config, early_stopping.last_checkpoint_epoch)
         wandb_run.finish()
 
     return torch.mean(torch.tensor(grid_statistics['val_loss'])), torch.mean(torch.tensor(grid_statistics['val_f1']))
