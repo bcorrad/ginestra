@@ -35,7 +35,7 @@ def training_epoch(model, dataloader, optimizer, criterion, device):
         elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
             x, y, edge_index, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.batch.to(device)
             optimizer.zero_grad()
-            out = model(x, edge_index=edge_index, batch=batch_) # [batch, num_classes]
+            out = model(x, edge_index=edge_index, batch=batch_, fingerprint=batch.fingerprint_tensor.to(device)) # [batch, num_classes]
         loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y)
         loss.backward()
         optimizer.step()
@@ -78,7 +78,7 @@ def evaluation_epoch(model, dataloader, criterion, device):
                 out = model(x)
             elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
                 x, y, edge_index, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.batch.to(device)
-                out = model(x, edge_index=edge_index, batch=batch_) # [batch, num_classes]
+                out = model(x, edge_index=edge_index, batch=batch_, fingerprint=batch.fingerprint_tensor.to(device)) # [batch, num_classes]
             loss = criterion(out, y.argmax(dim=1)) if not isinstance(criterion, torch.nn.BCEWithLogitsLoss) else criterion(out, y)
             total_loss += loss.item()
             all_preds.extend(out.cpu().numpy())

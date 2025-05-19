@@ -59,14 +59,6 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
     }
 
     for run in range(N_RUNS):
-        # wandb_run = wandb.init(
-        #     entity=ENTITY_NAME,
-        #     project=wandb_kwargs["project"],
-        #     name=f"CONFIG_{config_idx}_RUN_{run + 1}",
-        #     tags=[EXPERIMENT_FOLDER.split('/')[-1], MODEL_NAME, f"config{config_idx}", f"run{run+1}", wandb.run.user.name],
-        #     dir=wandb_kwargs["dir"],
-        #     group=f"CONFIG_{config_idx}"
-        # )
         
         # === WandB run initialization ===
         wandb_run = wandb.init(

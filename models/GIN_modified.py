@@ -39,17 +39,17 @@ class GIN(torch.nn.Module):
         else:
             raise ValueError("Dropout rate not specified in kwargs")
         
-        self.readout_dim = self.dim_h + self.dim_h + self.dim_h_last  # h1 + h2 + h3
+        self.readout_dim = self.dim_h + self.dim_h + self.dim_h_last + 6144  # h1 + h2 + h3
         
         # === OUTPUT LAYER ===
         # === OUTPUT CLASSIFIER ===
-        self.out_lin1 = torch.nn.Linear(self.readout_dim, 1024)
-        self.out_bn1 = torch.nn.BatchNorm1d(1024)
+        self.out_lin1 = torch.nn.Linear(self.readout_dim, self.readout_dim//2)
+        self.out_bn1 = torch.nn.BatchNorm1d(self.out_lin1.out_features)
 
-        self.out_lin2 = torch.nn.Linear(1024, 1024)
-        self.out_bn2 = torch.nn.BatchNorm1d(1024)
+        # self.out_lin2 = torch.nn.Linear(self.readout_dim//2, self.readout_dim//4)
+        # self.out_bn2 = torch.nn.BatchNorm1d(self.readout_dim//4)
 
-        self.out_lin3 = torch.nn.Linear(1024, self.num_classes)
+        self.out_lin3 = torch.nn.Linear(self.out_bn1.num_features, self.num_classes)
 
 
     def forward(self, x, edge_index, batch, **kwargs):
@@ -77,14 +77,17 @@ class GIN(torch.nn.Module):
         h2_pool = global_add_pool(h2, batch)
         h3_pool = global_add_pool(h3, batch)
         h = torch.cat([h1_pool, h2_pool, h3_pool], dim=1)
-
+        # === Add fingerprint ===
+        if "fingerprint" in kwargs and kwargs["fingerprint"] is not None:
+            h = torch.cat([h, kwargs["fingerprint"]], dim=1)
+            
         # Classifier
         h = self.out_lin1(h)
         h = self.out_bn1(h)
         h = F.relu(h)
-        h = self.out_lin2(h)
-        h = self.out_bn2(h)
-        h = F.relu(h)
+        # h = self.out_lin2(h)
+        # h = self.out_bn2(h)
+        # h = F.relu(h)
         h = self.out_lin3(h)
         
         return h
