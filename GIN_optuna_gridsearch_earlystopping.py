@@ -94,7 +94,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         wandb_run.config.update(wandb_config)
         wandb_run.log(wandb_config)
 
-        set_seed(run + 42)
+        # set_seed(run + 42)
         model = GIN(
             num_node_features=num_node_features,
             dim_h=grid_config['dim_h'],
