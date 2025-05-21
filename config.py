@@ -11,7 +11,8 @@ elif 'giulio' in os.getcwd():
     wandb.login(key="03c8065e56dc0abe77944c0bcfbc88b313878717")
     USERNAME = "Alessia"
     
-ENTITY_NAME = "ginestra"
+WANDB_ENTITY_NAME = "ginestra"
+WANDB_PROJECT_NAME = f"GINESTRA_DEF"
 
 # Remove __pycache__ folder if it exists
 if os.path.exists(os.path.join(os.path.dirname(__file__), "__pycache__")):
