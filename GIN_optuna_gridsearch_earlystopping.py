@@ -9,7 +9,7 @@ from utils.experiment_init import initialize_experiment
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
             
-from config import TOKEN, CHAT_ID, USERNAME, WANDB_ENTITY_NAME, WANDB_PROJECT_NAME, DEVICE as device, USE_FINGERPRINT
+from config import TOKEN, CHAT_ID, USERNAME, WANDB_ENTITY_NAME, WANDB_PROJECT_NAME, USE_FINGERPRINT, DEVICE as device
 from utils.send_telegram_message import send_telegram_message
 
 # from models.GIN_modified import *
@@ -30,7 +30,7 @@ train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders(MODEL_NA
 
 EXPERIMENT_FOLDER = initialize_experiment(f"{MODEL_NAME}_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
-wandb_kwargs = {"entity": ENTITY_NAME,
+wandb_kwargs = {"entity": WANDB_ENTITY_NAME,
                 "project": WANDB_PROJECT_NAME,
                 "name": EXPERIMENT_FOLDER.split('/')[-1],
                 "dir": os.path.join(EXPERIMENT_FOLDER, "wandb"),}
