@@ -5,7 +5,7 @@ from torch.nn import Linear, Sequential, BatchNorm1d, ReLU, ModuleList
 
 class GIN(torch.nn.Module):
     """Parametrized GIN"""
-    def __init__(self, num_node_features, dim_h, num_classes, num_layers=3, dim_h_last=512, classifier_hidden_dims=[2048, 1024, 512], **kwargs):
+    def __init__(self, num_node_features, dim_h, num_classes, num_layers=4, dim_h_last=512, classifier_hidden_dims=[1024], **kwargs):
         super(GIN, self).__init__()
 
         self.num_node_features = num_node_features

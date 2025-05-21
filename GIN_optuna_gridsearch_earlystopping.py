@@ -129,7 +129,8 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             patience=EARLY_PATIENCE,
             min_delta=EARLY_MIN_DELTA,
             verbose=True,
-            path=os.path.join(EXPERIMENT_FOLDER, "models", f"best_model_config_{config_idx}_run_{run+1}.pt")
+            path=os.path.join(EXPERIMENT_FOLDER, "models", f"best_model_config_{config_idx}_run_{run+1}.pt"),
+            metric_name="val_f1"
         )
 
         for epoch in range(GRID_N_EPOCHS):
@@ -171,7 +172,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             grid_statistics['val_f1'].append(val_f1)
             grid_statistics['epoch_time'].append(end_time - start_time)
             # EarlyStopping step
-            early_stopping(metric_value=val_f1, model=model, curr_epoch=epoch, metric_name="val_f1")
+            early_stopping(metric_value=val_f1, model=model, curr_epoch=epoch)
             if early_stopping.early_stop:
                 # Load the best model and test it
                 print(f"Stopped early at epoch {epoch}. Loading best model from {early_stopping.path}")
