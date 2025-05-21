@@ -62,7 +62,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         
         # === WandB run initialization ===
         wandb_run = wandb.init(
-            entity=ENTITY_NAME,
+            entity=WANDB_ENTITY_NAME,
             project=wandb_kwargs["project"],
             name=f"CONFIG_{config_idx}_RUN_{run + 1}",
             tags=[
