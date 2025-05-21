@@ -41,14 +41,9 @@ class GIN(torch.nn.Module):
         
         self.readout_dim = self.dim_h + self.dim_h + self.dim_h_last + 6144  # h1 + h2 + h3
         
-        # === OUTPUT LAYER ===
         # === OUTPUT CLASSIFIER ===
         self.out_lin1 = torch.nn.Linear(self.readout_dim, self.readout_dim//2)
         self.out_bn1 = torch.nn.BatchNorm1d(self.out_lin1.out_features)
-
-        # self.out_lin2 = torch.nn.Linear(self.readout_dim//2, self.readout_dim//4)
-        # self.out_bn2 = torch.nn.BatchNorm1d(self.readout_dim//4)
-
         self.out_lin3 = torch.nn.Linear(self.out_bn1.num_features, self.num_classes)
 
 

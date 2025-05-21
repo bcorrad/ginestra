@@ -6,14 +6,14 @@ import torch.optim as optim
 from utils.seed import set_seed
 from utils.earlystop import EarlyStopping
 from utils.experiment_init import initialize_experiment
-from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
             
-from config import TOKEN, CHAT_ID, USERNAME, ENTITY_NAME, DEVICE as device
+from config import TOKEN, CHAT_ID, USERNAME, ENTITY_NAME, DEVICE as device, USE_FINGERPRINT
 from utils.send_telegram_message import send_telegram_message
 
-from models.GIN_modified import *
+# from models.GIN_modified import *
+from models.GIN_parametrized import GIN
 
 import optuna, wandb
 import optuna.samplers as samplers
@@ -94,12 +94,13 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
         wandb_run.config.update(wandb_config)
         wandb_run.log(wandb_config)
 
-        # set_seed(run + 42)
+        set_seed(run + 42)
         model = GIN(
             num_node_features=num_node_features,
             dim_h=grid_config['dim_h'],
             num_classes=num_classes,
-            drop_rate=grid_config['drop_rate']
+            drop_rate=grid_config['drop_rate'],
+            fingerprint=USE_FINGERPRINT,
         ).to(device)
         # Reset the model weights
         for layer in model.children():
@@ -170,7 +171,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             grid_statistics['val_f1'].append(val_f1)
             grid_statistics['epoch_time'].append(end_time - start_time)
             # EarlyStopping step
-            early_stopping(val_loss, model, epoch)
+            early_stopping(metric_value=val_f1, model=model, curr_epoch=epoch, metric_name="val_f1")
             if early_stopping.early_stop:
                 # Load the best model and test it
                 print(f"Stopped early at epoch {epoch}. Loading best model from {early_stopping.path}")
@@ -215,7 +216,6 @@ def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features,
         return objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config)
 
     study.optimize(wrapped_objective, n_trials=len(sampler._all_grids))
-    optuna_plot(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_plot.png'))
     best = study.best_trial
 
     return best.params, study
