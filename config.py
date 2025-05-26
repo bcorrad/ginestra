@@ -12,7 +12,7 @@ elif 'giulio' in os.getcwd():
     USERNAME = "Alessia"
     
 WANDB_ENTITY_NAME = "ginestra"
-WANDB_PROJECT_NAME = f"GINESTRA_DEF"
+WANDB_PROJECT_NAME = f"GINESTRA_nuovo"
 
 # Remove __pycache__ folder if it exists
 if os.path.exists(os.path.join(os.path.dirname(__file__), "__pycache__")):
@@ -39,7 +39,7 @@ PARAM_GRID = {
     'drop_rate': [0.3],
     'learning_rate': [1e-4],
     'l2_rate': [1e-5], 
-    'n_heads': [2],
+    'n_heads': [4],
 }
 N_RUNS = 5  # Number of runs for the model
 
@@ -51,7 +51,7 @@ N_RUNS = 5  # Number of runs for the model
 # "pathway" = 7 classes
 # "superclass" = 70 classes
 # "class" = 652 classes
-TARGET_TYPE = "superclass"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "pathway"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
 FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset

@@ -1,11 +1,11 @@
 import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GINConv, global_add_pool
-from torch.nn import Linear, Sequential, BatchNorm1d, ReLU, ModuleList
+from torch.nn import Linear, Sequential, BatchNorm1d, ReLU, ModuleList, GELU
 
 class GIN(torch.nn.Module):
     """Parametrized GIN"""
-    def __init__(self, num_node_features, dim_h, num_classes, num_layers=4, dim_h_last=512, classifier_hidden_dims=[1024], **kwargs):
+    def __init__(self, num_node_features, dim_h, num_classes, num_layers=5, dim_h_last=512, classifier_hidden_dims=[1024], **kwargs):
         super(GIN, self).__init__()
 
         self.num_node_features = num_node_features
@@ -13,7 +13,7 @@ class GIN(torch.nn.Module):
         self.dim_h = dim_h
         self.dim_h_last = dim_h_last
         self.num_layers = num_layers
-        self.readout_dim = 6144 if kwargs.get("fingerprint") is True else 0
+        self.readout_dim =  0    # 6144 if kwargs.get("fingerprint") is True else 0
         self.dropout = kwargs.get("drop_rate", ValueError("Dropout rate not specified in kwargs"))
 
         self.convs = ModuleList()
@@ -25,7 +25,8 @@ class GIN(torch.nn.Module):
 
             nn = Sequential(
                 Linear(in_dim, out_dim),
-                ReLU(),
+                GELU(),
+                #ReLU(),
                 Linear(out_dim, out_dim),
             )
             self.convs.append(GINConv(nn))
@@ -44,6 +45,8 @@ class GIN(torch.nn.Module):
         in_dim = input_dim
         for hidden_dim in hidden_dims:
             layers.append(Linear(in_dim, hidden_dim))
+            layers.append(BatchNorm1d(hidden_dim))
+            #layers.append(GELU())
             layers.append(ReLU())
             in_dim = hidden_dim
         layers.append(Linear(in_dim, output_dim))
@@ -54,10 +57,12 @@ class GIN(torch.nn.Module):
         for i in range(self.num_layers):
             x = self.convs[i](x, edge_index)
             x = self.bns[i](x)
+            #x = F.gelu(x)
             x = F.relu(x)
             xs.append(global_add_pool(x, batch))
 
-        x = torch.cat(xs + [kwargs["fingerprint"]], dim=1) if "fingerprint" in kwargs and kwargs["fingerprint"] is not None else torch.cat(xs, dim=1)
+        #x = torch.cat(xs + [kwargs["fingerprint"]], dim=1) if "fingerprint" in kwargs and kwargs["fingerprint"] is not None else torch.cat(xs, dim=1)
+        x = torch.cat(xs, dim=1)
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.classifier(x)
         return x

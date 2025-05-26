@@ -122,7 +122,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             f.write(f"Model summary: {model}\n")
             f.write(f"Model configuration: {grid_config}\n")
 
-        optimizer = optim.Adam(model.parameters(), lr=grid_config['learning_rate'], weight_decay=grid_config['l2_rate'])
+        optimizer = optim.AdamW(model.parameters(), lr=grid_config['learning_rate'], weight_decay=grid_config['l2_rate'])
         criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss()
         
         early_stopping = EarlyStopping(

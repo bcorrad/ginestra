@@ -10,7 +10,7 @@ from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
             
-from config import TOKEN, CHAT_ID, USERNAME, DEVICE as device, ENTITY_NAME
+from config import TOKEN, CHAT_ID, USERNAME, WANDB_ENTITY_NAME, WANDB_PROJECT_NAME, USE_FINGERPRINT, DEVICE as device
 from utils.send_telegram_message import send_telegram_message
 
 from models.GAT import *
@@ -30,8 +30,8 @@ train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders(MODEL_NA
 
 EXPERIMENT_FOLDER = initialize_experiment(f"{MODEL_NAME}_{DATASET_ID}", TARGET_TYPE, BASEDIR)
 
-wandb_kwargs = {"entity": ENTITY_NAME,
-                "project": f"GINESTRA",
+wandb_kwargs = {"entity": WANDB_ENTITY_NAME,
+                "project": WANDB_PROJECT_NAME,
                 "name": EXPERIMENT_FOLDER.split('/')[-1],
                 "dir": os.path.join(EXPERIMENT_FOLDER, "wandb"),}
 # wandb.init(**wandb_kwargs)
@@ -62,7 +62,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
     for run in range(N_RUNS):
         # === WandB run initialization ===
         wandb_run = wandb.init(
-            entity=ENTITY_NAME,
+            entity=WANDB_ENTITY_NAME,
             project=wandb_kwargs["project"],
             name=f"CONFIG_{config_idx}_RUN_{run + 1}",
             tags=[
@@ -99,7 +99,9 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             num_node_features=num_node_features,
             dim_h=grid_config['dim_h'],
             num_classes=num_classes,
-            drop_rate=grid_config['drop_rate']
+            drop_rate=grid_config['drop_rate'],
+            n_heads_in=grid_config['n_heads'],
+            n_heads_out=1
         ).to(device)
         # Reset the model weights
         for layer in model.children():
@@ -121,14 +123,15 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             f.write(f"Model summary: {model}\n")
             f.write(f"Model configuration: {grid_config}\n")
 
-        optimizer = optim.Adam(model.parameters(), lr=grid_config['learning_rate'], weight_decay=grid_config['l2_rate'])
-        criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss()
+        optimizer = optim.AdamW(model.parameters(), lr=grid_config['learning_rate'], weight_decay=grid_config['l2_rate'])
+        criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss() # nn.MultiLabelSoftMarginLoss()  
         
         early_stopping = EarlyStopping(
             patience=EARLY_PATIENCE,
             min_delta=EARLY_MIN_DELTA,
             verbose=True,
-            path=os.path.join(EXPERIMENT_FOLDER, "models", f"best_model_config_{config_idx}_run_{run+1}.pt")
+            path=os.path.join(EXPERIMENT_FOLDER, "models", f"best_model_config_{config_idx}_run_{run+1}.pt"),
+            metric_name="val_f1"
         )
 
         for epoch in range(GRID_N_EPOCHS):
@@ -143,7 +146,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             val_loss, val_precision, val_recall, val_f1, topk = evaluation_epoch(model, val_loader, criterion, device)
             log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {topk['1']:.4f}, Top-3 Accuracy: {topk['3']:.4f}, Top-5 Accuracy: {topk['5']:.4f}, Top-1 Coverage: {topk['1_coverage']:.4f}, Top-3 Coverage: {topk['3_coverage']:.4f}, Top-5 Coverage: {topk['5_coverage']:.4f}"
             print(log_val)
-            telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + grid_config + '\n <b>Training</b>\n' + log_train + '\n <b>Validation</b>\n' + log_val
+            telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + str(grid_config) + '\n <b>Training</b>\n' + log_train + '\n <b>Validation</b>\n' + log_val
             send_telegram_message(telegram_log, TOKEN, CHAT_ID) if epoch % 10 == 0 else None
             # Write to current config report file
             with open(curr_config_report_file, "a") as f:
@@ -170,14 +173,14 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             grid_statistics['val_f1'].append(val_f1)
             grid_statistics['epoch_time'].append(end_time - start_time)
             # EarlyStopping step
-            early_stopping(val_loss, model, epoch)
+            early_stopping(val_f1, model, epoch)
             if early_stopping.early_stop:
                 # Load the best model and test it
                 print(f"Stopped early at epoch {epoch}. Loading best model from {early_stopping.path}")
                 model.load_state_dict(torch.load(early_stopping.path))
                 test_loss, test_precision, test_recall, test_f1, test_topk = evaluation_epoch(model, test_loader, criterion, device)
                 log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1 Accuracy: {test_topk['1']:.4f}, Top-3 Accuracy: {test_topk['3']:.4f}, Top-5 Accuracy: {test_topk['5']:.4f}, Top-1 Coverage: {test_topk['1_coverage']:.4f}, Top-3 Coverage: {test_topk['3_coverage']:.4f}, Top-5 Coverage: {test_topk['5_coverage']:.4f}"
-                telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + grid_config + '\n <b>Test</b>\n' + log_test
+                telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + str(grid_config) + '\n <b>Test</b>\n' + log_test
                 send_telegram_message(telegram_log, TOKEN, CHAT_ID)
                 print(log_test)
                 with open(curr_config_report_file, "a") as f:
@@ -215,7 +218,7 @@ def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features,
         return objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config)
 
     study.optimize(wrapped_objective, n_trials=len(sampler._all_grids))
-    optuna_plot(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_plot.png'))
+    # optuna_plot(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_plot.png'))
     best = study.best_trial
 
     return best.params, study
