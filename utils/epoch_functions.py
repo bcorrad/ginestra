@@ -33,10 +33,14 @@ def training_epoch(model, dataloader, optimizer, criterion, device):
             x = x.squeeze(1) if x.dim() == 3 else x  # [batch, feature_dim]
             optimizer.zero_grad()
             out = model(x)
-        elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
+        elif model.__class__.__name__ == "GIN" or model.__class__.__name__ == "GAT":
             x, y, edge_index, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.batch.to(device)
             optimizer.zero_grad()
             out = model(x, edge_index=edge_index, batch=batch_, fingerprint=batch.fingerprint_tensor.to(device) if USE_FINGERPRINT else None) # [batch, num_classes]
+        elif model.__class__.__name__ == "GINE" or model.__class__.__name__ == "GATE":
+            x, y, edge_index, edge_attr, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.edge_attr.to(device), batch.batch.to(device)
+            optimizer.zero_grad()
+            out = model(x, edge_index=edge_index, edge_attr=edge_attr, batch=batch_, fingerprint=batch.fingerprint_tensor.to(device) if USE_FINGERPRINT else None)
         if isinstance(criterion, torch.nn.CrossEntropyLoss):
             loss = criterion(out, y.argmax(dim=1))
         elif isinstance(criterion, torch.nn.BCEWithLogitsLoss) or isinstance(criterion, torch.nn.MultiLabelSoftMarginLoss):
@@ -80,9 +84,12 @@ def evaluation_epoch(model, dataloader, criterion, device):
                 x, y = batch[1].to(device).float(), batch[2].to(device).float()
                 x = x.squeeze(1) if x.dim() == 3 else x  # [batch, feature_dim]
                 out = model(x)
-            elif "GIN" in model.__class__.__name__ or "GAT" in model.__class__.__name__:
+            elif model.__class__.__name__ == "GIN" or model.__class__.__name__ == "GAT":
                 x, y, edge_index, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.batch.to(device)
                 out = model(x, edge_index=edge_index, batch=batch_, fingerprint=batch.fingerprint_tensor.to(device) if USE_FINGERPRINT else None) # [batch, num_classes]
+            elif model.__class__.__name__ == "GINE" or model.__class__.__name__ == "GATE":
+                x, y, edge_index, edge_attr, batch_ = batch.x.to(device).float(), batch.y.to(device).float(), batch.edge_index.to(device), batch.edge_attr.to(device), batch.batch.to(device)
+                out = model(x, edge_index=edge_index, edge_attr=edge_attr, batch=batch_, fingerprint=batch.fingerprint_tensor.to(device) if USE_FINGERPRINT else None)
             if isinstance(criterion, torch.nn.CrossEntropyLoss):
                 loss = criterion(out, y.argmax(dim=1))
             elif isinstance(criterion, torch.nn.BCEWithLogitsLoss) or isinstance(criterion, torch.nn.MultiLabelSoftMarginLoss):
