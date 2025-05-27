@@ -104,7 +104,7 @@ def get_atom_features(atom,
 
 
 def get_bond_features(bond, 
-                      use_stereochemistry=True):
+                      use_stereochemistry=False):    # era a True
     """
     Takes an RDKit bond object as input and gives a 1d-numpy array of bond features as output.
     """

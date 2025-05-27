@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 from gridsearch_dataset_builder import prepare_dataloaders
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, PARAM_GRID, DATASET_ID, EARLY_PATIENCE, EARLY_MIN_DELTA, USE_MULTILABEL
 
-MODEL_NAME = "gat"
+MODEL_NAME = "gate"
 
 train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders(MODEL_NAME)
 

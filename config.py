@@ -51,10 +51,10 @@ N_RUNS = 5  # Number of runs for the model
 # "pathway" = 7 classes
 # "superclass" = 70 classes
 # "class" = 652 classes
-TARGET_TYPE = "pathway"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
-FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
+FORCE_DATASET_GENERATION = True # If True, force the generation of the dataset
 N_SAMPLES = None  # Number of samples to pick from the training set. If set to None, all samples are used
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset

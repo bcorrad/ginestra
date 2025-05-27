@@ -61,24 +61,24 @@ class GAT(torch.nn.Module):
         self.fc1 = torch.nn.Linear(self.readout_dim, 1024)
         self.fc2 = torch.nn.Linear(1024, self.num_classes)
 
-    def forward(self, x, edge_index, batch, **kwargs):
+    def forward(self, x, edge_index, edge_attr, batch, **kwargs):
 
         # Layer 1 + skip
-        h1 = self.conv1(x, edge_index)
+        h1 = self.conv1(x, edge_index, edge_attr)
         h1 = self.bn1(h1)
         h1 = F.elu(h1)
         h1 = F.dropout(h1, p=self.dropout, training=self.training)
         h1 = h1 + self.lin1(x)  # skip connection (adattamento dimensione)
 
         # Layer 2 + skip
-        h2 = self.conv2(h1, edge_index)
+        h2 = self.conv2(h1, edge_index, edge_attr)
         h2 = self.bn2(h2)
         h2 = F.elu(h2)
         h2 = F.dropout(h2, p=self.dropout, training=self.training)
         h2 = h2 + self.lin2(h1)
 
         #Layer 3 + skip
-        h3 = self.conv3(h2, edge_index)
+        h3 = self.conv3(h2, edge_index, edge_attr)
         h3 = self.bn3(h3)
         h3 = F.elu(h3)
         h3 = F.dropout(h3, p=self.dropout, training=self.training)
