@@ -6,14 +6,14 @@ import torch.optim as optim
 from utils.seed import set_seed
 from utils.earlystop import EarlyStopping
 from utils.experiment_init import initialize_experiment
-from utils.optuna_plots import optuna_plot
 from utils.print_stats import final_stats
 from utils.epoch_functions import training_epoch, evaluation_epoch
-
+            
 from config import TOKEN, CHAT_ID, USERNAME, WANDB_ENTITY_NAME, WANDB_PROJECT_NAME, USE_FINGERPRINT, DEVICE as device
 from utils.send_telegram_message import send_telegram_message
 
-from models.GATE import *
+# from models.GIN_modified import *
+from models.GCN import *
 
 import optuna, wandb
 import optuna.samplers as samplers
@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 from gridsearch_dataset_builder import prepare_dataloaders
 from config import GRID_N_EPOCHS, N_RUNS, LABELS_CODES, TARGET_TYPE, BASEDIR, PARAM_GRID, DATASET_ID, EARLY_PATIENCE, EARLY_MIN_DELTA, USE_MULTILABEL
 
-MODEL_NAME = "gate"
+MODEL_NAME = "gcn"
 
 train_dataloader, val_dataloader, test_dataloader = prepare_dataloaders(MODEL_NAME)
 
@@ -37,14 +37,13 @@ wandb_kwargs = {"entity": WANDB_ENTITY_NAME,
 # wandb.init(**wandb_kwargs)
 # wandb.run._redirect = False
 
-def objective(trial, train_loader, val_loader, test_loader, num_node_features, edge_dim, num_classes, config_idx, n_config):
+def objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config):
 
     grid_config = {
         'dim_h': trial.suggest_categorical("dim_h", PARAM_GRID['dim_h']),
         'drop_rate': trial.suggest_categorical("drop_rate", PARAM_GRID['drop_rate']),
         'learning_rate': trial.suggest_categorical("learning_rate", PARAM_GRID['learning_rate']),
         'l2_rate': trial.suggest_categorical("l2_rate", PARAM_GRID['l2_rate']),
-        'n_heads': trial.suggest_categorical("n_heads", PARAM_GRID['n_heads']),
     }
     curr_config_report_file = os.path.join(EXPERIMENT_FOLDER, "reports", f"report_optuna_{MODEL_NAME}_{config_idx}.txt")
     grid_statistics = {
@@ -60,6 +59,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
     }
 
     for run in range(N_RUNS):
+        
         # === WandB run initialization ===
         wandb_run = wandb.init(
             entity=WANDB_ENTITY_NAME,
@@ -95,14 +95,12 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
         wandb_run.log(wandb_config)
 
         set_seed(run + 42)
-        model = GATE(
+        model = GCN(
             num_node_features=num_node_features,
             dim_h=grid_config['dim_h'],
             num_classes=num_classes,
             drop_rate=grid_config['drop_rate'],
-            n_heads_in=grid_config['n_heads'],
-            n_heads_out=1,
-            edge_dim=edge_dim
+            fingerprint=USE_FINGERPRINT,
         ).to(device)
         # Reset the model weights
         for layer in model.children():
@@ -125,7 +123,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
             f.write(f"Model configuration: {grid_config}\n")
 
         optimizer = optim.AdamW(model.parameters(), lr=grid_config['learning_rate'], weight_decay=grid_config['l2_rate'])
-        criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss() # nn.MultiLabelSoftMarginLoss()  
+        criterion = nn.CrossEntropyLoss() if not USE_MULTILABEL else nn.BCEWithLogitsLoss()
         
         early_stopping = EarlyStopping(
             patience=EARLY_PATIENCE,
@@ -147,7 +145,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
             val_loss, val_precision, val_recall, val_f1, topk = evaluation_epoch(model, val_loader, criterion, device)
             log_val = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} VALIDATION RUN {run+1}/{N_RUNS} EPOCH {epoch+1}/{GRID_N_EPOCHS}] Val Loss: {val_loss:.4f}, Precision: {val_precision:.4f}, Recall: {val_recall:.4f}, F1: {val_f1:.4f}, Top-1 Accuracy: {topk['1']:.4f}, Top-3 Accuracy: {topk['3']:.4f}, Top-5 Accuracy: {topk['5']:.4f}, Top-1 Coverage: {topk['1_coverage']:.4f}, Top-3 Coverage: {topk['3_coverage']:.4f}, Top-5 Coverage: {topk['5_coverage']:.4f}"
             print(log_val)
-            telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + str(grid_config) + '\n <b>Training</b>\n' + log_train + '\n <b>Validation</b>\n' + log_val
+            telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" +str(grid_config) + '\n <b>Training</b>\n' + log_train + '\n <b>Validation</b>\n' + log_val
             send_telegram_message(telegram_log, TOKEN, CHAT_ID) if epoch % 10 == 0 else None
             # Write to current config report file
             with open(curr_config_report_file, "a") as f:
@@ -174,14 +172,14 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, e
             grid_statistics['val_f1'].append(val_f1)
             grid_statistics['epoch_time'].append(end_time - start_time)
             # EarlyStopping step
-            early_stopping(val_f1, model, epoch)
+            early_stopping(metric_value=val_f1, model=model, curr_epoch=epoch)
             if early_stopping.early_stop:
                 # Load the best model and test it
                 print(f"Stopped early at epoch {epoch}. Loading best model from {early_stopping.path}")
                 model.load_state_dict(torch.load(early_stopping.path))
                 test_loss, test_precision, test_recall, test_f1, test_topk = evaluation_epoch(model, test_loader, criterion, device)
                 log_test = f"[CONFIG {config_idx}/{n_config}][{MODEL_NAME.upper()} TESTING RUN {run+1}/{N_RUNS}] Test Loss: {test_loss:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}, Top-1 Accuracy: {test_topk['1']:.4f}, Top-3 Accuracy: {test_topk['3']:.4f}, Top-5 Accuracy: {test_topk['5']:.4f}, Top-1 Coverage: {test_topk['1_coverage']:.4f}, Top-3 Coverage: {test_topk['3_coverage']:.4f}, Top-5 Coverage: {test_topk['5_coverage']:.4f}"
-                telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" + str(grid_config) + '\n <b>Test</b>\n' + log_test
+                telegram_log = f"<b>== {USERNAME} == {EXPERIMENT_FOLDER.split('/')[-1]}\n{TARGET_TYPE.upper()}</b>" +str(grid_config) + '\n <b>Test</b>\n' + log_test
                 send_telegram_message(telegram_log, TOKEN, CHAT_ID)
                 print(log_test)
                 with open(curr_config_report_file, "a") as f:
@@ -207,7 +205,7 @@ def export_results_to_csv(study, filename='optuna_results.csv'):
     print(f"Risultati esportati in {filename}")
 
 
-def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features, edge_dim, num_classes):
+def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features, num_classes):
     param_grid = PARAM_GRID
     search_space = {key: list(values) for key, values in param_grid.items()}
     sampler = samplers.GridSampler(search_space)
@@ -216,10 +214,9 @@ def optuna_grid_search(train_loader, val_loader, test_loader, num_node_features,
     def wrapped_objective(trial):
         config_idx = len(study.trials)
         n_config = len(sampler._all_grids)
-        return objective(trial, train_loader, val_loader, test_loader, num_node_features, edge_dim, num_classes, config_idx, n_config)
+        return objective(trial, train_loader, val_loader, test_loader, num_node_features, num_classes, config_idx, n_config)
 
     study.optimize(wrapped_objective, n_trials=len(sampler._all_grids))
-    # optuna_plot(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_plot.png'))
     best = study.best_trial
 
     return best.params, study
@@ -231,10 +228,9 @@ if __name__ == "__main__":
     test_dataloader = test_dataloader
     sample = next(iter(train_dataloader))
     num_node_features = sample.x.size(-1)
-    edge_dim = sample.edge_attr.size(-1) if sample.edge_attr is not None else None
     num_classes = len(LABELS_CODES)
 
-    best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, edge_dim, num_classes)
+    best_params, study = optuna_grid_search(train_dataloader, val_dataloader, test_dataloader, num_node_features, num_classes)
     export_results_to_csv(study, os.path.join(EXPERIMENT_FOLDER, 'optuna_results_{MODEL_NAME}.csv'))
     
     from utils.reports_scraper import process_all_experiments

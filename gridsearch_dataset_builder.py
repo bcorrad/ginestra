@@ -362,7 +362,7 @@ def prepare_dataloaders(model_name: str, batch_size: int=32):
                 print(f"File not found. Generating new dataset.")
                 config.FORCE_DATASET_GENERATION = True
 
-        if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
+        if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name or "gcn" in model_name:
             try:
                 gnn_train_dataloader_object = load_pickle(f'{DATADIR}/train_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
                 gnn_val_dataloader_object = load_pickle(f'{DATADIR}/val_geodataloader_{DATASET_ID}_{TARGET_TYPE}{suffix}.pkl')
@@ -425,7 +425,7 @@ def prepare_dataloaders(model_name: str, batch_size: int=32):
             save_pickle(mlp_val_dataloader, f'{DATADIR}/val_dataloader_{TARGET_TYPE}{suffix}.pkl')
             save_pickle(mlp_test_dataloader, f'{DATADIR}/test_dataloader_{TARGET_TYPE}{suffix}.pkl')
 
-        if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
+        if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name or "gcn" in model_name:
             train_datalist, train_dataset_info = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(train_df, target=TARGET_TYPE.capitalize())
             val_datalist, val_dataset_info = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(val_df, target=TARGET_TYPE.capitalize())
             test_datalist, test_dataset_info = create_pytorch_geometric_graph_data_list_from_smiles_and_labels(test_df, target=TARGET_TYPE.capitalize())
@@ -458,5 +458,5 @@ def prepare_dataloaders(model_name: str, batch_size: int=32):
     # Return the dataloaders
     if "mlp" in model_name:
         return mlp_train_dataloader, mlp_val_dataloader, mlp_test_dataloader
-    if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name:
+    if "gin" in model_name or "gine" in model_name or "gat" in model_name or "gate" in model_name or "gcn" in model_name:
         return gnn_train_dataloader, gnn_val_dataloader, gnn_test_dataloader

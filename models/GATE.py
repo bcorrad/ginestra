@@ -4,7 +4,7 @@ from torch.nn import BatchNorm1d, Linear, GELU
 from torch_geometric.nn import GATv2Conv, global_add_pool, global_max_pool, global_mean_pool
 from torch_geometric.nn import Set2Set
 
-class GAT(torch.nn.Module):
+class GATE(torch.nn.Module):
     """
     Graph Attention Network.
 
@@ -22,10 +22,10 @@ class GAT(torch.nn.Module):
         
         
         self.conv1 = GATv2Conv(self.num_node_features, self.dim_h, heads=self.n_heads, concat=True, edge_dim=self.edge_dim)   # Output (batch_size, dim_h * heads)
-        self.bn1 = BatchNorm1d(dim_h*n_heads_in)
+        self.bn1 = BatchNorm1d(dim_h * n_heads_in)
         self.lin1 = Linear(num_node_features, dim_h * n_heads_in)
 
-        self.conv2 = GATv2Conv(self.dim_h*n_heads_in, self.dim_h, heads=self.n_heads, concat=False, edge_dim=self.edge_dim)   # Output (batch_size, dim_h * heads)
+        self.conv2 = GATv2Conv(self.dim_h * n_heads_in, self.dim_h, heads=self.n_heads, concat=False, edge_dim=self.edge_dim)   # Output (batch_size, dim_h * heads)
         self.bn2 = BatchNorm1d(dim_h)
         self.lin2 = Linear(dim_h * n_heads_in, dim_h)  # Per skip
 
