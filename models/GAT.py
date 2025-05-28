@@ -21,7 +21,7 @@ class GAT(torch.nn.Module):
         self.n_heads = n_heads_in
         
         
-        self.conv1 = GATv2Conv(self.num_node_features, self.dim_h, heads=self.n_heads, concat=True, edge_dim=self.edge_dim)   # Output (batch_size, dim_h * heads)
+        self.conv1 = GATv2Conv(self.num_node_features, self.dim_h, heads=self.n_heads, concat=True, edge_dim=self.edge_dim)  # GATv2Conv expects input shape (batch_size, num_node_features) ; Output (batch_size, dim_h * heads)
         self.bn1 = BatchNorm1d(dim_h*n_heads_in)
         self.lin1 = Linear(num_node_features, dim_h * n_heads_in)
 
@@ -33,9 +33,9 @@ class GAT(torch.nn.Module):
         self.bn3 = BatchNorm1d(self.dim_h)
         self.lin3 = Linear(self.dim_h, self.dim_h)  # per skip connection
 
-        # self.conv4 = GATv2Conv(self.dim_h, self.dim_h, heads=self.n_heads, concat=False, edge_dim=self.edge_dim)
-        # self.bn4 = BatchNorm1d(self.dim_h)
-        # self.lin4 = Linear(self.dim_h, self.dim_h)
+        self.conv4 = GATv2Conv(self.dim_h, self.dim_h, heads=self.n_heads, concat=False, edge_dim=self.edge_dim)
+        self.bn4 = BatchNorm1d(self.dim_h)
+        self.lin4 = Linear(self.dim_h, self.dim_h)
 
         self.conv5 = GATv2Conv(self.dim_h, self.dim_h_last, heads=n_heads_out, concat=False, edge_dim=self.edge_dim)
         self.bn5 = BatchNorm1d(self.dim_h_last)
@@ -61,43 +61,43 @@ class GAT(torch.nn.Module):
         self.fc1 = torch.nn.Linear(self.readout_dim, 1024)
         self.fc2 = torch.nn.Linear(1024, self.num_classes)
 
-    def forward(self, x, edge_index, batch, **kwargs):
+    def forward(self, x, edge_index, batch, return_attention_weights=True, **kwargs):
 
         # Layer 1 + skip
-        h1 = self.conv1(x, edge_index)
+        h1, attn_h1 = self.conv1(x, edge_index, return_attention_weights=True)
         h1 = self.bn1(h1)
         h1 = F.elu(h1)
         h1 = F.dropout(h1, p=self.dropout, training=self.training)
         h1 = h1 + self.lin1(x)  # skip connection (adattamento dimensione)
 
         # Layer 2 + skip
-        h2 = self.conv2(h1, edge_index)
+        h2, attn_h2 = self.conv2(h1, edge_index, return_attention_weights=True)
         h2 = self.bn2(h2)
         h2 = F.elu(h2)
         h2 = F.dropout(h2, p=self.dropout, training=self.training)
         h2 = h2 + self.lin2(h1)
 
         #Layer 3 + skip
-        h3 = self.conv3(h2, edge_index)
+        h3, attn_h3 = self.conv3(h2, edge_index, return_attention_weights=True)
         h3 = self.bn3(h3)
         h3 = F.elu(h3)
         h3 = F.dropout(h3, p=self.dropout, training=self.training)
         h3 = h3 + self.lin3(h2)
 
-        #Layer 4 + skip
-        # h4 = self.conv3(h3, edge_index)
-        # h4 = self.bn3(h4)
-        # h4 = F.elu(h4)
-        # h4 = F.dropout(h4, p=self.dropout, training=self.training)
-        # h4 = h4 + self.lin3(h3)
+        # Layer 4 + skip
+        h4, attn_h4 = self.conv3(h3, edge_index, return_attention_weights=True)
+        h4 = self.bn3(h4)
+        h4 = F.elu(h4)
+        h4 = F.dropout(h4, p=self.dropout, training=self.training)
+        h4 = h4 + self.lin3(h3)
 
 
         # Layer  + skip
-        h5 = self.conv5(h3, edge_index)
+        h5, attn_h5 = self.conv5(h2, edge_index, return_attention_weights=True)
         h5 = self.bn5(h5)
         h5 = F.elu(h5)
         h5 = F.dropout(h5, p=self.dropout, training=self.training)
-        h5 = h5 + self.lin5(h3)
+        h5 = h5 + self.lin5(h2)
 
         # Pooling
         h = global_mean_pool(h5, batch)

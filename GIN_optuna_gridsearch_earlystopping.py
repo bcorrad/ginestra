@@ -101,6 +101,7 @@ def objective(trial, train_loader, val_loader, test_loader, num_node_features, n
             num_classes=num_classes,
             drop_rate=grid_config['drop_rate'],
             fingerprint=USE_FINGERPRINT,
+            num_layers=4,
         ).to(device)
         # Reset the model weights
         for layer in model.children():
