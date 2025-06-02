@@ -13,7 +13,7 @@ class GCN(torch.nn.Module):
         self.dim_h = dim_h
         self.dim_h_last = dim_h_last
         self.num_layers = num_layers
-        self.readout_dim =  0    # 6144 if kwargs.get("fingerprint") is True else 0
+        self.readout_dim =  6144 if kwargs.get("fingerprint") is True else 0
         self.dropout = kwargs.get("drop_rate", ValueError("Dropout rate not specified in kwargs"))
 
         self.convs = ModuleList()
@@ -53,8 +53,8 @@ class GCN(torch.nn.Module):
             x = F.relu(x)
             xs.append(global_mean_pool(x, batch))
 
-        #x = torch.cat(xs + [kwargs["fingerprint"]], dim=1) if "fingerprint" in kwargs and kwargs["fingerprint"] is not None else torch.cat(xs, dim=1)
-        x = torch.cat(xs, dim=1)
+        x = torch.cat(xs + [kwargs["fingerprint"]], dim=1) if "fingerprint" in kwargs and kwargs["fingerprint"] is not None else torch.cat(xs, dim=1)
+        #x = torch.cat(xs, dim=1)
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.classifier(x)
         return x

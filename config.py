@@ -12,7 +12,7 @@ elif 'giulio' in os.getcwd():
     USERNAME = "Alessia"
     
 WANDB_ENTITY_NAME = "ginestra"
-WANDB_PROJECT_NAME = f"GINESTRA_nuovo"
+WANDB_PROJECT_NAME = f"GINESTRA_Ablation_MF"
 
 # Remove __pycache__ folder if it exists
 if os.path.exists(os.path.join(os.path.dirname(__file__), "__pycache__")):
@@ -51,10 +51,10 @@ N_RUNS = 5  # Number of runs for the model
 # "pathway" = 7 classes
 # "superclass" = 70 classes
 # "class" = 652 classes
-TARGET_TYPE = "pathway"  # Options: "pathway", "superclass", "class"
+TARGET_TYPE = "class"  # Options: "pathway", "superclass", "class"
 
 ## DATASET PARAMETERS
-FORCE_DATASET_GENERATION = True # If True, force the generation of the dataset
+FORCE_DATASET_GENERATION = False # If True, force the generation of the dataset
 N_SAMPLES = None  # Number of samples to pick from the training set. If set to None, all samples are used
 BATCH_SIZE = 32  # Batch size
 RANDOMIZE_SAMPLES = True # Randomize the order of the samples in the dataset
@@ -66,7 +66,7 @@ VALIDATION_SPLIT = 0.2  # Percentage of samples to use for validation
 CLS_LIST = None         # If None, all targets values are used (see TARGET_TYPE) otherwise CLS_LIST = [3, 6, PATHWAYS["Carbohydrates"], PATHWAYS["Amino acids and Peptides"]]   # Class labels of the dataset to be kept in training, validation and test sets
 
 ## DATASET ENCODING
-USE_FINGERPRINT = False
+USE_FINGERPRINT = True
 
 ## ATOM FEATURES (Atom symbols always present in "label" format)
 USE_CHIRALITY = False               # (4 bits) A

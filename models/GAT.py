@@ -19,6 +19,12 @@ class GAT(torch.nn.Module):
         self.dim_h_last = dim_h_last
         self.edge_dim = edge_dim
         self.n_heads = n_heads_in
+        if kwargs.get("fingerprint") is True:
+            self.fingerprint_dim = kwargs.get("fingerprint_dim", 6144)  # fallback a 6144 se non specificato
+            self.readout_dim = self.dim_h_last + self.fingerprint_dim
+        else:
+            self.readout_dim = self.dim_h_last
+
         
         
         self.conv1 = GATv2Conv(self.num_node_features, self.dim_h, heads=self.n_heads, concat=True, edge_dim=self.edge_dim)  # GATv2Conv expects input shape (batch_size, num_node_features) ; Output (batch_size, dim_h * heads)
@@ -56,7 +62,7 @@ class GAT(torch.nn.Module):
         # self.readout_dim = self.dim_h_last * 2  
 
         
-        self.readout_dim = self.dim_h_last
+        self.readout_dim = self.readout_dim
 
         self.fc1 = torch.nn.Linear(self.readout_dim, 1024)
         self.fc2 = torch.nn.Linear(1024, self.num_classes)
@@ -86,40 +92,33 @@ class GAT(torch.nn.Module):
 
         # Layer 4 + skip
         h4, attn_h4 = self.conv3(h3, edge_index, return_attention_weights=True)
-        h4 = self.bn3(h4)
+        h4 = self.bn4(h4)
         h4 = F.elu(h4)
         h4 = F.dropout(h4, p=self.dropout, training=self.training)
-        h4 = h4 + self.lin3(h3)
+        h4 = h4 + self.lin4(h3)
 
 
         # Layer  + skip
-        h5, attn_h5 = self.conv5(h2, edge_index, return_attention_weights=True)
+        h5, attn_h5 = self.conv5(h4, edge_index, return_attention_weights=True)
         h5 = self.bn5(h5)
         h5 = F.elu(h5)
         h5 = F.dropout(h5, p=self.dropout, training=self.training)
-        h5 = h5 + self.lin5(h2)
+        h5 = h5 + self.lin5(h4)
 
         # Pooling
         h = global_mean_pool(h5, batch)
+
+        # concat fingerprint
+        if "fingerprint" in kwargs and kwargs["fingerprint"] is not None:
+            fingerprint = kwargs["fingerprint"]
+            h = torch.cat([h, fingerprint], dim=1)
+
 
         # Classificatore
         h = self.fc1(h)
         h = F.relu(h)
         h = F.dropout(h, p=self.dropout, training=self.training)
         h = self.fc2(h)
-
-        # Global pooling
-        # h1_pool = global_add_pool(h1, batch)
-        # h2_pool = global_add_pool(h2, batch)
-        # h4_pool = global_add_pool(h4, batch)
-        # h5_pool = global_add_pool(h5, batch)
-
-        # h = torch.cat([h1_pool, h2_pool, h4_pool, h5_pool], dim=1)
-
-
-        # Global Max Pooling SOLO sul layer finale
-        #h = global_mean_pool(h5, batch)
-
 
         return h   
     

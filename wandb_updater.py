@@ -4,12 +4,22 @@ import statistics
 
 from collections import defaultdict
 from config import WANDB_ENTITY_NAME, WANDB_PROJECT_NAME
+import os
 
 ENTITY = WANDB_ENTITY_NAME
-PROJECT = WANDB_PROJECT_NAME
+PROJECT = WANDB_PROJECT_NAME 
 METRIC_NAME_LIST = ["test_precision", "test_recall", "test_f1", "test_loss"]
 
-api = wandb.Api(api_key="f904ed1462c53edef7fef2f82b6c04e99ea34339")
+# Check in 'corradini' is in the path
+if 'corradini' in os.getcwd():
+    USERNAME = "Barbara"
+    API = "f904ed1462c53edef7fef2f82b6c04e99ea34339"
+    wandb.login(key=API)
+elif 'giulio' in os.getcwd():
+    API = "03c8065e56dc0abe77944c0bcfbc88b313878717"
+    wandb.login(key=API)
+    USERNAME = "Alessia"
+api = wandb.Api(api_key=API)
 
 runs = api.runs(f"{ENTITY}/{PROJECT}")
 
@@ -44,7 +54,7 @@ for METRIC_NAME in METRIC_NAME_LIST:
             maximums[exp_id] = np.max(metrics[exp_id])
             minimums[exp_id] = np.min(metrics[exp_id])
             # std_devs[exp_id] = np.std(metrics[exp_id], ddof=1)  # ddof=1 for sample standard deviation
-            std_devs[exp_id] = statistics.stdev(metrics[exp_id])  # Using statistics.stdev for sample standard deviation
+            std_devs[exp_id] = statistics.stdev(metrics[exp_id]) if len(metrics[exp_id]) >= 2 else 0  # Using statistics.stdev for sample standard deviation
             average = np.mean(metrics[exp_id])
         except ValueError:
             print(f"Experiment {exp_id} has no valid metrics. Skipping...")
