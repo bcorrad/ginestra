@@ -24,9 +24,6 @@ class GAT(torch.nn.Module):
             self.readout_dim = self.dim_h_last + self.fingerprint_dim
         else:
             self.readout_dim = self.dim_h_last
-
-        
-        
         self.conv1 = GATv2Conv(self.num_node_features, self.dim_h, heads=self.n_heads, concat=True, edge_dim=self.edge_dim)  # GATv2Conv expects input shape (batch_size, num_node_features) ; Output (batch_size, dim_h * heads)
         self.bn1 = BatchNorm1d(dim_h*n_heads_in)
         self.lin1 = Linear(num_node_features, dim_h * n_heads_in)

@@ -26,7 +26,7 @@ class GCN(torch.nn.Module):
             self.convs.append(GCNConv(in_dim, out_dim, cached=False))
             self.bns.append(BatchNorm1d(out_dim))
 
-        self.readout_dim += dim_h * (num_layers - 1) + dim_h_last
+        self.readout_dim += dim_h_last
 
         # Classifier
         if classifier_hidden_dims is None:
